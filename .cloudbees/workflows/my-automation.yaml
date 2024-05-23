@@ -8,7 +8,13 @@ on:
       - '**'
 
 jobs:
-  ci-job:
+  Checkout:
+    steps:
+      - name: checkout
+        uses: cloudbees-io/checkout@v1
+
+  Build:
+    needs: Checkout
     steps:
       - uses: docker://alpine/git:latest
         run: |
@@ -22,8 +28,8 @@ jobs:
         run: |
           mvn clean install -DskipTests=true
 
-  scan:
-    needs: ci-job
+  SonarAnalysis:
+    needs: Build
     steps:
       
 
