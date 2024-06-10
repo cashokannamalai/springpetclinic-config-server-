@@ -89,7 +89,7 @@ jobs:
           ls -lR /cloudbees/workspace
 
   DeployEc2:
-    needs: checkout
+    needs: NexusPublish
     steps:
       - uses: docker://alpine/git:latest
         run: |
