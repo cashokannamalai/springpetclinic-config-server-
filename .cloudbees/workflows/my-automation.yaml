@@ -31,8 +31,6 @@ jobs:
   SonarAnalysis:
     needs: Build
     steps:
-      
-
       - uses: cloudbees-io/sonarqube-sast-scan-code@v1
         name: Scan
         kind: scan
