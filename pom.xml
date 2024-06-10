@@ -12,7 +12,7 @@
         <java.version>17</java.version>
         <docker.image.exposed.port>8888</docker.image.exposed.port>
         <docker.image.dockerfile.dir>${basedir}/../docker</docker.image.dockerfile.dir>
-        <spring-cloud.version>2020.0.3</spring-cloud.version>
+        <spring-cloud.version>2022.0.3</spring-cloud.version>
     </properties>
 
 	<dependencies>
