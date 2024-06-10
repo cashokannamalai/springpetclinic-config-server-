@@ -119,6 +119,6 @@ jobs:
           chmod 600 /cloudbees/workspace/ssh-key.pem
           ls -l /cloudbees/workspace/target
           
-          scp -o StrictHostKeyChecking=no -i /cloudbees/workspace/ssh-key.pem /cloudbees/workspace/target/spring-petclinic-config-server-3.2.4.jar ubuntu@54.145.119.113:/home/ubuntu/petclinic
+          scp -o StrictHostKeyChecking=no -i /cloudbees/workspace/ssh-key.pem /cloudbees/workspace/target/spring-petclinic-config-server-3.2.4.jar ubuntu@35.174.136.64:/home/ubuntu/petclinic
 
                   
