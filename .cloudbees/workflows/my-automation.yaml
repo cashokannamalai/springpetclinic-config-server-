@@ -97,10 +97,7 @@ jobs:
           ls
       - name: checkout
         uses: cloudbees-io/checkout@v1
-      - name: Build
-        uses: docker://maven:3-eclipse-temurin-17
-        run: |
-          mvn clean install
+          
 
           
       - name: List built files
