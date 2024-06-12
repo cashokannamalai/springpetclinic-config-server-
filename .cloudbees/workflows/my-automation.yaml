@@ -114,7 +114,7 @@ jobs:
           apk update
           apk add openssh-client
           echo "$EC2_SSH_KEY" > /cloudbees/workspace/ssh-key.pem
-          chmod 777 /cloudbees/workspace/ssh-key.pem
+          chmod 600 /cloudbees/workspace/ssh-key.pem
           ls -l /cloudbees/workspace/target
           
         
