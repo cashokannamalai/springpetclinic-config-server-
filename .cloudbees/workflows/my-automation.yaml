@@ -76,8 +76,8 @@ jobs:
       - name: Publish to Nexus
         uses: docker://maven:3-eclipse-temurin-17
         env:
-          NEXUS_USERNAME: admin
-          NEXUS_PASSWORD: QPn^Y9QY%Q$gX^s$n%6$J
+          NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
+          NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
 
         run: |
           mvn clean install -DskipTests=true \
