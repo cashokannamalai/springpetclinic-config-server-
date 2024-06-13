@@ -78,7 +78,7 @@ jobs:
           NEXUS_PASSWORD: QPn^Y9QY%Q$gX^s$n%6$J
 
         run: |
-          mvn deploy -DskipTests \
+          mvn -X deploy -DskipTests \
             -DaltDeploymentRepository=nexus::default::https://${NEXUS_USERNAME}:${NEXUS_PASSWORD}@nexus.preview.cb-demos.io/repository/config-server/
 
       - name: List directory contents after Publish
