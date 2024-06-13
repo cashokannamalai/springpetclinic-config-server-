@@ -71,6 +71,8 @@ jobs:
       - name: checkout
         uses: cloudbees-io/checkout@v1
 
+      
+
       - name: Publish to Nexus
         uses: docker://maven:3-eclipse-temurin-17
         env:
@@ -78,7 +80,7 @@ jobs:
           NEXUS_PASSWORD: QPn^Y9QY%Q$gX^s$n%6$J
 
         run: |
-          mvn -e deploy -DskipTests \
+          mvn clean install -DskipTests=true \
             -DaltDeploymentRepository=nexus::default::https://${NEXUS_USERNAME}:${NEXUS_PASSWORD}@nexus.preview.cb-demos.io/repository/config-server/
 
       - name: List directory contents after Publish
