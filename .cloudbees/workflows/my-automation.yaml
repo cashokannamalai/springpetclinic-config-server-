@@ -74,8 +74,9 @@ jobs:
       - name: Publish to Nexus
         uses: docker://maven:3-eclipse-temurin-17
         env:
-          NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
-          NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
+          NEXUS_USERNAME: admin
+          NEXUS_PASSWORD: QPn^Y9QY%Q$gX^s$n%6$J
+
         run: |
           mvn deploy -DskipTests \
             -DaltDeploymentRepository=nexus::default::https://${NEXUS_USERNAME}:${NEXUS_PASSWORD}@nexus.preview.cb-demos.io/repository/config-server/
