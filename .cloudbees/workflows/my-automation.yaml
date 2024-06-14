@@ -55,7 +55,7 @@ jobs:
         
           
       - name: Deploy EC2 binary
-        uses: cashokannamalai/petclinic-ec2-deploy-binary@v1  
+        uses: cashokannamalai/petclinic-ec2-deploy-binary
         with:
           source-location: '/cloudbees/workspace/target/spring-petclinic-config-server-3.2.4.jar'
           destination-ec2-location: '/home/ubuntu/mydeploys/'
