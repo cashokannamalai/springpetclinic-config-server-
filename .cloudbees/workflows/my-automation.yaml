@@ -28,69 +28,10 @@ jobs:
         run: |
           mvn clean install -DskipTests=true
 
-  SonarAnalysis:
-    needs: Build
-    steps:
-      - uses: cloudbees-io/sonarqube-sast-scan-code@v1
-        name: Scan
-        kind: scan
-        with:
-          server-url: https://sonarqube.cb-demos.io
-          username: admin
-          password: admin123
-          language: Java
-
-      - uses: cloudbees-io/sonarqube-bundled-sast-scan-code@v2
-        name: Scan 2
-        kind: scan
-        with:
-          language: JAVA
-
-      - uses: cloudbees-io/findsecbugs-sast-scan-code@v1
-        name: Scan with Find Security Bugs
-        kind: scan
-        with:
-          language: LANGUAGE_JAVA
-
-      - uses: sbatchelder-cba/sonarqube-cba@v0.0.3
-        name: Scan GP
-        with:
-          project-key: config-server
-          token: 20e414018be1508e8a472229e7ec07da1a13cfa1
-
-
-  NexusPublish:
-    needs: [SonarAnalysis]
-    steps:
-      - uses: docker://alpine/git:latest
-        run: |
-          git config --global --add safe.directory /cloudbees/workspace
-          echo "Listing directory contents before Build:"
-          ls -lR /cloudbees/workspace
-
-      - name: checkout
-        uses: cloudbees-io/checkout@v1
-
-      
-
-      - name: Publish to Nexus
-        uses: docker://maven:3-eclipse-temurin-17
-        env:
-          NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
-          NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
-
-        run: |
-          mvn clean install -DskipTests=true \
-            -DaltDeploymentRepository=nexus::default::https://${NEXUS_USERNAME}:${NEXUS_PASSWORD}@nexus.preview.cb-demos.io/repository/config-server/
-
-      - name: List directory contents after Publish
-        uses: docker://alpine:latest
-        run: |
-          echo "Current directory: $(pwd)"
-          ls -lR /cloudbees/workspace
+ 
 
   DeployEc2:
-    needs: NexusPublish
+    needs: Build
     steps:
       - uses: docker://alpine/git:latest
         run: |
@@ -109,23 +50,20 @@ jobs:
         run: |
           ls -l /cloudbees/workspace/target
 
-      - name: Deploy to EC2
-        uses: docker://alpine:latest
-        env:
-          EC2_SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
-        run: |
-          apk update
-          apk add openssh-client
-          echo "$EC2_SSH_KEY" > /cloudbees/workspace/ssh-key.pem
-          chmod 600 /cloudbees/workspace/ssh-key.pem
-          ls -l /cloudbees/workspace/target
+      
           
         
           
-          scp -o StrictHostKeyChecking=no -i /cloudbees/workspace/ssh-key.pem /cloudbees/workspace/target/spring-petclinic-config-server-3.2.4.jar ubuntu@54.174.48.42:/home/ubuntu/petclinic
-
-          ssh -o StrictHostKeyChecking=no -i /cloudbees/workspace/ssh-key.pem ubuntu@54.174.48.42 "nohup java -jar /home/ubuntu/petclinic/spring-petclinic-config-server-3.2.4.jar > /home/ubuntu/petclinic/config-server.log 2>&1 &"
-
+      - name: Deploy EC2 binary
+        uses: cashokannamalai/petclinic-ec2-deploy-binary@v1  
+        with:
+          source-location: '/cloudbees/workspace/target/spring-petclinic-config-server-3.2.4.jar'
+          destination-ec2-location: '/home/ubuntu/mydeploys/'
+          aws-ssh-key-data: ${{ secrets.EC2_SSH_KEY }}
+          aws-user: 'ubuntu'
+          aws-host: ${{ secrets.AWS_HOST }}
+          deploy-script: 'script1.sh'
+          jar-file-name: 'spring-petclinic-config-server-3.2.4.jar'
 
            
 
