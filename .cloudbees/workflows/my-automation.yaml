@@ -50,4 +50,6 @@ jobs:
           REMOTE_USER: "ubuntu"
           TARGET: "/home/ubuntu/petclinic"
         run: |
-         scp -o StrictHostKeyChecking=no -i "$SSH_PRIVATE_KEY" /cloudbees/workspace/target/spring-petclinic-config-server-3.2.4.jar ubuntu@3.92.191.183:/home/ubuntu/petclinic
+          apk update
+          apk add openssh-client
+          scp -o StrictHostKeyChecking=no -i "$SSH_PRIVATE_KEY" /cloudbees/workspace/target/spring-petclinic-config-server-3.2.4.jar ubuntu@3.92.191.183:/home/ubuntu/petclinic
