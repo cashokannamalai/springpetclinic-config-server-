@@ -40,7 +40,17 @@ jobs:
         run: |+
           ls -l /cloudbees/workspace/target
 
-      
-      - uses: aws
-        name: EC2 Deploy
+
+
+ 
+      - uses: cashokannamalai/petclinic-ec2-deploy-binary@v1
+        name: deploy
         kind: deploy
+    with:
+          source-location: /cloudbees/workspace/target/spring-petclinic-config-server-3.2.4.jar
+          destination-ec2-location: /home/ubuntu/petclinic1
+          aws-ssh-key-data: ${{ secrets.EC2_SSH_KEY }}
+          aws-user: ubuntu
+          aws-host: 3.92.191.183
+          
+          deploy-script: script1.sh
