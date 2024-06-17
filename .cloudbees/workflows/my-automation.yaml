@@ -41,8 +41,8 @@ jobs:
         run: |+
           ls -l /cloudbees/workspace/target
       
-      - name: Deploy to my EC2 instance
-        uses: easingthemes/ssh-deploy@v2.1.5
+      - name: Deploy to EC2
+        uses: docker://alpine:latest
         env:
           SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
           SOURCE: "/cloudbees/workspace/target/spring-petclinic-config-server-3.2.4.jar"
