@@ -51,3 +51,5 @@ jobs:
           TARGET: /home/ubuntu/petclinic1
         run: |
           ls -l /cloudbees/workspace/target
+          scp -i "$SSH_PRIVATE_KEY" "$SOURCE" "$REMOTE_USER"@"$REMOTE_HOST":"$TARGET"
+
