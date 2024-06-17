@@ -56,3 +56,4 @@ jobs:
           chmod 600 /cloudbees/workspace/ssh-key.pem
           scp -o StrictHostKeyChecking=no -i /cloudbees/workspace/ssh-key.pem "$SOURCE" "$REMOTE_USER"@"$REMOTE_HOST":"$TARGET"
           rm -rf /cloudbees/workspace/ssh-key.pem
+          ls -l /cloudbees/workspace/
