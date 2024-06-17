@@ -46,10 +46,10 @@ jobs:
         env:
           SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
           SOURCE: "/cloudbees/workspace/target/spring-petclinic-config-server-3.2.4.jar"
-          REMOTE_HOST: "3.92.191.183"
+          REMOTE_HOST: "ec2-3-92-191-183.compute-1.amazonaws.com"
           REMOTE_USER: "ubuntu"
           TARGET: "/home/ubuntu/petclinic"
         run: |
           apk update
           apk add openssh-client
-          scp -o StrictHostKeyChecking=no -i "$SSH_PRIVATE_KEY" /cloudbees/workspace/target/spring-petclinic-config-server-3.2.4.jar ubuntu@3.92.191.183:/home/ubuntu/petclinic
+          scp -o StrictHostKeyChecking=no -i "$SSH_PRIVATE_KEY" "$SOURCE" "$REMOTE_USER"@"$REMOTE_HOST":"$TARGET"
