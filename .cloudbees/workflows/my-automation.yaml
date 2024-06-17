@@ -1,35 +1,27 @@
 apiVersion: automation.cloudbees.io/v1alpha1
 kind: workflow
 name: My automation
-
 on:
   push:
     branches:
-      - '**'
-
+      - "**"
 jobs:
   Checkout:
     steps:
       - name: checkout
         uses: cloudbees-io/checkout@v1
-
   Build:
     needs: Checkout
     steps:
       - uses: docker://alpine/git:latest
         run: |
           git config --global --add safe.directory /cloudbees/workspace
-
       - name: checkout
         uses: cloudbees-io/checkout@v1
-
-      - name: Build 
+      - name: Build
         uses: docker://maven:3-eclipse-temurin-17
         run: |
           mvn clean install -DskipTests=true
-
- 
-
   DeployEc2:
     needs: Build
     steps:
@@ -39,32 +31,16 @@ jobs:
           ls
       - name: checkout
         uses: cloudbees-io/checkout@v1
-
       - name: Build
         uses: docker://maven:3-eclipse-temurin-17
         run: |
           mvn clean install -DskipTests=true  
-
       - name: List built files
         uses: docker://alpine:latest
-        run: |
+        run: |+
           ls -l /cloudbees/workspace/target
 
       
-          
-        
-          
-      - name: Deploy EC2 binary
-        uses: https://github.com/cashokannamalai/petclinic-ec2-deploy-binary@v1
-        with:
-          source-location: '/cloudbees/workspace/target/spring-petclinic-config-server-3.2.4.jar'
-          destination-ec2-location: '/home/ubuntu/mydeploys/'
-          aws-ssh-key-data: ${{ secrets.EC2_SSH_KEY }}
-          aws-user: 'ubuntu'
-          aws-host: ${{ secrets.AWS_HOST }}
-          deploy-script: 'script1.sh'
-          jar-file-name: 'spring-petclinic-config-server-3.2.4.jar'
-
-           
-
- 
+      - uses: aws
+        name: EC2 Deploy
+        kind: deploy
