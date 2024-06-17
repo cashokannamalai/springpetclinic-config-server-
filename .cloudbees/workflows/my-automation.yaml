@@ -41,12 +41,11 @@ jobs:
         run: |+
           ls -l /cloudbees/workspace/target
       
-      - name: deploy1
-        uses: cashokannamalai/petclinic-ec2-deploy-binary@v1
-        with:
-          source-location: /cloudbees/workspace/target/spring-petclinic-config-server-3.2.4.jar
-          destination-ec2-location: /home/ubuntu/petclinic1
-          aws-ssh-key-data: ${{ secrets.EC2_SSH_KEY }}
-          aws-user: ubuntu
-          aws-host: 3.92.191.183
-          deploy-script: script1.sh
+      - name: Deploy to my EC2 instance
+        uses: easingthemes/ssh-deploy@v2.1.5
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
+          SOURCE: "/cloudbees/workspace/target/spring-petclinic-config-server-3.2.4.jar"
+          REMOTE_HOST: "ec2-3-92-191-183.compute-1.amazonaws.com"
+          REMOTE_USER: "ubuntu"
+          TARGET: "/home/ubuntu/petclinic1"
