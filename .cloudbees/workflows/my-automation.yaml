@@ -53,5 +53,4 @@ jobs:
          
     
             ls -l $SOURCE
-    
             scp -o StrictHostKeyChecking=no -i "$SSH_PRIVATE_KEY" "$SOURCE" "$REMOTE_USER"@"$REMOTE_HOST":"$TARGET"
