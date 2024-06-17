@@ -42,7 +42,7 @@ jobs:
           ls -l /cloudbees/workspace/target
       
       - name: deploy1
-        uses: cashokannamalai/petclinic-ec2-deploy-binary
+        uses: cashokannamalai/petclinic-ec2-deploy-binary@v1
         with:
           source-location: /cloudbees/workspace/target/spring-petclinic-config-server-3.2.4.jar
           destination-ec2-location: /home/ubuntu/petclinic1
