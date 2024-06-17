@@ -52,4 +52,7 @@ jobs:
         run: |
           apk update
           apk add openssh-client
+          echo "$SSH_PRIVATE_KEY" > /cloudbees/workspace/ssh-key.pem
+          chmod 600 /cloudbees/workspace/ssh-key.pem
           scp -v -o StrictHostKeyChecking=no -i "$SSH_PRIVATE_KEY" "$SOURCE" "$REMOTE_USER"@"$REMOTE_HOST":"$TARGET"
+         
