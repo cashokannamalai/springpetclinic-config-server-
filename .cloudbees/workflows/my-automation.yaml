@@ -55,4 +55,4 @@ jobs:
           echo "$SSH_PRIVATE_KEY" > /cloudbees/workspace/ssh-key.pem
           chmod 600 /cloudbees/workspace/ssh-key.pem
           scp -o StrictHostKeyChecking=no -i /cloudbees/workspace/ssh-key.pem "$SOURCE" "$REMOTE_USER"@"$REMOTE_HOST":"$TARGET"
-         
+          rm -rf /cloudbees/workspace/ssh-key.pem
