@@ -52,4 +52,4 @@ jobs:
         run: |
           apk update
           apk add openssh-client
-          scp -o StrictHostKeyChecking=no -i "$SSH_PRIVATE_KEY" "$SOURCE" "$REMOTE_USER"@"$REMOTE_HOST":"$TARGET"
+          scp -o StrictHostKeyChecking=no -i "$SSH_PRIVATE_KEY" "$SOURCE" "$REMOTE_USER"@"$REMOTE_HOST":"$TARGET" -v
