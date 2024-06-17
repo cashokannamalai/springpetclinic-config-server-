@@ -46,7 +46,7 @@ jobs:
         env:
           SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
           SOURCE: "/cloudbees/workspace/target/spring-petclinic-config-server-3.2.4.jar"
-          REMOTE_HOST: "ec2-44-204-64-78.compute-1.amazonaws.com"
+          REMOTE_HOST: "44.204.64.78"
           REMOTE_USER: "ubuntu"
           TARGET: "/home/ubuntu/petclinic"
         run: |
@@ -55,7 +55,7 @@ jobs:
           echo "$SSH_PRIVATE_KEY" > /cloudbees/workspace/ssh-key.pem
           chmod 600 /cloudbees/workspace/ssh-key.pem
           scp -o StrictHostKeyChecking=no -i /cloudbees/workspace/ssh-key.pem "$SOURCE" "$REMOTE_USER"@"$REMOTE_HOST":"$TARGET"
-          ssh -o StrictHostKeyChecking=no -i /cloudbees/workspace/ssh-key.pem "$REMOTE_USER"@"$REMOTE_HOST" "nohup java -jar "$SOURCE" > /home/ubuntu/petclinic/config-server.log 2>&1 &"
+          ssh -o StrictHostKeyChecking=no -i /cloudbees/workspace/ssh-key.pem "$REMOTE_USER"@"$REMOTE_HOST" "nohup java -jar /home/ubuntu/petclinic/spring-petclinic-config-server-3.2.4.jar > /home/ubuntu/petclinic/config-server.log 2>&1 &"
           ls -l /cloudbees/workspace/
           rm -rf /cloudbees/workspace/ssh-key.pem
           ls -l /cloudbees/workspace/
