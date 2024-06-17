@@ -43,7 +43,6 @@ jobs:
       
       - name: Deploy to EC2
         uses: docker://alpine:latest
-        entrypoint: sh
         env:
           SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
           SOURCE: "/cloudbees/workspace/target/spring-petclinic-config-server-3.2.4.jar"
@@ -51,4 +50,4 @@ jobs:
           REMOTE_USER: "ubuntu"
           TARGET: "/home/ubuntu/petclinic1"
         run: |
-            ls -l /cloudbees/workspace/target
+          ls -l /cloudbees/workspace/target
