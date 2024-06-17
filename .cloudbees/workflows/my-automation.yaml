@@ -50,11 +50,8 @@ jobs:
           REMOTE_USER: ubuntu
           TARGET: /home/ubuntu/petclinic1
         run: |
-          # Install openssh-client package
-          apk add --no-cache openssh-client
+         
     
-          # Ensure the JAR file exists in the specified path
             ls -l $SOURCE
     
-          # Copy the JAR file to the remote host
-           scp -i "$SSH_PRIVATE_KEY" "$SOURCE" "$REMOTE_USER"@"$REMOTE_HOST":"$TARGET"
+            scp -o StrictHostKeyChecking=no -i "$SSH_PRIVATE_KEY" "$SOURCE" "$REMOTE_USER"@"$REMOTE_HOST":"$TARGET"
