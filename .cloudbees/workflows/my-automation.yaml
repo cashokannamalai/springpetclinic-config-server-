@@ -32,7 +32,6 @@ jobs:
           aws configure set aws_access_key_id ASIAT43X4R4GOTGVJTGF
           aws configure set aws_secret_access_key sVFpVWOWtOgw3R9XTZ3Olgfpp8Rz0FdhjRSbSvj+
           aws configure set default.region us-east-1
-      - name: Deploy
-        uses: docker://amazon/aws-cli:latest
-        run: |
+      
+       
           aws ec2 run-instances --image-id ami-04b70fa74e45c3917 --count 1 --instance-type t2.micro --key-name "MyKeyPair"  --region us-east-1
