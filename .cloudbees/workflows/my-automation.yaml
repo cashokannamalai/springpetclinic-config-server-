@@ -33,4 +33,7 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: us-east-1
         run: |
+          echo "AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}"
+          echo "AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}"
+          aws sts get-caller-identity
           aws ec2 run-instances --image-id ami-04b70fa74e45c3917 --count 1 --instance-type t2.micro --key-name ashokpet --security-group-ids sg-04fff0e3d0e74d5cc --subnet-id subnet-c6ff72ea
