@@ -29,10 +29,10 @@ jobs:
       - name: Configure AWS CLI
         uses: docker://amazon/aws-cli:latest
         run: |
-          aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws configure set aws_access_key_id ASIAT43X4R4GOTGVJTGF
+          aws configure set aws_secret_access_key sVFpVWOWtOgw3R9XTZ3Olgfpp8Rz0FdhjRSbSvj+
           aws configure set default.region us-east-1
       - name: Deploy
         uses: docker://amazon/aws-cli:latest
         run: |
-          aws ec2 run-instances --image-id ami-04b70fa74e45c3917 --count 1 --instance-type t2.micro --key-name MyKeyPair --security-group-ids sg-0619d58b2e0168607 --region us-east-1
+          aws ec2 run-instances --image-id ami-04b70fa74e45c3917 --count 1 --instance-type t2.micro --key-name "MyKeyPair"  --region us-east-1
