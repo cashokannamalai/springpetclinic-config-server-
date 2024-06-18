@@ -29,4 +29,4 @@ jobs:
       - name: Deploy
         uses: docker://amazon/aws-cli:latest
         run: |
-          aws ec2 run-instances --image-id ami-04b70fa74e45c3917 --count 1 --instance-type t2.micro --key-name MyKeyPair --security-group-ids sg-0619d58b2e0168607
+          aws ec2 run-instances --image-id ami-04b70fa74e45c3917 --count 1 --instance-type t2.micro --key-name MyKeyPair --security-group-ids sg-0619d58b2e0168607 --region us-east-1
