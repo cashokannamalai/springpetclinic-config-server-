@@ -38,7 +38,9 @@ jobs:
             --image-id ami-04b70fa74e45c3917 \
             --instance-type t2.micro \
             --key-name my-key-pair \
-            --region us-east-1 \
+            --security-group-ids sg-020317ef9e648c864 \
+            --subnet-id subnet-047b35859095c037f \
+            
             --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=MyInstance}]'
 
              
