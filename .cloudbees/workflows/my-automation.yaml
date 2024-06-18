@@ -26,12 +26,11 @@ jobs:
   Deploy:
     needs: Build
     steps:
-      - name: Configure AWS CLI
-        uses: docker://amazon/aws-cli:latest
-        run: |
-          aws configure set aws_access_key_id = ASIAT43X4R4GB6B5HE4P
-          aws configure set aws_secret_access_key = aoqvxq053JW161eYgJYg7W9vqu6giGPleJXLVUx9
-          aws configure set default.region us-east-1
-      
-       
-          aws ec2 run-instances --image-id ami-04b70fa74e45c3917 --count 1 --instance-type t2.micro --key-name "MyKeyPair"  --region us-east-1
+    - name: Configure AWS CLI
+      uses: docker://amazon/aws-cli:latest
+      run: |
+        aws configure set aws_access_key_id ASIAT43X4R4GB6B5HE4P
+        aws configure set aws_secret_access_key aoqvxq053JW161eYgJYg7W9vqu6giGPleJXLVUx9
+        aws configure set default.region us-east-1
+
+        aws ec2 run-instances --image-id ami-04b70fa74e45c3917 --count 1 --instance-type t2.micro --key-name "MyKeyPair"  --region us-east-1
