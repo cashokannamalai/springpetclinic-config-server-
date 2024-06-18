@@ -31,12 +31,18 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
-
-  
+      
+      - name: Install AWS CLI
+        uses: docker://amazon/aws-cli:latest
         run: |
-           aws ec2 create-key-pair --key-name sasample1 --region us-east-1 --query 'KeyMaterial' --output text > sasample1.pem
-           chmod 400 sasample1.pem
-           aws ec2 run-instances --image-id ami-04b70fa74e45c3917 --instance-type t2.micro --key-name "sasample1" --region us-east-1
+          sudo apt-get update
+          sudo apt-get install -y awscli
 
+      - name: Create and use EC2 key pair
+        uses: docker://amazon/aws-cli:latest
+        run: |
+          aws ec2 create-key-pair --key-name sasample1 --region us-east-1 --query 'KeyMaterial' --output text > sasample1.pem
+          chmod 400 sasample1.pem
+          aws ec2 run-instances --image-id ami-04b70fa74e45c3917 --instance-type t2.micro --key-name "sasample1" --region us-east-1
 
              
