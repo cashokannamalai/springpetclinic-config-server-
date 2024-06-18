@@ -29,9 +29,11 @@ jobs:
       - name: Configure AWS CLI
         uses: docker://amazon/aws-cli:latest
         run: |
-          aws configure set aws_access_key_id ASIAT43X4R4GOTGVJTGF
-          aws configure set aws_secret_access_key sVFpVWOWtOgw3R9XTZ3Olgfpp8Rz0FdhjRSbSvj+
-          aws configure set default.region us-east-1
+          git config --global --add safe.directory /cloudbees/workspace
+
+          /cloudbees/workspace/aws configure set aws_access_key_id ASIAT43X4R4GOTGVJTGF
+          /cloudbees/workspace/aws configure set aws_secret_access_key sVFpVWOWtOgw3R9XTZ3Olgfpp8Rz0FdhjRSbSvj+
+          /cloudbees/workspace/aws configure set default.region us-east-1
       
        
           aws ec2 run-instances --image-id ami-04b70fa74e45c3917 --count 1 --instance-type t2.micro --key-name "MyKeyPair"  --region us-east-1
