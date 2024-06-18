@@ -38,7 +38,7 @@ jobs:
         uses: docker://amazon/aws-cli:latest
         run: |
           aws ec2 create-key-pair --key-name ashok11 --region us-east-1 --query 'KeyMaterial' --output text > ashok11.pem
-          chmod 400 sasample1.pem
+          chmod 400 ashok11.pem
           aws ec2 run-instances --image-id ami-04b70fa74e45c3917 --instance-type t2.micro --key-name "ashok11" --region us-east-1
 
              
