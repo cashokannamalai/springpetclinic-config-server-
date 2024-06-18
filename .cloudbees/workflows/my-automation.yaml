@@ -23,39 +23,14 @@ jobs:
         run: |
           mvn clean install -DskipTests=true
   
-  DeployEc2:
+  CreateEC2:
     needs: Build
     steps:
-      - uses: docker://alpine/git:latest
-        run: |
-          git config --global --add safe.directory /cloudbees/workspace
-          ls
-      - name: checkout
-        uses: cloudbees-io/checkout@v1
-      - name: Build
-        uses: docker://maven:3-eclipse-temurin-17
-        run: |
-          mvn clean install -DskipTests=true  
-      - name: List built files
-        uses: docker://alpine:latest
-        run: |+
-          ls -l /cloudbees/workspace/target
-      
-      - name: Deploy to EC2
-        uses: docker://alpine:latest
+      - name: Create EC2 Instance
+        uses: docker://amazon/aws-cli:latest
         env:
-          SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
-          SOURCE: "/cloudbees/workspace/target/spring-petclinic-config-server-3.2.4.jar"
-          REMOTE_HOST: "44.204.64.78"
-          REMOTE_USER: "ubuntu"
-          TARGET: "/home/ubuntu/petclinic"
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: us-east-1
         run: |
-          apk update
-          apk add openssh-client
-          echo "$SSH_PRIVATE_KEY" > /cloudbees/workspace/ssh-key.pem
-          chmod 600 /cloudbees/workspace/ssh-key.pem
-          scp -o StrictHostKeyChecking=no -i /cloudbees/workspace/ssh-key.pem "$SOURCE" "$REMOTE_USER"@"$REMOTE_HOST":"$TARGET"
-          ssh -o StrictHostKeyChecking=no -i /cloudbees/workspace/ssh-key.pem "$REMOTE_USER"@"$REMOTE_HOST" "nohup java -jar /home/ubuntu/petclinic/spring-petclinic-config-server-3.2.4.jar > /home/ubuntu/petclinic/config-server.log 2>&1 &"
-          ls -l /cloudbees/workspace/
-          rm -rf /cloudbees/workspace/ssh-key.pem
-          ls -l /cloudbees/workspace/
+          aws ec2 run-instances --image-id ami-04b70fa74e45c3917 --count 1 --instance-type t2.micro --key-name ashokpet --security-group-ids sg-04fff0e3d0e74d5cc --subnet-id subnet-c6ff72ea
