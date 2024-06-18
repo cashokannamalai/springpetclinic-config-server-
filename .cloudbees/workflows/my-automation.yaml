@@ -30,7 +30,6 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1
            aws_session_token = IQoJb3JpZ2luX2VjEGsaCXVzLWVhc3QtMSJHMEUCIQCyiyEIkglR9MmwqjgrXHnv+lwDwk3b4sFnl8i5I4UobwIgeF3W7iLGaEgquO+0ByuocFHV7x2pi/J6niGeQVT6HSEqkgMIFBAEGgwyNjgxNTAwMTc4MDQiDD13pNGY+iqT5ZytsCrvAjP9rCEmoQirmeI6vo6ahj+lqmNtdQKCfaTowKoXiTHbP+FNla1AjvDWbLq9GYgIIr0j7nnVKp0tQmCykzQ5CVMGWIhiJIcVrVoF2iZEiNFDw55SLyXlRpN7YXPKLLAe380mLtTOSPVNarQeGMwN1sh+1uF3hRTHDH32uFqX0VnU66X8C0xBX8Jnmx0IRnq6xeqS8BQXpBJU3KBGBbjQ6oPlxbx3BbTijGlepFn4BLBfbK2Sj5JnTArJfxcsEWgemKxnTXLmm9DO7pCIdkLWAJ0f6C77r4kBRvxXJSxg5a6XDpQWrbzMwgSAVV2rKVmxyQE4iCPcMKG3thXEiw92LM6hP209VPwlJ4cBxf+gBtwP0MfAtjeGrH9XeSVaWglRo7d9C5E1QLNLvlhGcPKVglnnPZMi9nlfhLYh7jMIYMUhqqqkGjdph6lZry5P/djeu0vxLDS7hFbC3adIk+sdzLF2M6KGAyHlMVyFcIjfiQgwm8bFswY6pgHOPw2pA64P/wYezFzoFTZlA64EN4szKDA87UaMoNt3XEE7uGpm5aIHR6Nc4UKMNHPMH/OvnhfAvJGHM5gMAdNXvClAK1Ws2ptWjIbx5XKPU6dQqsWhDXGaSlnVw/HJNFdl7ngHQ9paAXm9OqNt32N/LMh2FmKR5pmp457Xqcr9uHrSEv0fpk78fitYWD64s3If531cDXdSX6bkTfStsVkdPtpQMicP
 
       
