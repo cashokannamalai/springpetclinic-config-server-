@@ -30,6 +30,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
           aws-region: us-east-1
       
       
@@ -38,8 +39,8 @@ jobs:
         uses: docker://amazon/aws-cli:latest
         run: |
           ls
-          aws ec2 create-key-pair --key-name petclinic --region us-east-1 --query 'KeyMaterial' --output text > petclinic.pem
-          chmod 400 petclinic.pem
-          aws ec2 run-instances --image-id ami-04b70fa74e45c3917 --instance-type t2.micro --key-name "petclinic" --region us-east-1
+          aws ec2 create-key-pair --key-name petclinic1 --region us-east-1 --query 'KeyMaterial' --output text > petclinic1.pem
+          chmod 400 petclinic1.pem
+          aws ec2 run-instances --image-id ami-04b70fa74e45c3917 --instance-type t2.micro --key-name "petclinic1" --region us-east-1
 
              
