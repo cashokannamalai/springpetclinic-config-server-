@@ -72,3 +72,4 @@ jobs:
         run: |
           PUBLIC_DNS=$(cat public_dns.txt)
           ssh -i petclinic11.pem ubuntu@$PUBLIC_DNS "java -jar /home/ubuntu/spring-petclinic-config-server-3.2.4.jar"
+          
