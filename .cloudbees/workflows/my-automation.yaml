@@ -26,12 +26,11 @@ jobs:
       
 
       - name: Configure AWS credentials
-        uses: cloudbees-io/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
-          aws-region: us-east-1
+        
+        run: |
+          aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws configure set region us-east-1
 
       - name: Create and use EC2 key pair
         uses: docker://amazon/aws-cli:latest
@@ -42,15 +41,8 @@ jobs:
           INSTANCE_ID=$(aws ec2 run-instances --image-id ami-04b70fa74e45c3917 --instance-type t2.micro --key-name "petclinic111" --region us-east-1 --query 'Instances[0].InstanceId' --output text)
           echo $INSTANCE_ID > instance_id.txt
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1
-
       - name: Wait for EC2 instance to be running
-        uses: ./.github/actions/wait-for-ec2
+        uses: docker://alpine:latest
         run: |
           INSTANCE_ID=$(cat instance_id.txt)
           aws ec2 wait instance-running --instance-ids $INSTANCE_ID
@@ -58,8 +50,9 @@ jobs:
           echo $PUBLIC_DNS > public_dns.txt
 
       - name: Install scp and ssh
-        uses: docker://alpine/scp:latest
-        run: sudo apt-get install -y openssh-client
+        uses: docker://alpine:latest
+        run: |
+          apk add --no-cache openssh
 
       - name: Transfer JAR file to EC2 instance
         uses: docker://alpine/scp:latest
