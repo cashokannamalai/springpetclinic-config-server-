@@ -37,9 +37,9 @@ jobs:
         uses: docker://amazon/aws-cli:latest
         run: |
           ls
-          aws ec2 create-key-pair --key-name petclinic11 --region us-east-1 --query 'KeyMaterial' --output text > petclinic11.pem
-          chmod 400 petclinic11.pem
-          INSTANCE_ID=$(aws ec2 run-instances --image-id ami-04b70fa74e45c3917 --instance-type t2.micro --key-name "petclinic11" --region us-east-1 --query 'Instances[0].InstanceId' --output text)
+          aws ec2 create-key-pair --key-name petclinic111 --region us-east-1 --query 'KeyMaterial' --output text > petclinic111.pem
+          chmod 400 petclinic111.pem
+          INSTANCE_ID=$(aws ec2 run-instances --image-id ami-04b70fa74e45c3917 --instance-type t2.micro --key-name "petclinic111" --region us-east-1 --query 'Instances[0].InstanceId' --output text)
           echo $INSTANCE_ID > instance_id.txt
 
   Deploy:
@@ -65,11 +65,11 @@ jobs:
         uses: docker://alpine/scp:latest
         run: |
           PUBLIC_DNS=$(cat public_dns.txt)
-          scp -i petclinic11.pem target/spring-petclinic-config-server-3.2.4.jar ubuntu@$PUBLIC_DNS:/home/ec2-user/
+          scp -i petclinic111.pem target/spring-petclinic-config-server-3.2.4.jar ubuntu@$PUBLIC_DNS:/home/ubuntu/
 
       - name: Run JAR file on EC2 instance
         uses: docker://alpine/ssh:latest
         run: |
           PUBLIC_DNS=$(cat public_dns.txt)
-          ssh -i petclinic11.pem ubuntu@$PUBLIC_DNS "java -jar /home/ubuntu/spring-petclinic-config-server-3.2.4.jar"
+          ssh -i petclinic111.pem ubuntu@$PUBLIC_DNS "java -jar /home/ubuntu/spring-petclinic-config-server-3.2.4.jar"
           
