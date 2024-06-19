@@ -32,15 +32,43 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
           aws-region: us-east-1
-      
-      
 
       - name: Create and use EC2 key pair
         uses: docker://amazon/aws-cli:latest
         run: |
           ls
-          aws ec2 create-key-pair --key-name petclinic1 --region us-east-1 --query 'KeyMaterial' --output text > petclinic1.pem
-          chmod 400 petclinic1.pem
-          aws ec2 run-instances --image-id ami-04b70fa74e45c3917 --instance-type t2.micro --key-name "petclinic1" --region us-east-1
+          aws ec2 create-key-pair --key-name petclinic11 --region us-east-1 --query 'KeyMaterial' --output text > petclinic11.pem
+          chmod 400 petclinic11.pem
+          INSTANCE_ID=$(aws ec2 run-instances --image-id ami-04b70fa74e45c3917 --instance-type t2.micro --key-name "petclinic11" --region us-east-1 --query 'Instances[0].InstanceId' --output text)
+          echo $INSTANCE_ID > instance_id.txt
 
-             
+  Deploy:
+    needs: Build
+    steps:
+      - name: Configure AWS credentials
+        uses: cloudbees-io/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: us-east-1
+
+      - name: Wait for EC2 instance to be running
+        uses: docker://amazon/aws-cli:latest
+        run: |
+          INSTANCE_ID=$(cat instance_id.txt)
+          aws ec2 wait instance-running --instance-ids $INSTANCE_ID
+          PUBLIC_DNS=$(aws ec2 describe-instances --instance-ids $INSTANCE_ID --query 'Reservations[0].Instances[0].PublicDnsName' --output text)
+          echo $PUBLIC_DNS > public_dns.txt
+
+      - name: Transfer JAR file to EC2 instance
+        uses: docker://alpine/scp:latest
+        run: |
+          PUBLIC_DNS=$(cat public_dns.txt)
+          scp -i petclinic11.pem target/spring-petclinic-config-server-3.2.4.jar ubuntu@$PUBLIC_DNS:/home/ec2-user/
+
+      - name: Run JAR file on EC2 instance
+        uses: docker://alpine/ssh:latest
+        run: |
+          PUBLIC_DNS=$(cat public_dns.txt)
+          ssh -i petclinic11.pem ubuntu@$PUBLIC_DNS "java -jar /home/ubuntu/spring-petclinic-config-server-3.2.4.jar"
