@@ -42,9 +42,7 @@ jobs:
           INSTANCE_ID=$(aws ec2 run-instances --image-id ami-04b70fa74e45c3917 --instance-type t2.micro --key-name "petclinic11" --region us-east-1 --query 'Instances[0].InstanceId' --output text)
           echo $INSTANCE_ID > instance_id.txt
 
-  Deploy:
-    needs: Build
-    steps:
+ 
       - name: Configure AWS credentials
         uses: cloudbees-io/configure-aws-credentials@v1
         with:
