@@ -13,77 +13,72 @@ jobs:
   Build:
     needs: Checkout
     steps:
-      - uses: docker://alpine/git:latest
-        run: |
-          git config --global --add safe.directory /cloudbees/workspace
+      - name: git config
+        uses: docker://alpine/git:latest
+        with:
+          entrypoint: sh
+          args: -c "git config --global --add safe.directory /cloudbees/workspace"
       - name: checkout
         uses: cloudbees-io/checkout@v1
       - name: Build
         uses: docker://maven:3-eclipse-temurin-17
-        run: |
-          mvn clean install -DskipTests=true
-  
-      
-
-      - name: Configure AWS credentials
-        uses: docker://alpine:latest
         with:
-          entrypoint: ''
-          args: |
-            sh -c "
-              aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }} && \
-              aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }} && \
-              aws configure set region us-east-1
+          entrypoint: sh
+          args: -c "mvn clean install -DskipTests=true"
+  
+      - name: Configure AWS credentials
+        uses: docker://amazon/aws-cli:latest
+        with:
+           entrypoint: sh
+           args: -c "
+            aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }} && \
+            aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }} && \
+            aws configure set region us-east-1
             "
 
       - name: Create and use EC2 key pair
         uses: docker://amazon/aws-cli:latest
         with:
-          entrypoint: ''
-          args: |
-            sh -c "
-              ls && \
-              aws ec2 create-key-pair --key-name petclinic111 --region us-east-1 --query 'KeyMaterial' --output text > petclinic111.pem && \
-              chmod 400 petclinic111.pem && \
-              INSTANCE_ID=$(aws ec2 run-instances --image-id ami-04b70fa74e45c3917 --instance-type t2.micro --key-name 'petclinic111' --region us-east-1 --query 'Instances[0].InstanceId' --output text) && \
-              echo $INSTANCE_ID > instance_id.txt
+           entrypoint: sh
+           args: -c "
+            ls && \
+            aws ec2 create-key-pair --key-name petclinic111 --region us-east-1 --query 'KeyMaterial' --output text > petclinic111.pem && \
+            chmod 400 petclinic111.pem && \
+            INSTANCE_ID=$(aws ec2 run-instances --image-id ami-04b70fa74e45c3917 --instance-type t2.micro --key-name 'petclinic111' --region us-east-1 --query 'Instances[0].InstanceId' --output text) && \
+            echo $INSTANCE_ID > instance_id.txt
             "
 
       - name: Wait for EC2 instance to be running
-        uses: docker://alpine:latest
+        uses: docker://amazon/aws-cli:latest
         with:
-          entrypoint: ''
-          args: |
-            sh -c "
-              INSTANCE_ID=$(cat instance_id.txt) && \
-              aws ec2 wait instance-running --instance-ids $INSTANCE_ID && \
-              PUBLIC_DNS=$(aws ec2 describe-instances --instance-ids $INSTANCE_ID --query 'Reservations[0].Instances[0].PublicDnsName' --output text) && \
-              echo $PUBLIC_DNS > public_dns.txt
+           entrypoint: sh
+           args: -c "
+            INSTANCE_ID=$(cat instance_id.txt) && \
+            aws ec2 wait instance-running --instance-ids $INSTANCE_ID && \
+            PUBLIC_DNS=$(aws ec2 describe-instances --instance-ids $INSTANCE_ID --query 'Reservations[0].Instances[0].PublicDnsName' --output text) && \
+            echo $PUBLIC_DNS > public_dns.txt
             "
 
       - name: Install scp and ssh
         uses: docker://alpine:latest
         with:
-          entrypoint: ''
-          args: |
-            sh -c "apk add --no-cache openssh"
+          entrypoint: sh
+          args: -c "apk add --no-cache openssh"
 
       - name: Transfer JAR file to EC2 instance
         uses: docker://alpine:latest
         with:
-          entrypoint: ''
-          args: |
-            sh -c "
-              PUBLIC_DNS=$(cat public_dns.txt) && \
-              scp -o StrictHostKeyChecking=no -i petclinic111.pem target/spring-petclinic-config-server-3.2.4.jar ubuntu@$PUBLIC_DNS:/home/ubuntu/
+           entrypoint: sh
+           args: -c "
+            PUBLIC_DNS=$(cat public_dns.txt) && \
+            scp -o StrictHostKeyChecking=no -i petclinic111.pem target/spring-petclinic-config-server-3.2.4.jar ubuntu@$PUBLIC_DNS:/home/ubuntu/
             "
 
       - name: Run JAR file on EC2 instance
         uses: docker://alpine:latest
         with:
-          entrypoint: ''
-          args: |
-            sh -c "
-              PUBLIC_DNS=$(cat public_dns.txt) && \
-              ssh -o StrictHostKeyChecking=no -i petclinic111.pem ubuntu@$PUBLIC_DNS 'java -jar /home/ubuntu/spring-petclinic-config-server-3.2.4.jar'
+           entrypoint: sh
+           args: -c "
+            PUBLIC_DNS=$(cat public_dns.txt) && \
+            ssh -o StrictHostKeyChecking=no -i petclinic111.pem ubuntu@$PUBLIC_DNS 'java -jar /home/ubuntu/spring-petclinic-config-server-3.2.4.jar'
             "
