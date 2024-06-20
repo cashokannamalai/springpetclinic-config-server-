@@ -48,3 +48,12 @@ jobs:
           echo $INSTANCE_ID > instance_id.txt
           ls
           cat instance_id.txt
+
+      - name: Wait for EC2 instance to be running
+        uses: docker://amazon/aws-cli:latest
+        run: |
+          INSTANCE_ID=$(cat instance_id.txt)
+          aws ec2 wait instance-running --instance-ids $INSTANCE_ID
+          PUBLIC_DNS=$(aws ec2 describe-instances --instance-ids $INSTANCE_ID --query 'Reservations[0].Instances[0].PublicDnsName' --output text)
+          echo $PUBLIC_DNS > public_dns.txt
+          cat public_dns.txt
