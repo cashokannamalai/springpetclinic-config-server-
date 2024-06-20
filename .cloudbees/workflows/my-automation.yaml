@@ -76,6 +76,12 @@ jobs:
           PUBLIC_DNS=$(cat public_dns.txt)
           scp -o StrictHostKeyChecking=no -i ashokpetclinic.pem target/spring-petclinic-config-server-3.2.4.jar ubuntu@$PUBLIC_DNS:/home/ubuntu/
 
+      - name: Install Java 17
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
       - name: Run JAR file on EC2 instance
         uses: docker://alpine:latest
         run: |
