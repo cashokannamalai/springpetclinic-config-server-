@@ -64,16 +64,7 @@ jobs:
         run: |
           sleep 30
 
-      - name: Add inbound rule to security group for SSH access
-        uses: docker://amazon/aws-cli:latest
-        run: |
-         MY_IP=$(curl -s https://checkip.amazonaws.com)
-         SECURITY_GROUP_ID="sg-56f26a27"
-         if ! aws ec2 describe-security-groups --group-ids $SECURITY_GROUP_ID --query 'SecurityGroups[0].IpPermissions[?IpProtocol==`tcp` && FromPort==`22` && ToPort==`22` && IpRanges[0].CidrIp==`'$MY_IP'/32`]' | jq -e '.[]' >/dev/null; then
-         aws ec2 authorize-security-group-ingress --group-id $SECURITY_GROUP_ID --protocol tcp --port 22 --cidr $MY_IP/32
-         else
-          echo "Rule already exists"
-         fi
+    
 
     
 
