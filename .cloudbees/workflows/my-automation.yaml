@@ -59,7 +59,7 @@ jobs:
           cat public_dns.txt
 
       - name: Transfer JAR file to EC2 instance
-        uses: docker://alpine/scp:latest
+        uses: docker://alpine:latest
         run: |
           apk update
           apk add openssh-client
