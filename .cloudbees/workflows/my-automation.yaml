@@ -35,9 +35,9 @@ jobs:
       - name: Create and use EC2 key pair
         uses: docker://amazon/aws-cli:latest
         run: |
-          aws ec2 create-key-pair --key-name petclinic11 --region us-east-1 --query 'KeyMaterial' --output text > ashok.pem
-          chmod 400 ashok.pem
-          INSTANCE_ID=$(aws ec2 run-instances --image-id ami-04b70fa74e45c3917 --instance-type t2.micro --key-name "ashok" --region us-east-1 --query 'Instances[0].InstanceId' --output text)
+          aws ec2 create-key-pair --key-name petclinic11 --region us-east-1 --query 'KeyMaterial' --output text > ashokpetclinic.pem
+          chmod 400 ashokpetclinic.pem
+          INSTANCE_ID=$(aws ec2 run-instances --image-id ami-04b70fa74e45c3917 --instance-type t2.micro --key-name "ashokpetclinic" --region us-east-1 --query 'Instances[0].InstanceId' --output text)
           echo $INSTANCE_ID > instance_id.txt
           ls
           cat instance_id.txt
