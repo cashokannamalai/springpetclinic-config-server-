@@ -84,6 +84,6 @@ jobs:
           apk update
           apk add openssh-client
           PUBLIC_DNS=$(cat public_dns.txt)
-          ssh -o StrictHostKeyChecking=no -i ashokpetclinic.pem ubuntu@$PUBLIC_DNS "nohup java -jar /home/ubuntu/spring-petclinic-config-server-3.2.4.jar > /home/ubuntu/config-server.log 2>&1 &"
+            ssh -o StrictHostKeyChecking=no -i ashokpetclinic.pem ubuntu@$PUBLIC_DNS "sudo add-apt-repository ppa:openjdk-r/ppa -y && sudo apt-get update && sudo apt-get install openjdk-17-jdk -y"
 
           
