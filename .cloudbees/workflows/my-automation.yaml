@@ -64,6 +64,13 @@ jobs:
         run: |
           sleep 30
 
+      - name: Add inbound rule to security group for SSH access
+        uses: docker://amazon/aws-cli:latest
+        run: |
+          MY_IP=$(curl -s https://checkip.amazonaws.com)
+          SECURITY_GROUP_ID="sg-56f26a27"
+          aws ec2 authorize-security-group-ingress --group-id $SECURITY_GROUP_ID --protocol tcp --port 22 --cidr $MY_IP/32
+
     
 
       - name: Transfer JAR file to EC2 instance
