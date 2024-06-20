@@ -58,8 +58,8 @@ jobs:
           echo $PUBLIC_DNS > public_dns.txt
           cat public_dns.txt
 
-      - name: Deploy to EC2
-        uses: docker://alpine:latest
+      - name: Transfer JAR file to EC2 instance
+        uses: docker://alpine/scp:latest
         run: |
           apk update
           apk add openssh-client
