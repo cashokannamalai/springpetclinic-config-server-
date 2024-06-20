@@ -29,35 +29,34 @@ jobs:
       - name: Configure AWS credentials
         uses: docker://amazon/aws-cli:latest
         with:
-           entrypoint: sh
-           args: -c "
+          entrypoint: sh
+        args: -c "
             aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }} && \
             aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }} && \
             aws configure set region us-east-1
-            "
+           "
 
       - name: Create and use EC2 key pair
         uses: docker://amazon/aws-cli:latest
         with:
-           entrypoint: sh
-           args: -c "
-            ls && \
+          entrypoint: sh
+        args: -c "
             aws ec2 create-key-pair --key-name petclinic111 --region us-east-1 --query 'KeyMaterial' --output text > petclinic111.pem && \
             chmod 400 petclinic111.pem && \
             INSTANCE_ID=$(aws ec2 run-instances --image-id ami-04b70fa74e45c3917 --instance-type t2.micro --key-name 'petclinic111' --region us-east-1 --query 'Instances[0].InstanceId' --output text) && \
             echo $INSTANCE_ID > instance_id.txt
-            "
+          "
 
       - name: Wait for EC2 instance to be running
         uses: docker://amazon/aws-cli:latest
         with:
-           entrypoint: sh
-           args: -c "
+          entrypoint: sh
+        args: -c "
             INSTANCE_ID=$(cat instance_id.txt) && \
             aws ec2 wait instance-running --instance-ids $INSTANCE_ID && \
             PUBLIC_DNS=$(aws ec2 describe-instances --instance-ids $INSTANCE_ID --query 'Reservations[0].Instances[0].PublicDnsName' --output text) && \
             echo $PUBLIC_DNS > public_dns.txt
-            "
+          "
 
       - name: Install scp and ssh
         uses: docker://alpine:latest
@@ -68,17 +67,17 @@ jobs:
       - name: Transfer JAR file to EC2 instance
         uses: docker://alpine:latest
         with:
-           entrypoint: sh
-           args: -c "
+          entrypoint: sh
+        args: -c "
             PUBLIC_DNS=$(cat public_dns.txt) && \
             scp -o StrictHostKeyChecking=no -i petclinic111.pem target/spring-petclinic-config-server-3.2.4.jar ubuntu@$PUBLIC_DNS:/home/ubuntu/
-            "
+          "
 
       - name: Run JAR file on EC2 instance
         uses: docker://alpine:latest
         with:
-           entrypoint: sh
-           args: -c "
+          entrypoint: sh
+        args: -c "
             PUBLIC_DNS=$(cat public_dns.txt) && \
             ssh -o StrictHostKeyChecking=no -i petclinic111.pem ubuntu@$PUBLIC_DNS 'java -jar /home/ubuntu/spring-petclinic-config-server-3.2.4.jar'
-            "
+          "
