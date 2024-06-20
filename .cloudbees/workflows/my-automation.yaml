@@ -58,6 +58,8 @@ jobs:
           echo $PUBLIC_DNS > public_dns.txt
           cat public_dns.txt
 
-    
+      - name: Transfer JAR file to EC2 instance
+        uses: docker://alpine/scp:latest
+        run: |
           PUBLIC_DNS=$(cat public_dns.txt)
-          scp -i petclinic1.pem target/spring-petclinic-config-server-3.2.4.jar ubuntu@$PUBLIC_DNS:/home/Ubuntu/
+          scp -i ashokpetclinic.pem target/spring-petclinic-config-server-3.2.4.jar ubuntu@$PUBLIC_DNS:/home/Ubuntu/
