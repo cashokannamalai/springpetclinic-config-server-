@@ -159,10 +159,10 @@ jobs:
 
 
 
-      - name: Wait for manual approval
-        uses: cloudbees-io/wait@v1
-        with:
-          message: "Please approve to terminate the EC2 instance"
+      - name: Manual approval required
+        uses: docker://alpine:latest
+        run: |
+          echo "Please manually approve the next step."
 
       - name: Terminate EC2 instance
         uses: docker://amazon/aws-cli:latest
