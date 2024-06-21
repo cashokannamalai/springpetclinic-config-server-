@@ -81,3 +81,40 @@ jobs:
         run: |
           echo "Current directory: $(pwd)"
           ls -lR /cloudbees/workspace
+ 
+  CreateEC2Instance:
+    needs: [NexusPublish]
+    steps:
+      - name: Configure AWS credentials
+        uses: cloudbees-io/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: us-east-1
+
+      - name: Remove existing key pair if exists
+        uses: docker://amazon/aws-cli:latest
+        run: |
+          if aws ec2 describe-key-pairs --key-name "ashokpetclinic" --region us-east-1; then
+            aws ec2 delete-key-pair --key-name "ashokpetclinic" --region us-east-1
+          fi
+
+      - name: Create and use EC2 key pair
+        uses: docker://amazon/aws-cli:latest
+        run: |
+          aws ec2 create-key-pair --key-name ashokpetclinic --region us-east-1 --query 'KeyMaterial' --output text > ashokpetclinic.pem
+          chmod 400 ashokpetclinic.pem
+          INSTANCE_ID=$(aws ec2 run-instances --image-id ami-04b70fa74e45c3917 --instance-type t2.micro --key-name "ashokpetclinic" --region us-east-1 --query 'Instances[0].InstanceId' --output text)
+          echo $INSTANCE_ID > instance_id.txt
+          ls
+          cat instance_id.txt
+
+      - name: Wait for EC2 instance to be running
+        uses: docker://amazon/aws-cli:latest
+        run: |
+          INSTANCE_ID=$(cat instance_id.txt)
+          aws ec2 wait instance-running --instance-ids $INSTANCE_ID
+          PUBLIC_DNS=$(aws ec2 describe-instances --instance-ids $INSTANCE_ID --query 'Reservations[0].Instances[0].PublicDnsName' --output text)
+          echo $PUBLIC_DNS > public_dns.txt
+          cat public_dns.txt
