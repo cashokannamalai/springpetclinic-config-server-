@@ -156,3 +156,16 @@ jobs:
           nohup java -jar /home/ubuntu/spring-petclinic-config-server-3.2.4.jar > /home/ubuntu/config-server.log 2>&1 &
           disown
          EOF
+
+
+      - name: Wait for manual approval
+        uses: cloudbees-io/wait@v1
+        with:
+          message: "Please approve to terminate the EC2 instance"
+
+      - name: Terminate EC2 instance
+        uses: docker://amazon/aws-cli:latest
+        run: |
+          INSTANCE_ID=$(cat instance_id.txt)
+          aws ec2 terminate-instances --instance-ids $INSTANCE_ID
+          aws ec2 wait instance-terminated --instance-ids $INSTANCE_ID
