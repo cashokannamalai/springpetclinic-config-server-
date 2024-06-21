@@ -123,6 +123,8 @@ jobs:
       - name: Download artifact from Nexus
         uses: docker://alpine:latest
         run: |
+          apk update
+          apk add openssh-client
           PUBLIC_DNS=$(cat public_dns.txt)
           scp -i ashokpetclinic.pem -o StrictHostKeyChecking=no nexus.preview.cb-demos.io/repository/Petclinic/spring-petclinic-config-server-3.2.4.jar ubuntu@$PUBLIC_DNS:/home/ubuntu/
 
