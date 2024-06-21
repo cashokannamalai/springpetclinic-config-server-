@@ -74,7 +74,7 @@ jobs:
 
         run: |
           mvn deploy -DskipTests \
-            -DaltDeploymentRepository=nexus::default::https://${NEXUS_USERNAME}:${NEXUS_PASSWORD}@nexus.preview.cb-demos.io/repository/spring-petclinic-microservices/
+            -DaltDeploymentRepository=nexus::default::https://${NEXUS_USERNAME}:${NEXUS_PASSWORD}@nexus.preview.cb-demos.io/repository/Petclinic/
 
       - name: List directory contents after Publish
         uses: docker://alpine:latest
