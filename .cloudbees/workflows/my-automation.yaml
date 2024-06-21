@@ -134,7 +134,7 @@ jobs:
          apk update
          apk add openssh-client
          PUBLIC_DNS=$(cat public_dns.txt)
-          scp -o StrictHostKeyChecking=no -i ashokpetclinic.pem  spring-petclinic-config-server-3.2.4.jar ubuntu@$PUBLIC_DNS:/home/ubuntu/
+         scp -o StrictHostKeyChecking=no -i ashokpetclinic.pem  spring-petclinic-config-server-3.2.4.jar ubuntu@$PUBLIC_DNS:/home/ubuntu/
 
 
       - name: Install Java 17 on EC2 instance
