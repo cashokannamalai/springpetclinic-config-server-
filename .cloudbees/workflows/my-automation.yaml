@@ -119,9 +119,7 @@ jobs:
           echo $PUBLIC_DNS > public_dns.txt
           cat public_dns.txt
 
-  DownloadArtifact:
-    needs: [CreateEC2Instance]
-    steps:
+  
       - name: Download artifact from Nexus
         uses: docker://alpine:latest
         run: |
