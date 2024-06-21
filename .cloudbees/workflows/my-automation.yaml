@@ -123,8 +123,14 @@ jobs:
       - name: Download artifact from Nexus
         uses: docker://alpine:latest
         run: |
-          apk update
-          apk add openssh-client
-          PUBLIC_DNS=$(cat public_dns.txt)
-          scp -i ashokpetclinic.pem -o StrictHostKeyChecking=no https://${NEXUS_USERNAME}:${NEXUS_PASSWORD}@nexus.preview.cb-demos.io/repository/Petclinic/org/springframework/samples/petclinic/config/spring-petclinic-config-server/3.2.4/spring-petclinic-config-server-3.2.4.jar ubuntu@$PUBLIC_DNS:/home/ubuntu/
+         apk update
+         apk add curl
+         curl -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} -O https://nexus.preview.cb-demos.io/repository/Petclinic/org/springframework/samples/petclinic/config/spring-petclinic-config-server/3.2.4/spring-petclinic-config-server-3.2.4.jar
 
+      - name: Transfer artifact to EC2 instance
+        uses: docker://alpine:latest
+        run: |
+         apk update
+         apk add openssh-client
+         PUBLIC_DNS=$(cat public_dns.txt)
+          scp -i ashokpetclinic.pem -o StrictHostKeyChecking=no spring-petclinic-config-server-3.2.4.jar ubuntu@$PUBLIC_DNS:/home/ubuntu/
