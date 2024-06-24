@@ -57,7 +57,7 @@ jobs:
   
  
   CreateEC2Instance:
-    needs: [NexusPublish]
+    needs: [SonarAnalysis]
     steps:
       - name: Configure AWS credentials
         uses: cloudbees-io/configure-aws-credentials@v1
