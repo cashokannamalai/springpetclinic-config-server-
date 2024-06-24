@@ -54,33 +54,7 @@ jobs:
           project-key: config-server
           token: 20e414018be1508e8a472229e7ec07da1a13cfa1
   
-  NexusPublish:
-    needs: [SonarAnalysis]
-    steps:
-      - uses: docker://alpine/git:latest
-        run: |
-          git config --global --add safe.directory /cloudbees/workspace
-          echo "Listing directory contents before Build:"
-          ls -lR /cloudbees/workspace
-
-      - name: checkout
-        uses: cloudbees-io/checkout@v1
-
-      - name: Publish to Nexus
-        uses: docker://maven:3-eclipse-temurin-17
-        env:
-          NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
-          NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
-
-        run: |
-          mvn deploy -DskipTests \
-            -DaltDeploymentRepository=nexus::default::https://${NEXUS_USERNAME}:${NEXUS_PASSWORD}@nexus.preview.cb-demos.io/repository/Petclinic/
-
-      - name: List directory contents after Publish
-        uses: docker://alpine:latest
-        run: |
-          echo "Current directory: $(pwd)"
-          ls -lR /cloudbees/workspace
+  
  
   CreateEC2Instance:
     needs: [NexusPublish]
@@ -118,6 +92,7 @@ jobs:
           PUBLIC_DNS=$(aws ec2 describe-instances --instance-ids $INSTANCE_ID --query 'Reservations[0].Instances[0].PublicDnsName' --output text)
           echo $PUBLIC_DNS > public_dns.txt
           cat public_dns.txt
+          ls 
 
       - name: Add delay to ensure instance is ready
         uses: docker://alpine:latest
@@ -126,13 +101,7 @@ jobs:
          sleep 60
 
   
-      - name: Download artifact from Nexus
-        uses: docker://alpine:latest
-        run: |
-         apk update
-         apk add curl
-         curl -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} -O https://nexus.preview.cb-demos.io/repository/Petclinic/org/springframework/samples/petclinic/config/spring-petclinic-config-server/3.2.4/spring-petclinic-config-server-3.2.4.jar
-         ls
+     
 
       - name: Transfer artifact to EC2 instance
         uses: docker://alpine:latest
@@ -140,7 +109,7 @@ jobs:
          apk update
          apk add openssh-client
          PUBLIC_DNS=$(cat public_dns.txt)
-         scp -o StrictHostKeyChecking=no -i ashokpetclinic.pem  spring-petclinic-config-server-3.2.4.jar ubuntu@$PUBLIC_DNS:/home/ubuntu/
+         scp -o StrictHostKeyChecking=no -i ashokpetclinic.pem  target/spring-petclinic-config-server-3.2.4.jar ubuntu@$PUBLIC_DNS:/home/ubuntu/
 
 
       - name: Install Java 17 on EC2 instance
