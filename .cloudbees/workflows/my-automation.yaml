@@ -134,9 +134,3 @@ jobs:
           nohup java -jar /home/ubuntu/spring-petclinic-config-server-3.2.4.jar > /home/ubuntu/config-server.log 2>&1 &
           disown
          EOF
-         
-
-
-        
-
-          
