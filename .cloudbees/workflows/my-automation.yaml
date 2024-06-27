@@ -146,4 +146,4 @@ jobs:
          git config --global user.name "cashokannamalai"
          git add instance_id.txt
          git commit -m "Update instance_id.txt with new EC2 instance ID"
-         git push origin ashok
+         git push origin main
