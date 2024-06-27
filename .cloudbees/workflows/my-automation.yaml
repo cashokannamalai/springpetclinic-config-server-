@@ -4,7 +4,8 @@ name: My automation
 
 on:
   push:
-    
+    branches:
+      - main
 
 jobs:
   Checkout:
@@ -143,6 +144,7 @@ jobs:
           apk add git
           git config --global user.email "c_aannamalai@cloudbees.com"
           git config --global user.name "cashokannamalai"
+          git checkout -b ashok1  # Create and switch to the 'ashok' branch
           git add instance_id.txt
           git commit -m "Update instance_id.txt with new EC2 instance ID"
-          git push origin main
+          git push origin ashok1  # Push changes to the 'ashok' branch
