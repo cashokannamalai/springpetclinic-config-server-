@@ -144,8 +144,9 @@ jobs:
            apk add git
            git config --global user.email "c_aannamalai@cloudbees.com"
             git config --global user.name "cashokannamalai"
-            git checkout -b test  
+            git checkout test 
+            git pull origin test 
            git add instance_id.txt
-           git commit -m "Update instance_id.txt with new EC2 instance ID"
+           git commit -m "Update instance_id.txt"
            git push origin test  
  
