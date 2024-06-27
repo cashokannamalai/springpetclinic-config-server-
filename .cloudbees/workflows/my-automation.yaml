@@ -1,6 +1,18 @@
 apiVersion: automation.cloudbees.io/v1alpha1
 kind: workflow
 name: My automation
+on:
+  push:
+    branches:
+      - '**'
+    # Add the following line to prevent triggering on pushes
+    workflow_dispatch:
+      # Inputs for manual triggering if needed
+      inputs:
+        reason:
+          description: 'Reason for manual run'
+          required: true
+
 
 jobs:
   Checkout:
