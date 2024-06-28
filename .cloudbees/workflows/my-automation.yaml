@@ -111,6 +111,7 @@ jobs:
         run: |
           echo "Waiting for 60 seconds to ensure the instance is ready..."
           sleep 60
+
       - name: Transfer artifact to EC2 instance
         uses: docker://alpine:latest
         run: >
@@ -141,9 +142,9 @@ jobs:
         uses: docker://alpine:latest
         run: |
          apk update
-         apk add git
-         git config --global user.email "c_aannamalai@cloudbees.com"
-         git config --global user.name "cashokannamalai"
-         git add instance_id.txt
-         git commit -m "Update instance_id.txt with new EC2 instance ID"
-         git push origin main
+          apk add git
+          git config --global user.email "c_aannamalai@cloudbees.com"
+          git config --global user.name "cashokannamalai"
+          git add instance_id.txt
+          git commit -m "Update instance_id.txt with new EC2 instance ID"
+          git push origin -f ashok
