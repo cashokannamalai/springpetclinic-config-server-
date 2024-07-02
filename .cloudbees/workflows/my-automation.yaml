@@ -114,7 +114,7 @@ jobs:
           INSTANCE_ID=$(cat instance_id.txt)
           aws ec2 wait instance-running --instance-ids $INSTANCE_ID
           PUBLIC_DNS=$(aws ec2 describe-instances --instance-ids $INSTANCE_ID --query 'Reservations[0].Instances[0].PublicDnsName' --output text)
-          echo $PUBLIC_DNS:8888 > public_dns.txt
+          echo $PUBLIC_DNS > public_dns.txt
           cat public_dns.txt
 
       - name: Add delay to ensure instance is ready
@@ -155,4 +155,14 @@ jobs:
           disown
          EOF
           
+
+      - name: Push instance_id.txt to ashok branch
+        uses: docker://alpine/git:latest
+        run: |
+          git config --global user.name "your-username"
+          git config --global user.email "your-email@example.com"
+          git checkout -b aws
+          git add instance_id.txt
+          git commit -m "Add instance_id.txt"
+          git push -u origin aws
 
