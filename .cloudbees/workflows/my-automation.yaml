@@ -164,11 +164,11 @@ jobs:
           git config --global user.name "cashokannamalai"
           git clone https://github.com/cashokannamalai/spring-petclinic-config-server.git
           cd spring-petclinic-config-server
-          git checkout -b ashok3
+          git checkout -b ashok5
    
           git add instance_id.txt
           git commit -m "Update instance_id.txt with new EC2 instance ID"
-          git push -f origin ashok3
+          git push -f origin ashok5
       
           
           
