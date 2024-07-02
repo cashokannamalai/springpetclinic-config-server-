@@ -154,15 +154,4 @@ jobs:
           nohup java -jar /home/ubuntu/spring-petclinic-config-server-3.2.4.jar > /home/ubuntu/config-server.log 2>&1 &
           disown
          EOF
-          
-
-      - name: Push instance_id.txt to ashok branch
-        uses: docker://alpine/git:latest
-        run: |
-          git config --global user.name "your-username"
-          git config --global user.email "your-email@example.com"
-          git checkout -b aws
-          git add instance_id.txt
-          git commit -m "Add instance_id.txt"
-          git push -u origin aws
 
