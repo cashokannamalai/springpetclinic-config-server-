@@ -162,12 +162,12 @@ jobs:
           apk add git
           git config --global user.email "c_aannamalai@cloudbees.com"
           git config --global user.name "cashokannamalai"
-          git clone https://github.com/cashokannamalai/spring-petclinic-config-server.git
-          cd spring-petclinic-config-server
-          git checkout -b ashok5
-   
+          git checkout -b ashok5 
+          cat instance_id.txt
+          cp /cloudbees/workspace/instance_id.txt ./
+          cat instance_id.txt
           git add instance_id.txt
-          git commit -m "Update instance_id.txt with new EC2 instance ID"
+          git commit -m "Update instance_id.txt with new EC2 instance
           git push -f origin ashok5
       
           
