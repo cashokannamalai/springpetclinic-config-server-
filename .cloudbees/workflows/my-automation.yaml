@@ -82,8 +82,7 @@ jobs:
         uses: cloudbees-io/checkout@v1
       - name: Build Docker Image
         uses: docker://docker:20.10
-        env:
-          DOCKER_BUILDKIT: 1
+        
         run: |
           docker build -t nexus.preview.cb-demos.8082/config-server:3.2.4 .
 
