@@ -84,6 +84,6 @@ jobs:
         uses: docker://docker:20.10
         
         run: |
-          docker build -t nexus.preview.cb-demos.8082/config-server:3.2.4 .
+          docker build -t nexus.preview.cb-demos:8082/config-server:3.2.4 .
 
   
