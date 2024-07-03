@@ -84,3 +84,5 @@ jobs:
           DOCKER_BUILDKIT: 1
         run: |
           docker build -t ${DOCKER_REGISTRY}/config-server:3.2.4 .
+
+          
