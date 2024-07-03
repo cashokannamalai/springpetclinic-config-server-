@@ -85,6 +85,6 @@ jobs:
         env:
           DOCKER_BUILDKIT: 1
         run: |
-          docker build -t "${DOCKER_REGISTRY}/config-server:3.2.4" .
+          docker build -t nexus.preview.cb-demos.8082/config-server:3.2.4 .
 
   
