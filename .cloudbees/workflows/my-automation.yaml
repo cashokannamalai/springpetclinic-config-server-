@@ -76,14 +76,15 @@ jobs:
 
 
   DockerBuildAndPush:
-    needs: ArtifactPublish
+   needs: ArtifactPublish
+   container:
+    image: docker:20.10
+    options: --privileged
     steps:
-      - name: Checkout
-        uses: cloudbees-io/checkout@v1
-      - name: Build Docker Image
-        uses: docker://docker:20.10
-        
-        run: |
-          docker build -t nexus.preview.cb-demos:8082/config-server:3.2.4 .
+    - name: Checkout
+      uses: cloudbees-io/checkout@v1
+    - name: Build Docker Image
+      run: |
+        docker build -t nexus.preview.cb-demos.8082/config-server:3.2.4 .
 
   
