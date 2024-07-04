@@ -34,3 +34,4 @@ jobs:
         uses: docker://docker:19.03.12
         with:
           args: build -t configserver:3.2.4 .
+          
