@@ -23,13 +23,13 @@ jobs:
         run: |
           mvn clean install -DskipTests=true
           ls
-
-      - name: Build Docker Image
-        uses: docker/build-push-action@v2
+  DockerBuild:
+    needs: Build
+    steps:
+      - name: Docker Build
+        uses: docker://docker:19.03.15
         with:
-          context: .  # Specify the build context directory
-          file: /cloudbees/workspace/Dockerfile 
-          push: false  # Set to true to push the image to a registry
-          tags: |
-            configserver:latest  
+          args: |
+            build -t config:3.2.4 .
+        
           
