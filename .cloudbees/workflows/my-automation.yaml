@@ -29,6 +29,6 @@ jobs:
       - name: Docker Build
         uses: docker://docker:19.03.12
         run: |
-          cd /cloudbees/workspace/spring-petclinic-config-server
+          ls
           docker build -t configserver:3.2.4 .             
           
