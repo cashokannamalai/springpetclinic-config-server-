@@ -17,14 +17,15 @@ jobs:
     steps:
       - name: Set Docker Daemon permissions
         uses: docker://alpine:latest
-        
-         run |
-          - sudo chmod 666 /var/run/docker.sock  
+        entrypoint: ["/bin/sh", "-c"]
+        run: |
+          sudo chmod 666 /var/run/docker.sock
 
       - name: Build with Maven
         uses: docker://maven:3-eclipse-temurin-17
-         run |
-          - mvn clean install -DskipTests=true
+        entrypoint: ["/bin/sh", "-c"]
+        run: |
+          mvn clean install -DskipTests=true
 
   StaticAnalysis:
     needs: Build
@@ -47,27 +48,27 @@ jobs:
     steps:
       - name: Publish to Nexus Repository
         uses: docker://maven:3-eclipse-temurin-17
+        entrypoint: ["/bin/sh", "-c"]
         environment:
           NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
           NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
-           run |
-           - mvn deploy -DskipTests -DaltDeploymentRepository=nexus::default::https://${NEXUS_USERNAME}:${NEXUS_PASSWORD}@nexus.preview.cb-demos.io/repository/Petclinic/
+        run: |
+          mvn deploy -DskipTests -DaltDeploymentRepository=nexus::default::https://${NEXUS_USERNAME}:${NEXUS_PASSWORD}@nexus.preview.cb-demos.io/repository/Petclinic/
 
   DockerImageBuild:
     needs: ArtifactPublish
     steps:
       - name: Set Docker Daemon permissions
         uses: docker://alpine:latest
-         run |
-          - sudo chmod 666 /var/run/docker.sock
+        entrypoint: ["/bin/sh", "-c"]
+        run: |
+          sudo chmod 666 /var/run/docker.sock
 
       - name: DockerBuild
         uses: docker://alpine:latest
+        entrypoint: ["/bin/sh", "-c"]
         environment:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-           run |
-          
-           - docker build -t $DOCKER_USERNAME/config:3.2.4 .
-
-      
+        run: |
+          docker build -t $DOCKER_USERNAME/config:3.2.4 .
