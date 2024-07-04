@@ -21,7 +21,7 @@ jobs:
       - name: Set up Docker Build Environment
         uses: docker://alpine/git:latest
         run: |
-           systemctl start docker
+           
            docker --version
            docker info
       - name: Build
