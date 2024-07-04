@@ -28,7 +28,8 @@ jobs:
       - name: Build Docker Image
         uses: docker://docker:latest
         run: |
-          chmod 660 /var/run/docker.sock
+          ls
+          
           docker build -t configserver:3.2.4 .
       
        
