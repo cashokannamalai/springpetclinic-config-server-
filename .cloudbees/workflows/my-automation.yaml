@@ -28,8 +28,7 @@ jobs:
     steps:
       - name: Docker Build
         uses: docker://docker:19.03.15
-        with:
-          args: |
+        run: |
             build -t config:3.2.4 .
         
           
