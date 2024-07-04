@@ -24,11 +24,6 @@ jobs:
           mvn clean install -DskipTests=true
           
 
-  DockerBuild:
-    needs: Build  # Ensure Docker build runs after Maven build
-    steps:
-      - name: Docker Build
-        uses: docker://docker:19.03.12
-        run: |
+ 
           docker build -t configserver:3.2.4 .      
           
