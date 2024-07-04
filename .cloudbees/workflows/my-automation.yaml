@@ -22,16 +22,7 @@ jobs:
         uses: docker://maven:3-eclipse-temurin-17
         run: |
           mvn clean install -DskipTests=true
-
-
-  DockerBuild:
-    needs: Build
-    steps:
-      - name: Docker Build
-        uses: docker://docker:latest
-        run: |
-         docker run -v /var/run/docker.sock:/var/run/docker.sock -v $(pwd):/workspace docker build -t config:3.2.4 .
-
+          chmod 6666 /var/run/docker.sock
 
           
           
