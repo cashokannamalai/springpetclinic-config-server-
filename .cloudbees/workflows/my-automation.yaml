@@ -29,6 +29,5 @@ jobs:
       - name: Docker Build
         uses: docker://docker:19.03.15
         run: |
-          docker build -t config:3.2.4 -f spring-petclinic-config-server/Dockerfile .
-        
+          ls
           
