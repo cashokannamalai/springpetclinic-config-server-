@@ -30,4 +30,6 @@ jobs:
         run: |
           cd /cloudbees/workspace
           docker build -t config:3.2.4 .
+
+          
           
