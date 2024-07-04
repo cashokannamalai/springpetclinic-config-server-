@@ -27,19 +27,10 @@ jobs:
   DockerBuild:
     needs: Build 
     steps:
-      - uses: docker://alpine/git:latest
-        run: |
-          git config --global --add safe.directory /cloudbees/workspace
-      - name: checkout
+      - name: Checkout code again
         uses: cloudbees-io/checkout@v1
-      - name: Build
-        uses: docker://maven:3-eclipse-temurin-17
-        run: |
-          mvn clean install -DskipTests=true
-          ls
+
       - name: Docker Build
         uses: docker://docker:19.03.12
-        run: |
-          
-          docker build -t configserver:3.2.4 .             
-          
+        with:
+          args: build -t configserver:3.2.4 .
