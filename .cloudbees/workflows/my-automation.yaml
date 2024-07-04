@@ -30,8 +30,8 @@ jobs:
       - name: Docker Build
         uses: docker://docker:latest
         run: |
-          cd /cloudbees/workspace
-          docker build -t config:3.2.4 .
+         docker run -v /var/run/docker.sock:/var/run/docker.sock -v $(pwd):/workspace docker build -t config:3.2.4 .
+
 
           
           
