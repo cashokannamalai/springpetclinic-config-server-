@@ -19,7 +19,7 @@ jobs:
         uses: docker://alpine:latest
         entrypoint: ["/bin/sh", "-c"]
         run: |
-          sudo chmod 666 /var/run/docker.sock
+           chmod 666 /var/run/docker.sock
 
       - name: Build with Maven
         uses: docker://maven:3-eclipse-temurin-17
@@ -62,7 +62,7 @@ jobs:
         uses: docker://alpine:latest
         entrypoint: ["/bin/sh", "-c"]
         run: |
-          sudo chmod 666 /var/run/docker.sock
+           chmod 666 /var/run/docker.sock
 
       - name: DockerBuild
         uses: docker://alpine:latest
