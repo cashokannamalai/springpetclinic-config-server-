@@ -19,9 +19,9 @@ jobs:
       - name: checkout
         uses: cloudbees-io/checkout@v1
       - name: Install Docker
-        uses: docker://alpine/git:latest
+        uses: docker://alpine:latest
         run: |
-          apt-get update && apt-get install -y docker.io
+          apk update && apk add docker
       - name: Build
         uses: docker://maven:3-eclipse-temurin-17
         run: |
