@@ -17,11 +17,14 @@ jobs:
     steps:
       - name: Set Docker Daemon permissions
         uses: docker://alpine:latest
-        run: sudo chmod 666 /var/run/docker.sock  
+        
+        script:
+          - sudo chmod 666 /var/run/docker.sock  
 
       - name: Build with Maven
         uses: docker://maven:3-eclipse-temurin-17
-        run: mvn clean install -DskipTests=true
+        script:
+          - mvn clean install -DskipTests=true
 
   StaticAnalysis:
     needs: Build
@@ -30,8 +33,8 @@ jobs:
         uses: cloudbees-io/sonarqube-sast-scan-code@v1
         with:
           server-url: https://sonarqube.cb-demos.io
-          username: ${{ secrets.SONAR_USERNAME }}
-          password: ${{ secrets.SONAR_PASSWORD }}
+          username: ${{ secrets.username }}
+          password: ${{ secrets.password }}
           language: Java
 
       - name: Find Security Bugs Scan
@@ -44,17 +47,27 @@ jobs:
     steps:
       - name: Publish to Nexus Repository
         uses: docker://maven:3-eclipse-temurin-17
-        env:
+        environment:
           NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
           NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
-        run: mvn deploy -DskipTests -DaltDeploymentRepository=nexus::default::https://${NEXUS_USERNAME}:${NEXUS_PASSWORD}@nexus.preview.cb-demos.io/repository/Petclinic/
+        script:
+          - mvn deploy -DskipTests -DaltDeploymentRepository=nexus::default::https://${NEXUS_USERNAME}:${NEXUS_PASSWORD}@nexus.preview.cb-demos.io/repository/Petclinic/
 
-  DockerBuild:
+  DockerImageBuild:
     needs: ArtifactPublish
     steps:
-      - name: Checkout code
-        uses: cloudbees-io/checkout@v1
+      - name: Set Docker Daemon permissions
+        uses: docker://alpine:latest
+        script:
+          - sudo chmod 666 /var/run/docker.sock
 
-      - name: Docker Build
-        uses: docker://docker:latest
-        run: docker build -t config-server:3.2.4 .
+      - name: DockerBuild
+        uses: docker://alpine:latest
+        environment:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+        script:
+          
+          - docker build -t $DOCKER_USERNAME/config:3.2.4 .
+
+      
