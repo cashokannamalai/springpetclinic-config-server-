@@ -2,26 +2,15 @@ apiVersion: automation.cloudbees.io/v1alpha1
 kind: workflow
 name: My automation
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
 jobs:
   Checkout:
     steps:
       - name: checkout
         uses: cloudbees-io/checkout@v1
-
   Build:
     needs: Checkout
     steps:
-      - name: Mount Docker Socket
-        uses: docker://alpine/git:latest
-        run: |
-          apk add --no-cache docker
-          docker --version  # Verify Docker client is installed
-        volumes:
-          - /var/run/docker.sock:/var/run/docker.sock  # Mount Docker socket
-
       - uses: docker://alpine/git:latest
         run: |
           git config --global --add safe.directory /cloudbees/workspace
@@ -32,13 +21,11 @@ jobs:
         run: |
           mvn clean install -DskipTests=true
 
-      
 
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v2
-        with:
-          context: .  
-          file: /cloudbees/workspace/Dockerfile  
-          platforms: linux/amd64,linux/arm64
-          push: true
-          tags: ashok/configimage:3.2.4
+  DockerComposeUp:
+    needs: Build  
+    steps:
+      - name: Set up Docker Compose
+        uses: docker://docker/compose:latest
+        run: |
+          docker-compose up -d  
