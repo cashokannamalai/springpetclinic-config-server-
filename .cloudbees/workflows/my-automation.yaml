@@ -33,5 +33,7 @@ jobs:
       - name: Set up Docker
         uses: docker://alpine:latest
         run: |
-          apk update && apk add docker
+          apk update && apk add docker openrc
+          rc-update add docker boot
+          service docker start
     
