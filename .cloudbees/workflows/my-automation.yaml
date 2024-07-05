@@ -14,6 +14,10 @@ jobs:
   Build:
     needs: Checkout
     steps:
+      
+      - uses: docker://alpine/git:latest
+        run: |
+          git config --global --add safe.directory /cloudbees/workspace
       - name: checkout
         uses: cloudbees-io/checkout@v1
       - name: Build
@@ -21,10 +25,8 @@ jobs:
         run: |
           mvn clean install -DskipTests=true
 
-  DockerComposeUp:
-    needs: Build  
-    steps:
+  
       - name: Set up Docker Compose
         uses: docker://docker/compose:latest
         run: |
-          ls 
+          docker compose up
