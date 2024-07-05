@@ -33,10 +33,11 @@ jobs:
       - name: Set up Docker
         uses: docker://alpine:latest
         run: |
+          run: |
           apk update && apk add docker openrc
-          service docker status
-      - name: Build Docker image
-        uses: docker://docker:23.0.1
-        run: |
-          docker build -t my-image:latest .    
+          touch /run/openrc/softlevel
+          service docker start
+          # Your Docker commands here
+          docker build -t my-app .
+          
     
