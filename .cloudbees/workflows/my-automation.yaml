@@ -25,12 +25,15 @@ jobs:
         uses: docker://maven:3-eclipse-temurin-17
         run: |
           mvn clean install -DskipTests=true
+
   DockerBuild:
     needs: Build
     steps:
       - name: Docker Build
         uses: docker://docker:19.03.15
         run: |
+
+          ls
            docker build -t myapp:latest -f /cloudbees/workspace/Dockerfile .
       
 
