@@ -30,7 +30,7 @@ jobs:
       - name: Docker Build
         uses: docker://docker:19.03.15
         run: |
-          cat /var/run/docker.sock
+          ls -lR /cloudbees/workspace/var/run/
            
       
 
