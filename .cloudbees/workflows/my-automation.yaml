@@ -27,9 +27,7 @@ jobs:
           mvn clean install -DskipTests=true
 
   
-  DockerBuild:
-    needs: Build
-    steps:
+  
       - name: Set up Docker
         uses: docker://alpine:latest
         run: |
