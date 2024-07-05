@@ -27,4 +27,4 @@ jobs:
       - name: Set up Docker Compose
         uses: docker://docker/compose:latest
         run: |
-          docker-compose up   
+          ls 
