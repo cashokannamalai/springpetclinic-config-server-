@@ -26,7 +26,7 @@ jobs:
           mvn clean install -DskipTests=true
 
   
-      - name: Set up Docker Compose
-        uses: docker://docker/compose:latest
+      - name: Docker Build
+        uses: docker://docker:stable
         run: |
-          docker-compose up -d
+          docker build -t petclinic:3.2.4 .
