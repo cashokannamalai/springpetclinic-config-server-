@@ -31,8 +31,8 @@ jobs:
         uses: docker://docker:19.03.15
         run: |
 
-          ls
-           docker build -t myapp:latest .
+          ls -lR /var/run
+           
       
 
       
