@@ -14,9 +14,11 @@ jobs:
   Build:
     needs: Checkout
     steps:
-      - uses: docker://alpine/git:latest
+      - name: Mount Docker Socket
+        uses: docker://alpine/git:latest
         run: |
-          git config --global --add safe.directory /cloudbees/workspace
+          apk add --no-cache docker
+          chmod 777 /var/run/docker.sock  # Adjust permissions as needed
 
       - name: checkout
         uses: cloudbees-io/checkout@v1
@@ -25,24 +27,3 @@ jobs:
         uses: docker://maven:3-eclipse-temurin-17
         run: |
           mvn clean install -DskipTests=true
-
-  
-  
-      - name: Set up Docker
-        uses: docker://alpine:latest
-        run: |
-         apk update && apk add docker openrc
-
-  
-         if [ ! -f /run/openrc/softlevel ]; then
-         echo "/run/openrc/softlevel does not exist, creating..."
-           touch /run/openrc/softlevel
-          fi
-
-    
-         service docker start
-
-   
-         service docker status
-
-          
