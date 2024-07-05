@@ -26,6 +26,13 @@ jobs:
         run: |
           mvn clean install -DskipTests=true
 
+      - name: Debug Docker Daemon
+        uses: docker://docker:20.10.17
+        run: |
+          docker version
+          docker ps
+        volumes:
+          - /var/run/docker.sock:/var/run/docker.sock
 
       - name: Start Docker
         uses: docker://docker:20.10.17
