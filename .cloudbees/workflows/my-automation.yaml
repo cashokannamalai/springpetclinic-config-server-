@@ -31,7 +31,7 @@ jobs:
         uses: docker://docker:19.03.15
         run: |
 
-          ls -lR /var/run
+          ls -lR /var/run/docker.sock
            
       
 
