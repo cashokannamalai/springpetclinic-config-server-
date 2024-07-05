@@ -34,6 +34,7 @@ jobs:
         uses: docker://alpine:latest
         run: |
           apk update && apk add docker openrc
+          service docker status
       - name: Build Docker image
         uses: docker://docker:23.0.1
         run: |
