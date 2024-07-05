@@ -24,10 +24,18 @@ jobs:
           mvn clean install -DskipTests=true
   DockerBuild:
     needs: Build
+    services:
+      docker:
+        image: docker:latest
+        privileged: true
     steps:
+      - name: Set up Docker
+        uses: docker://docker:latest
+        run: |
+          docker info
       - name: Build Docker Image
         uses: docker://docker:latest
         run: |
-          docker build -t config:latest .
+          docker build -t config:3.2.4 .
 
   
