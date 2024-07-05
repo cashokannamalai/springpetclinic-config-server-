@@ -29,9 +29,15 @@ jobs:
       - name: Debug Docker Daemon
         uses: docker://docker:20.10.17
         run: |
-         docker version
-         ps aux | grep dockerd
-         ls -l /var/run/docker.sock
+          docker version
+          ps aux | grep dockerd
+          ls -l /var/run/docker.sock
         volumes:
-         - /var/run/docker.sock:/var/run/docker.sock
+          - /var/run/docker.sock:/var/run/docker.sock
+
+      
+      - name: Start Docker
+        uses: docker://docker:20.10.17
+        run: |
+          dockerd --experimental
 
