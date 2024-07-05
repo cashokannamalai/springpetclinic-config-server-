@@ -30,7 +30,9 @@ jobs:
       - name: Start Docker
         uses: docker://docker:20.10.17
         run: |
-          dockerd --experimental
+          sudo dockerd --experimental &  # Start Docker daemon (adjust for your system)
+          sleep 10  # Allow Docker daemon to start (adjust as needed)
+
 
       - name: Debug Docker Daemon
         uses: docker://docker:20.10.17
