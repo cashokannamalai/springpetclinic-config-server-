@@ -33,13 +33,15 @@ jobs:
       docker:
         image: docker:23.0.1-dind
         privileged: true
+        options: --privileged
     steps:
-      - name: Setup Docker
+      - name: Wait for Docker to start
         uses: docker://docker:23.0.1
         run: |
-          apk update
-          apk add --no-cache docker-cli
-          dockerd-entrypoint.sh &
+          while (! docker info > /dev/null 2>&1); do
+            echo "Waiting for Docker to start..."
+            sleep 1
+          done
 
       - name: Docker Build
         uses: docker://docker:23.0.1
