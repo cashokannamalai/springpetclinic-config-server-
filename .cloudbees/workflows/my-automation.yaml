@@ -35,4 +35,5 @@ jobs:
         run: |
           apk update && apk add docker openrc
           rc-update add docker boot
+          service docker restart
           docker build -t petclinicconfigserver:3.2.4 .
