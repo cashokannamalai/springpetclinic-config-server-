@@ -24,19 +24,19 @@ jobs:
           mvn clean install -DskipTests=true
 
           
-  DockerBuild:
-    needs: Build
-    services:
-      docker:
-        image: docker:20.10.17-dind
-        privileged: true
-    steps:
-      - name: Set up Docker
-        uses: docker://docker:20.10.17
-        run: |
-          docker info
+DockerBuild:
+  needs: Build
+  services:
+    docker:
+      image: docker:20.10.17-dind
+      privileged: true  
+  steps:
+    - name: Set up Docker
+      uses: docker://docker:20.10.17
+      run: |
+        docker info  
 
-      - name: Build Docker Image
-        uses: docker://docker:20.10.17
-        run: |
-          docker build -t config:3.2.4 .
+    - name: Build Docker Image
+      uses: docker://docker:20.10.17
+      run: |
+        docker build -t config:3.2.4 .
