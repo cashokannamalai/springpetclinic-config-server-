@@ -2,23 +2,29 @@ apiVersion: automation.cloudbees.io/v1alpha1
 kind: workflow
 name: My automation
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - main
 jobs:
   Checkout:
     steps:
       - name: checkout
         uses: cloudbees-io/checkout@v1
+  
   Build:
     needs: Checkout
     steps:
-      - uses: docker://alpine/git:latest
-        run: |
-          git config --global --add safe.directory /cloudbees/workspace
       - name: checkout
         uses: cloudbees-io/checkout@v1
       - name: Build
         uses: docker://maven:3-eclipse-temurin-17
         run: |
-          docker-compose up
+          mvn clean install -DskipTests=true
 
-  
+  DockerComposeUp:
+    needs: Build  
+    steps:
+      - name: Set up Docker Compose
+        uses: docker://docker/compose:latest
+        run: |
+          docker-compose up   
