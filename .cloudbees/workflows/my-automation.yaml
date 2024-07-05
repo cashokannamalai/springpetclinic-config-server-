@@ -30,7 +30,7 @@ jobs:
       - name: Start Docker
         uses: docker://docker:20.10.17
         run: |
-          docker --experimental
+          dockerd --experimental
 
       - name: Debug Docker Daemon
         uses: docker://docker:20.10.17
