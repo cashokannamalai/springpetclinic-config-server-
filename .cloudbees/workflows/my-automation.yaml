@@ -33,9 +33,8 @@ jobs:
         uses: docker://docker:20.10.17
         run: |
           docker info
+
       - name: Build Docker Image
         uses: docker://docker:20.10.17
         run: |
           docker build -t config:3.2.4 .
-
-  
