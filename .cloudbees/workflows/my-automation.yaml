@@ -25,7 +25,7 @@ jobs:
         run: |
           #cat /etc/os-release
           su -
-          echo "Now running as root: $USER"
-          docker version
+          echo "$USER"
+          ls
   
      
