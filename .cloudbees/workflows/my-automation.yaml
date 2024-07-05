@@ -26,9 +26,7 @@ jobs:
         run: |
           mvn clean install -DskipTests=true
 
-  DockerBuild:
-    needs: Build
-    steps:
+  
       - name: Docker Build
         uses: docker://docker:19.03.15
         run: |
