@@ -32,7 +32,7 @@ jobs:
         run: |
 
           ls
-           docker build -t myapp:latest -f /cloudbees/workspace/Dockerfile .
+           docker build -t myapp:latest .
       
 
       
