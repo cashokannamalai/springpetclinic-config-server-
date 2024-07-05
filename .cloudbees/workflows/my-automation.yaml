@@ -35,6 +35,9 @@ jobs:
         run: |
           apk update
           apk add --no-cache docker-cli
-          docker --version
+      - name: Docker Build
+        uses: docker://docker:23.0.1
+        run: |
+          docker build -t config:3.2.4 .
       
 
