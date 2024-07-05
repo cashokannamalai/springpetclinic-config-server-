@@ -24,14 +24,6 @@ jobs:
         uses: docker://maven:3-eclipse-temurin-17
         run: |
           mvn clean install -DskipTests=true
-
+          whoiam
   
-      - name: Docker Build
-        uses: docker://docker:stable
-        run: |
-           #chmod 666 /var/run/docker.sock  
-           #service docker restart  
-          
-           docker version
-          
-           docker build -t petclinic:3.2.4 .
+     
