@@ -29,15 +29,16 @@ jobs:
   
   DockerBuild:
     needs: Build
+    services:
+      docker:
+        image: docker:23.0.1-dind
+        privileged: true
     steps:
-      - name: Install Docker
+      - name: Setup Docker
         uses: docker://docker:23.0.1
         run: |
           apk update
           apk add --no-cache docker-cli
-      - name: Docker Build
-        uses: docker://docker:23.0.1
-        run: |
-          docker build -t config:3.2.4 .
+          dockerd-entrypoint.sh &
       
 
