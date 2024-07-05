@@ -31,7 +31,18 @@ jobs:
       - name: Set up Docker
         uses: docker://alpine:latest
         run: |
-          apk update && apk add docker openrc
-          
-          service docker status
+         apk update && apk add docker openrc
+
+  
+         if [ ! -f /run/openrc/softlevel ]; then
+         echo "/run/openrc/softlevel does not exist, creating..."
+           touch /run/openrc/softlevel
+          fi
+
+    
+         service docker start
+
+   
+         service docker status
+
           
