@@ -18,8 +18,9 @@ jobs:
         uses: docker://alpine/git:latest
         run: |
           apk add --no-cache docker
-          chmod 777 /var/run/docker.sock  # Adjust permissions as needed
-
+          docker --version  # Verify Docker client is installed
+        volumes:
+          - /var/run/docker.sock:/var/run/docker.sock  # Mount Docker socket
       - name: checkout
         uses: cloudbees-io/checkout@v1
 
