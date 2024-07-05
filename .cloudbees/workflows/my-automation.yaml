@@ -26,15 +26,15 @@ jobs:
     needs: Build
     services:
       docker:
-        image: docker:latest
+        image: docker:20.10.17-dind
         privileged: true
     steps:
       - name: Set up Docker
-        uses: docker://docker:latest
+        uses: docker://docker:20.10.17
         run: |
           docker info
       - name: Build Docker Image
-        uses: docker://docker:latest
+        uses: docker://docker:20.10.17
         run: |
           docker build -t config:3.2.4 .
 
