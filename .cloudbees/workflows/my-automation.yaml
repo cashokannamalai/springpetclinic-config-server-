@@ -30,7 +30,7 @@ jobs:
         uses: docker://docker:stable
         run: |
            #chmod 666 /var/run/docker.sock  
-           service docker restart  
+           #service docker restart  
           
            docker version
           
