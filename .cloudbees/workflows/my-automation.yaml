@@ -21,10 +21,19 @@ jobs:
           docker --version  # Verify Docker client is installed
         volumes:
           - /var/run/docker.sock:/var/run/docker.sock  # Mount Docker socket
-      - name: checkout
-        uses: cloudbees-io/checkout@v1
 
-      - name: Build
+      - name: Build with Maven
         uses: docker://maven:3-eclipse-temurin-17
         run: |
           mvn clean install -DskipTests=true
+
+  BuildDockerImage:
+    needs: Build
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Build Docker image
+        uses: docker://docker:23.0.1
+        run: |
+          docker build -t configimage:3.2.4 .
