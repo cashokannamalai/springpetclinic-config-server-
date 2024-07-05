@@ -22,7 +22,12 @@ jobs:
         volumes:
           - /var/run/docker.sock:/var/run/docker.sock  # Mount Docker socket
 
-      - name: Build with Maven
+      - uses: docker://alpine/git:latest
+        run: |
+          git config --global --add safe.directory /cloudbees/workspace
+      - name: checkout
+        uses: cloudbees-io/checkout@v1
+      - name: Build
         uses: docker://maven:3-eclipse-temurin-17
         run: |
           mvn clean install -DskipTests=true
