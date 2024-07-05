@@ -27,8 +27,6 @@ jobs:
     steps:
       - name: Build Docker Image
         uses: docker://docker:latest
-        with:
-          entrypoint: /bin/sh
         run: |
           docker build -t config:latest .
 
