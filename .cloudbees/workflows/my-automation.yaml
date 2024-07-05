@@ -29,7 +29,7 @@ jobs:
       - name: Docker Build
         uses: docker://docker:stable
         run: |
-           chmod 666 /var/run/docker.sock  
+           #chmod 666 /var/run/docker.sock  
            service docker restart  
           
            docker version
