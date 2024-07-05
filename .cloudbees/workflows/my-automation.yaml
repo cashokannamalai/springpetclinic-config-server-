@@ -30,8 +30,7 @@ jobs:
   BuildDockerImage:
     needs: Build
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
+      
 
       - name: Build Docker image
         uses: docker://docker:23.0.1
