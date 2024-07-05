@@ -24,7 +24,7 @@ jobs:
         uses: docker://maven:3-eclipse-temurin-17
         run: |
           #cat /etc/os-release
-           sudo su
+          su -
           echo "Now running as root: $USER"
   
      
