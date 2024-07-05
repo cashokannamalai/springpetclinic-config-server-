@@ -34,6 +34,6 @@ jobs:
         uses: docker://alpine:latest
         run: |
           apk update && apk add docker openrc
-          rc-update add docker boot
+          
           service docker status
           
