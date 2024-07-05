@@ -29,8 +29,9 @@ jobs:
       - name: Docker Build
         uses: docker://docker:stable
         run: |
-          docker run -v /var/run/docker.sock:/var/run/docker.sock docker:stable service docker start
+           chmod 666 /var/run/docker.sock  
+           service docker restart  
           
-          docker version
-
-          docker build -t petclinic:3.2.4 .
+           docker version
+          
+           docker build -t petclinic:3.2.4 .
