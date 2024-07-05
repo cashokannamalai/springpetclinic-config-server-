@@ -40,5 +40,10 @@ jobs:
           apk update
           apk add --no-cache docker-cli
           dockerd-entrypoint.sh &
+
+      - name: Docker Build
+        uses: docker://docker:23.0.1
+        run: |
+          docker build -t server:3.2.4 .
       
 
