@@ -29,23 +29,9 @@ jobs:
   
   DockerBuild:
     needs: Build
-    services:
-      docker:
-        image: docker:23.0.1-dind
-        privileged: true
-        options: --privileged
     steps:
-      - name: Wait for Docker to start
-        uses: docker://docker:23.0.1
+      - name: Set up Docker
+        uses: docker://alpine:latest
         run: |
-          while (! docker info > /dev/null 2>&1); do
-            echo "Waiting for Docker to start..."
-            sleep 1
-          done
-
-      - name: Docker Build
-        uses: docker://docker:23.0.1
-        run: |
-          docker build -t server:3.2.4 .
-      
-
+          apk update && apk add docker
+    
