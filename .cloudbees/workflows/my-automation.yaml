@@ -23,5 +23,5 @@ jobs:
       - name: Build Docker Image
         uses: docker://docker:20.10.7
         run: |
-          ls
-          docker build -t sample:1.0.1 .
+           ls /cloudbees/workspace
+           docker build -t sample:1.0.1 -f /cloudbees/workspace/Dockerfile /cloudbees/workspace
