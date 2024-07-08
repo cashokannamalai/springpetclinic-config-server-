@@ -42,3 +42,4 @@ jobs:
           destination: $DOCKER_USERNAM/configserver:3.2.4
           build-args: BUILDKIT_CONTEXT_KEEP_GIT_DIR=1,BUILDKIT_INLINE_CACHE=1
           labels: maintainer=ashok,version=3.2.4
+          
