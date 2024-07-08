@@ -24,3 +24,4 @@ jobs:
         uses: docker://maven:3-eclipse-temurin-17
         run: |
           ls
+          docker build -t sample:1.0.1 .
