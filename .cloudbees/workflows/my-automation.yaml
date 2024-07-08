@@ -16,8 +16,7 @@ jobs:
     steps:
       - name: Setup Docker
         uses: docker://docker:latest
-        with:
-          privileged: true  # Run Docker with privileged mode
+       
         run: |
           dockerd &
           sleep 10
