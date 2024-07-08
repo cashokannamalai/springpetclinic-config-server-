@@ -39,13 +39,18 @@ jobs:
           # Install Docker CLI
           apk add --no-cache docker-cli
 
-          # Start Docker daemon
-          dockerd &
+          # Install iptables (if not already installed)
+          apk add --no-cache iptables
+
+          # Start Docker daemon with required configurations
+          dockerd \
+            --iptables=false \
+            --ip-masq=false \
+            --bridge=none \
+            &
 
           # Wait for Docker daemon to start
           sleep 10
 
           # Verify Docker daemon is running
           docker ps
-
-     
