@@ -31,3 +31,5 @@ jobs:
         uses: docker://alpine
         run: |
           su root -c 'echo "$USER"'
+
+          docker version
