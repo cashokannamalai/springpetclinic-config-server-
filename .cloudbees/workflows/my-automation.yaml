@@ -27,11 +27,16 @@ jobs:
           mvn clean install -DskipTests=true
 
 
+      - name: Log in to Docker Hub
+        uses: docker://docker:latest
+        run: |
+          echo $DOCKER_PASSWOR | docker login -u $DOCKER_USERNAM --password-stdin
+
       - name: Build a container image with Kaniko
         uses: cloudbees-io/kaniko@v1
         with:
           dockerfile: /cloudbees/workspace/Dockerfile
           context: .
-          destination: configserver:3.2.4
+          destination: $DOCKER_USERNAM/configserver:3.2.4
           build-args: BUILDKIT_CONTEXT_KEEP_GIT_DIR=1,BUILDKIT_INLINE_CACHE=1
           labels: maintainer=ashok,version=3.2.4
