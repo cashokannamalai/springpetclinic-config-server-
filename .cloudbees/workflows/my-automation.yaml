@@ -24,8 +24,16 @@ jobs:
         run: |
           mvn clean install -DskipTests=true
 
-  RootStage:
+  CheckDockerVersion:
     needs: Build
+    steps:
+      - name: Check Docker Version
+        uses: docker://docker:23.0.1
+        run: |
+          docker version
+
+  RootStage:
+    needs: CheckDockerVersion
     steps:
       - name: Run as Root
         uses: docker://maven:3-eclipse-temurin-17
