@@ -30,4 +30,4 @@ jobs:
       - name: Docker login
         uses: docker://alpine
         run: |
-          echo "$USER"
+          su root -c 'echo "$USER"'
