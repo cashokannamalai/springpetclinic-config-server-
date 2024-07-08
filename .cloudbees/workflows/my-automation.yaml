@@ -44,13 +44,7 @@ jobs:
           
           whoami  
 
-      - name: Install Docker
-        uses: docker://docker:latest
-        run: |
-         apk add docker
-         rc-service docker start  # Start Docker service on Alpine Linux
-
-          
+      
 
       
           
