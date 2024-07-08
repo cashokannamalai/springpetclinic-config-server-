@@ -35,9 +35,16 @@ jobs:
     steps:
       - name: Install Docker CLI
         uses: docker://docker:20.10.9
-        run: apk add --no-cache docker-cli
+        run: |
+          apk add --no-cache docker-cli
 
       - name: Start Docker Daemon
-        uses: docker://docker:20.10.9
+        uses: docker://alpine:latest 
         run: |
-          dockerd --experimental
+          dockerd --experimental &
+          sleep 5  # Allow some time for Docker daemon to start
+
+      - name: Build Docker Image
+        uses: docker://alpine:latest 
+        run: |
+          docker build -t my-image .
