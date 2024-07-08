@@ -32,6 +32,6 @@ jobs:
         with:
           dockerfile: /cloudbees/workspace/Dockerfile
           context: .
-          destination: configserver:3.2.4,configserver:latest
+          destination: configserver:3.2.4
           build-args: BUILDKIT_CONTEXT_KEEP_GIT_DIR=1,BUILDKIT_INLINE_CACHE=1
           labels: maintainer=ashok,version=3.2.4
