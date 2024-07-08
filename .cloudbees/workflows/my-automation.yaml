@@ -49,15 +49,17 @@ jobs:
       - name: checkout
         uses: cloudbees-io/checkout@v1
 
+      
       - name: Install Docker CLI
         uses: docker://docker:20.10.9
         run: |
-         apk add --no-cache docker-cli
-         dockerd --iptables=false --ip-masq=false --bridge=none &
-         sleep 10
-         docker ps -a
-   
+          apk add --no-cache docker-cli docker-openrc
+          rc-update add docker boot
+          service docker start
+          sleep 10
+          docker info
+
       - name: Build Docker Image
         uses: docker://docker:20.10.9
         run: |
-          docker build -t configserver1:3.2.4 .
+          docker build -t my-image:latest .
