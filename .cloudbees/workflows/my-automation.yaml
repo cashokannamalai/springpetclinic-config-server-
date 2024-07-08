@@ -14,7 +14,6 @@ jobs:
   Build:
     needs: Checkout
     steps:
-      
       - uses: docker://alpine/git:latest
         run: |
           git config --global --add safe.directory /cloudbees/workspace
@@ -23,14 +22,12 @@ jobs:
       - name: Build
         uses: docker://maven:3-eclipse-temurin-17
         run: |
-         mvn clean install -DskipTests=true
+          mvn clean install -DskipTests=true
 
-      - name: Switch to root
-        uses: docker://docker:23.0.1
+  DockerBuild:
+    needs: Build
+    steps:
+      - name: Docker login
+        uses: docker://alpine
         run: |
           echo "$USER"
-
-
-  
-  
-     
