@@ -28,7 +28,6 @@ jobs:
       - name: Switch to root
         uses: docker://docker:23.0.1
         run: |
-          su root
           echo "$USER"
 
 
