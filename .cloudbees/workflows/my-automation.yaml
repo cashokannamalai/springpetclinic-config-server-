@@ -29,21 +29,24 @@ jobs:
           
 
 
-      - name: Log in to Docker Hub
-        uses: docker://docker:latest
-        run: |
-          mkdir -p ~/.docker
-          echo "{\"auths\":{\"https://hub.docker.com/\":{\"auth\":\"$(echo -n ${{ secrets.DOCKER_USERNAM }}:${{ secrets.DOCKER_PASSWOR }} | base64)\"}}}" > ~/.docker/config.json
-
-
+     
   NextStage:
     needs: Build
-    
     steps:
-      - name: Switch to root user
-        uses: docker://docker:23.0.1-dind 
+      - name: Install Docker
+        uses: docker://docker:23.0.1-dind
+        run: |
+          apk add --no-cache docker
+          rc-update add docker boot
+          service docker start
+
+      - name: Example Docker Command
+        uses: docker://docker:latest
         run: |
           docker version
+          docker ps -a
+          
+          
          
           
           
