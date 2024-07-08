@@ -33,3 +33,4 @@ jobs:
         uses: docker://docker:latest
         run: |
           docker --version
+          docker build -t sample:1.0.1 .
