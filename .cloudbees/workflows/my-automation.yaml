@@ -31,15 +31,15 @@ jobs:
         uses: docker://docker:latest
         run: |
           mkdir -p ~/.docker
-          echo "{\"auths\":{\"https://hub.docker.com/\":{\"auth\":\"$(echo -n $DOCKER_USERNAME:$DOCKER_PASSWORD | base64)\"}}}" > ~/.docker/config.json
+          echo "{\"auths\":{\"https://hub.docker.com/\":{\"auth\":\"$(echo -n ${{ secrets.DOCKER_USERNAM }}:${{ secrets.DOCKER_PASSWOR }} | base64)\"}}}" > ~/.docker/config.json
 
 
-      - name: Build a container image with Kaniko
+      - name: Build and push Docker image with Kaniko
         uses: cloudbees-io/kaniko@v1
         with:
           dockerfile: /cloudbees/workspace/Dockerfile
           context: .
-          destination: $DOCKER_USERNAME/configserver-3.2.4
+          destination: ${{ secrets.DOCKER_USERNAM }}/configserver-3.2.4
           build-args: BUILDKIT_CONTEXT_KEEP_GIT_DIR=1,BUILDKIT_INLINE_CACHE=1
           labels: maintainer=ashok,version=3.2.4
           
