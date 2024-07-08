@@ -55,20 +55,10 @@ jobs:
           # Verify Docker daemon is running
           docker ps -a
 
-
-  Docker:
-    needs: NextStage
-    steps:
-      - uses: docker://alpine/git:latest
+      - name: Build Docker image
+        uses: docker://alpine:latest 
         run: |
-          git config --global --add safe.directory /cloudbees/workspace
-
-      - name: checkout
-        uses: cloudbees-io/checkout@v1
-
-      - name: Build
-        uses: docker://maven:3-eclipse-temurin-17
-        run: |
-          docker build -t configserver:3.2.4 .
-
+          cd /cloudbees/workspace
+          docker build -t config -f Dockerfile .
+  
          
