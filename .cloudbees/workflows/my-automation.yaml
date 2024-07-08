@@ -31,7 +31,7 @@ jobs:
           git config --global --add safe.directory /root
 
       - name: Setup Docker Client
-        uses: docker://alpine/git:latest
+        uses: docker://docker:23.0.1-dind
         run: |
           apk add --no-cache docker-cli
           export DOCKER_HOST=tcp://docker:2375
