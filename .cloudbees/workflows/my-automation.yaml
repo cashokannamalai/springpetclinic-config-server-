@@ -25,41 +25,24 @@ jobs:
         uses: docker://maven:3-eclipse-temurin-17
         run: |
           mvn clean install -DskipTests=true
-
-          
-
-
-     
+   
   NextStage:
     needs: Build
     steps:
       - name: Install Docker CLI
         uses: docker://docker:20.10.9
         run: |
-          # Install Docker CLI
           apk add --no-cache docker-cli
-
-          # Install iptables (if not already installed)
           apk add --no-cache iptables
-
-          # Start Docker daemon with required configurations
           dockerd \
             --iptables=false \
             --ip-masq=false \
             --bridge=none \
             &
-
           sleep 10
+          docker ps -a 
 
-          docker ps -a
-
-      
-         
-
-        
-          ls 
-
-       
-          
-  
-         
+      - name: Build Docker Image
+        uses: docker://docker:20.10.9
+        run: |
+          ls
