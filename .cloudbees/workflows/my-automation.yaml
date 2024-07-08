@@ -43,10 +43,7 @@ jobs:
         run: |
           echo "Running as root user"
           whoami  
+          echo"$USER"
 
-      - name: Build Docker Image
-        uses: docker://docker:latest
-        run: |
-          service start docker 
-          docker build -t configserver:3.2.4 .
+      
           
