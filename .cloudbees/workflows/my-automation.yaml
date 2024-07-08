@@ -30,7 +30,9 @@ jobs:
       - name: Log in to Docker Hub
         uses: docker://docker:latest
         run: |
-          echo $DOCKER_PASSWOR | docker login -u $DOCKER_USERNAM --password-stdin
+          mkdir -p ~/.docker
+          echo "{\"auths\":{\"https://hub.docker.com/\":{\"auth\":\"$(echo -n $DOCKER_USERNAME:$DOCKER_PASSWORD | base64)\"}}}" > ~/.docker/config.json
+
 
       - name: Build a container image with Kaniko
         uses: cloudbees-io/kaniko@v1
