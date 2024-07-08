@@ -42,7 +42,7 @@ jobs:
         uses: docker://docker:23.0.1-dind 
         run: |
           
-          docker version  
+         
           service docker start
           
 
