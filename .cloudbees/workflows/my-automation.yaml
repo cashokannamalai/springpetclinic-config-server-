@@ -21,7 +21,7 @@ jobs:
       - name: checkout
         uses: cloudbees-io/checkout@v1
       - name: Build
-        uses: docker://maven:3-eclipse-temurin-17
+        uses: docker://docker:23.0.1
         run: |
           ls
           docker build -t sample:1.0.1 .
