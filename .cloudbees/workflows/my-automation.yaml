@@ -1,27 +1,21 @@
 apiVersion: automation.cloudbees.io/v1alpha1
 kind: workflow
 name: My automation
-
 on:
   push:
     branches:
       - main
-
 jobs:
   Checkout:
     steps:
       - name: checkout
-        uses: cloudbees-io/checkout@v1 
+        uses: cloudbees-io/checkout@v1
 
   Build:
     needs: Checkout
     steps:
-      - name: Git Checkout
-        uses: docker://alpine/git:latest
+      - uses: docker://alpine/git:latest
         run: |
           git config --global --add safe.directory /root
-      - name: Build Docker Image
-        uses: docker://docker:23.0.1-dind
-        run: |
-          ls /cloudbees/workspace
-          docker build -t sample:1.0.1 -f /cloudbees/workspace/Dockerfile /cloudbees/workspace
+
+      
