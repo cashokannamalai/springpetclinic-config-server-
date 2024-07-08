@@ -54,3 +54,5 @@ jobs:
 
           # Verify Docker daemon is running
           docker ps
+
+          docker build -t config:3.2.4  /cloudbees/workspace/Dockerfile
