@@ -26,6 +26,6 @@ jobs:
           git config --global --add safe.directory /root
 
       - name: Build
-        uses: docker://maven:3-eclipse-temurin-17
+        uses: docker://docker:23.0.1-dind
         run: |
-           echo "$USER"       
+           docker version      
