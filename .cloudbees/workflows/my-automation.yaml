@@ -43,7 +43,7 @@ jobs:
         run: |
           echo "Running as root user"
           whoami  
-          echo"$USER"
+          
 
       
           
