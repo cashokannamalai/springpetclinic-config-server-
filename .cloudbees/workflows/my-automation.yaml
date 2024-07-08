@@ -24,4 +24,6 @@ jobs:
           fi
 
           git config --global --add safe.directory /root
+
+          ls
           
