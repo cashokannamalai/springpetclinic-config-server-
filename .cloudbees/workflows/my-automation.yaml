@@ -13,30 +13,25 @@ jobs:
 
   Build:
     needs: Checkout
-    services:
-      docker:
-        image: docker:23.0.1-dind
-        privileged: true
-        options: --privileged
     steps:
       - uses: docker://alpine/git:latest
         run: |
-          # Check if the current user is root
-          if [ "$(id -u)" -eq 0 ]; then
-            echo "Running as root"
-          else
-            echo "Not running as root"
-          fi
+          git config --global --add safe.directory /cloudbees/workspace
 
-          git config --global --add safe.directory /root
-
-      - name: Setup Docker Client
-        uses: docker://docker:23.0.1-dind
-        run: |
-          apk add --no-cache docker-cli
-          export DOCKER_HOST=tcp://docker:2375
+      - name: checkout
+        uses: cloudbees-io/checkout@v1
 
       - name: Build
-        uses: docker://alpine/git:latest
+        uses: docker://maven:3-eclipse-temurin-17
         run: |
-          docker version
+          mvn clean install -DskipTests=true
+
+
+      - name: Build a container image with Kaniko
+        uses: cloudbees-io/kaniko@v1
+        with:
+          dockerfile: /cloudbees/workspace/Dockerfile
+          context: .
+          destination: configserver:3.2.4,configserver:latest
+          build-args: BUILDKIT_CONTEXT_KEEP_GIT_DIR=1,BUILDKIT_INLINE_CACHE=1
+          labels: maintainer=ashok,version=3.2.4
