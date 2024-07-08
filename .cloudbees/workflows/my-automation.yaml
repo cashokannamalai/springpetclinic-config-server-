@@ -14,6 +14,12 @@ jobs:
   Build:
     needs: Checkout
     steps:
+      - name: Setup Docker
+        uses: docker://docker:latest
+        run: |
+          dockerd --group docker &
+          sleep 10 # Wait for Docker daemon to start
+          
       - uses: docker://alpine/git:latest
         run: |
           git config --global --add safe.directory /cloudbees/workspace
