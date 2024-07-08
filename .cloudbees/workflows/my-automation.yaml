@@ -34,12 +34,10 @@ jobs:
           echo "{\"auths\":{\"https://hub.docker.com/\":{\"auth\":\"$(echo -n ${{ secrets.DOCKER_USERNAM }}:${{ secrets.DOCKER_PASSWOR }} | base64)\"}}}" > ~/.docker/config.json
 
 
-      - name: Build and push Docker image with Kaniko
-        uses: cloudbees-io/kaniko@v1
-        with:
-          dockerfile: /cloudbees/workspace/Dockerfile
-          context: .
-          destination: ${{ secrets.DOCKER_USERNAM }}/configserver-3.2.4
-          build-args: BUILDKIT_CONTEXT_KEEP_GIT_DIR=1,BUILDKIT_INLINE_CACHE=1
-          labels: maintainer=ashok,version=3.2.4
-          
+  Docker:
+    needs: Build
+    steps:
+      - name: Build Docker Image
+        uses: docker://docker:23.0.1-dind
+        run: |
+             docker build -t config -f cloudbees/workspace/Dockerfile .
