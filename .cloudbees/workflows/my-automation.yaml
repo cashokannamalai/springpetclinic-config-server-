@@ -39,6 +39,12 @@ jobs:
   CheckDockerVersion:
     needs: Build
     steps:
+      - name: Start Docker
+        uses: docker://docker:23.0.1-dind
+        run: |
+          docker version
+        env:
+          DOCKER_TLS_CERTDIR: ""
       - name: Check Docker Version
         uses: docker://docker:23.0.1
         run: |
