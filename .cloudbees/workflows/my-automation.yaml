@@ -13,6 +13,11 @@ jobs:
 
   Build:
     needs: Checkout
+    services:
+      docker:
+        image: docker:23.0.1-dind
+        privileged: true
+        options: --privileged
     steps:
       - uses: docker://alpine/git:latest
         run: |
@@ -25,7 +30,13 @@ jobs:
 
           git config --global --add safe.directory /root
 
-      - name: Build
-        uses: docker://docker:23.0.1-dind
+      - name: Setup Docker Client
+        uses: docker://alpine/git:latest
         run: |
-           docker version      
+          apk add --no-cache docker-cli
+          export DOCKER_HOST=tcp://docker:2375
+
+      - name: Build
+        uses: docker://alpine/git:latest
+        run: |
+          docker version
