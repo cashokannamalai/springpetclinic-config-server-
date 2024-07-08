@@ -39,7 +39,7 @@ jobs:
     
     steps:
       - name: Switch to root user
-        uses: docker://alpine:latest 
+        uses: docker://docker:23.0.1-dind 
         run: |
           
           docker version  
