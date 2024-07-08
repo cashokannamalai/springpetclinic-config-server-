@@ -39,3 +39,21 @@ jobs:
         docker ps -a
 
    
+  Docker:
+    needs: NextStage
+    steps:
+      - uses: docker://alpine/git:latest
+        run: |
+          git config --global --add safe.directory /cloudbees/workspace
+
+      - name: checkout
+        uses: cloudbees-io/checkout@v1
+
+      - name: Install Docker CLI
+        uses: docker://docker:20.10.9
+        run: |
+         apk add --no-cache docker-cli
+         dockerd --iptables=false --ip-masq=false --bridge=none &
+         sleep 10
+         docker ps -a
+   
