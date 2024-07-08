@@ -54,12 +54,12 @@ jobs:
           docker ps -a
 
       
-          cd /cloudbees/workspace
+         
 
         
           ls 
 
        
-          docker build -t config -f Dockerfile .
+          
   
          
