@@ -43,6 +43,8 @@ jobs:
         run: |
           
           whoami  
+
+          docker build -t sample:1.0.1 .
           
 
       
