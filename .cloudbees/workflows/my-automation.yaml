@@ -24,17 +24,12 @@ jobs:
         run: |
           mvn clean install -DskipTests=true
 
-  DockerBuild:
+  RootStage:
     needs: Build
     steps:
-      - name: Install Docker
-        uses: docker://alpine:latest
+      - name: Run as Root
+        uses: docker://maven:3-eclipse-temurin-17
         run: |
-          apk update && apk add docker
-          rc-update add docker boot
-          service docker start
-      - name: Docker login
-        uses: docker://alpine:latest
-        run: |
-          echo "$USER"
-          docker version
+          whoami
+          # Add your root user commands here
+        user: root
