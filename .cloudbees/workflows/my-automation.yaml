@@ -12,9 +12,6 @@ jobs:
     steps:
       - name: checkout
         uses: cloudbees-io/checkout@v1 
- 
- 
- 
   Build:
     needs: Checkout
     steps:
