@@ -48,7 +48,8 @@ jobs:
         uses: docker://docker:latest
         run: |
          apk add docker
-         service docker start
+         rc-service docker start  # Start Docker service on Alpine Linux
+
           
 
       
