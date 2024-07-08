@@ -49,14 +49,17 @@ jobs:
             --bridge=none \
             &
 
-          # Wait for Docker daemon to start
           sleep 10
 
-          # Verify Docker daemon is running
           docker ps -a
 
       
           cd /cloudbees/workspace
+
+        
+          ls 
+
+       
           docker build -t config -f Dockerfile .
   
          
