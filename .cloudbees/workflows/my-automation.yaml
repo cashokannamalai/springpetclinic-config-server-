@@ -41,5 +41,5 @@ jobs:
       - name: Switch to root user
         uses: docker://alpine:latest 
         run: |
-          sudo su
+          echo "$USER"
           
