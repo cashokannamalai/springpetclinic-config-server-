@@ -39,11 +39,10 @@ jobs:
           apk add --no-cache docker-cli
           dockerd &
 
-      - name: Example Docker Command
+      - name: Build Docker Image
         uses: docker://docker:latest
         run: |
-          docker version
-          docker ps -a
+          docker build -t myapp:latest .
           
           
          
