@@ -33,24 +33,11 @@ jobs:
   NextStage:
     needs: Build
     steps:
-      - name: Install and Start Docker
-        uses: docker://docker:23.0.1-dind
-        run: |
-          apk add --no-cache docker-cli
-          dockerd &
+    - name: Install Docker CLI
+      uses: docker://docker:20.10.9
+      run: apk add --no-cache docker-cli
 
-      - name: Build Docker Image
-        uses: docker://docker:latest
-        run: |
-          chmod -R 777 /var/run/docker.sock
-          docker build -t myapp:latest .
-          
-          
-         
-          
-          
-
-      
-
-      
-          
+    - name: Mount Docker Socket
+      uses: docker://alpine:latest 
+      run: |
+        docker run -v /var/run/docker.sock:/var/run/docker.sock myapp:latest
