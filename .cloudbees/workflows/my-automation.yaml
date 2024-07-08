@@ -44,7 +44,11 @@ jobs:
           
           whoami  
 
-          docker build -t sample:1.0.1 .
+      - name: Install Docker
+        uses: docker://docker:latest
+        run: |
+         apk add docker
+         service docker start
           
 
       
