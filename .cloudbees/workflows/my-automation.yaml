@@ -2,7 +2,6 @@ apiVersion: automation.cloudbees.io/v1alpha1
 kind: workflow
 name: My automation
 
-
 on:
   push:
     branches:
@@ -13,14 +12,10 @@ jobs:
     steps:
       - name: checkout
         uses: cloudbees-io/checkout@v1 
-        
+
   Build:
     needs: Checkout
-    services:
-      docker:
-        image: docker:20.10.7
-        command: ["dockerd-entrypoint.sh", "--experimental"]
-      steps:
+    steps:
       - name: Git Checkout
         uses: docker://alpine/git:latest
         run: |
