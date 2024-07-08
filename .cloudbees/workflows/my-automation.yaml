@@ -55,9 +55,7 @@ jobs:
           # Verify Docker daemon is running
           docker ps -a
 
-      - name: Build Docker image
-        uses: docker://alpine:latest 
-        run: |
+      
           cd /cloudbees/workspace
           docker build -t config -f Dockerfile .
   
