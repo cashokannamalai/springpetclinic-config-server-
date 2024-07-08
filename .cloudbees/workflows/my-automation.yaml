@@ -34,10 +34,11 @@ jobs:
           echo "{\"auths\":{\"https://hub.docker.com/\":{\"auth\":\"$(echo -n ${{ secrets.DOCKER_USERNAM }}:${{ secrets.DOCKER_PASSWOR }} | base64)\"}}}" > ~/.docker/config.json
 
 
-  Docker:
+  NextStage:
     needs: Build
+    runs-on: ubuntu-latest
     steps:
-      - name: Build Docker Image
-        uses: docker://docker:23.0.1-dind
+      - name: Switch to root user
+        uses: docker://alpine:latest 
         run: |
-             docker build -t config -f cloudbees/workspace/Dockerfile .
+          sudo su
