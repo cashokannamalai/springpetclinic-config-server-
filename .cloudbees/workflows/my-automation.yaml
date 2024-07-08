@@ -42,9 +42,7 @@ jobs:
         uses: docker://alpine:latest 
         run: |
           dockerd --experimental &
-          sleep 5  # Allow some time for Docker daemon to start
+          sleep 5  
+          docker version
 
-      - name: Build Docker Image
-        uses: docker://alpine:latest 
-        run: |
-          docker build -t my-image .
+     
