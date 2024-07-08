@@ -24,7 +24,9 @@ jobs:
       - name: Build
         uses: docker://maven:3-eclipse-temurin-17
         run: |
-          mvn clean install -DskipTests=true
+          docker version
+
+          
 
 
       - name: Log in to Docker Hub
