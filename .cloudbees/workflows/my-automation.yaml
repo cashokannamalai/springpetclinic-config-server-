@@ -16,9 +16,11 @@ jobs:
     steps:
       - name: Setup Docker
         uses: docker://docker:latest
+        with:
+          privileged: true  # Run Docker with privileged mode
         run: |
-          dockerd --group docker &
-          sleep 10 # Wait for Docker daemon to start
+          dockerd &
+          sleep 10
           
       - uses: docker://alpine/git:latest
         run: |
