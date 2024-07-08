@@ -45,4 +45,5 @@ jobs:
       - name: Build Docker Image
         uses: docker://docker:20.10.9
         run: |
-          ls
+          docker build -t config:latest /cloudbees/workspace
+          
