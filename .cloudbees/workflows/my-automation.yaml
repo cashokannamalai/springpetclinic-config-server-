@@ -38,7 +38,4 @@ jobs:
         sleep 10
         docker ps -a
 
-    - name: Build Docker Image
-      uses: docker://docker:20.10.9
-      run: |
-        docker build -t configsample:3.2.4 .
+   
