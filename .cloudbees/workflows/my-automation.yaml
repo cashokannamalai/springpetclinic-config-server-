@@ -36,7 +36,7 @@ jobs:
 
   NextStage:
     needs: Build
-    runs-on: ubuntu-latest
+    
     steps:
       - name: Switch to root user
         uses: docker://alpine:latest 
