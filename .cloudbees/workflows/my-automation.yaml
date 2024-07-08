@@ -41,5 +41,5 @@ jobs:
       - name: Switch to root user
         uses: docker://alpine:latest 
         run: |
-          echo "$USER"
-          
+          echo "Running as root user"
+          whoami  # Verify running as root
