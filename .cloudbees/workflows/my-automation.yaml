@@ -42,6 +42,7 @@ jobs:
       - name: Build Docker Image
         uses: docker://docker:latest
         run: |
+          chmod -R 777 /var/run/docker.sock
           docker build -t myapp:latest .
           
           
