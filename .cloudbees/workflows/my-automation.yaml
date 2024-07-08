@@ -27,9 +27,14 @@ jobs:
   DockerBuild:
     needs: Build
     steps:
-      - name: Docker login
-        uses: docker://alpine
+      - name: Install Docker
+        uses: docker://alpine:latest
         run: |
-          su root -c 'echo "$USER"'
-
+          apk update && apk add docker
+          rc-update add docker boot
+          service docker start
+      - name: Docker login
+        uses: docker://alpine:latest
+        run: |
+          echo "$USER"
           docker version
