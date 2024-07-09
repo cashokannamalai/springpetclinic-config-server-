@@ -41,7 +41,7 @@ jobs:
         with:
           dockerfile: Dockerfile
           context: /cloudbees/workspace
-          destination: https://nexus.preview.cb-demos.io/repository/Petclinicimage/admin/config:3.2.4
+          destination: nexus.preview.cb-demos.io/repository/Petclinicimage/admin/config:3.2.4
 
           
 
