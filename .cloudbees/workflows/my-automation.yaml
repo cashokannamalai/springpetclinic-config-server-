@@ -41,7 +41,7 @@ jobs:
         with:
           dockerfile: Dockerfile
           context: .
-          destination: https://nexus.preview.cb-demos.io/repository/petclinicimage/configserver:3.2.4,https://nexus.preview.cb-demos.io/repository/petclinicimage/configserver:3.2.4
+          destination: https://nexus.preview.cb-demos.io/repository/petclinicimage/admin/configserver:3.2.4,https://nexus.preview.cb-demos.io/repository/petclinicimage/admin/configserver:3.2.4
           
           
           
