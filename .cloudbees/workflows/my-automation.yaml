@@ -31,7 +31,7 @@ jobs:
       - name: Build a container image with Kaniko
         uses: cloudbees-io/kaniko@v1
         with:
-         dockerfile: ./cloudbees/workspace/Dockerfile  
+         dockerfile: Dockerfile 
          context: /cloudbees/workspace     
          destination: config:1.0.1  
 
