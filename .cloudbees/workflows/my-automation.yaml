@@ -38,8 +38,12 @@ jobs:
       - name: Build Docker image
         uses: docker://docker:20.10.9-dind
         run: |
-          
+          apk add --no-cache docker-cli
+          dockerd --iptables=false --ip-masq=false --bridge=none &
+          sleep 10
           docker build -t my-config:3.2.4 .
+          docker info
+        privileged: true
          
      
           
