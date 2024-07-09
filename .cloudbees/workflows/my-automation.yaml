@@ -36,8 +36,8 @@ jobs:
         apk add --no-cache docker-cli
         dockerd --iptables=false --ip-masq=false --bridge=none &
         sleep 10
-        cp /cloudbees/workspace/Dockerfile /Dockerfile
-        docker ps -a
+        cd /cloudbees/workspace/
+       
         ls
 
    
