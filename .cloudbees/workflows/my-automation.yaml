@@ -15,11 +15,7 @@ jobs:
     needs: Checkout
    
     steps:
-      - name: Setup Docker-in-Docker
-        uses: docker://docker:20.10.7
-        run: |
-          dockerd --host=unix:///var/run/docker.sock --host=tcp://0.0.0.0:2375 &>/dev/null &
-          sleep 5  # Wait for Docker to start up
+     
       
           
       - uses: docker://alpine/git:latest
@@ -33,16 +29,9 @@ jobs:
         uses: docker://maven:3-eclipse-temurin-17
         run: |
             mvn clean install -DskipTests=true
+            ls 
      
   
-      - name: Build Docker image
-        uses: docker://docker:20.10.9-dind-rootless
-        run: |
-         docker build -t my-config:3.2.4 .
-         docker info
-         env:
-            DOCKER_HOST: tcp://localhost:2375
-            privileged: false
-         
+      
      
           
