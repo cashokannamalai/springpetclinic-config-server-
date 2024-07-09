@@ -32,7 +32,7 @@ jobs:
         uses: cloudbees-io/kaniko@v1
         with:
           dockerfile: .
-          destination: https://nexus.preview.cb-demos:io/config:1.0.1,https://nexus.preview.cb-demos:io/config:latest
+          destination: config:1.0.1
   
      
   
