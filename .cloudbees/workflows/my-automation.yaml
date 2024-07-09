@@ -15,8 +15,8 @@ jobs:
     needs: Checkout
     services:
       docker:
-        image: docker:20.10.9
-        privileged: true  # Necessary to run Docker in Docker (DinD)
+         image: docker:20.10.9
+         options: --privileged  
     steps:
       - uses: docker://alpine/git:latest
         run: |
