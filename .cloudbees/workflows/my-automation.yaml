@@ -21,7 +21,12 @@ jobs:
           apk add --update docker
           service docker start || true 
           docker --version  
-          docker info  
+          docker info 
+
+      - name: Wait for Docker to Start
+        uses: docker://alpine:latest 
+        run: |
+          timeout 15s sh -c "until docker info; do echo Waiting for Docker to start...; sleep 1; done" 
       - uses: docker://alpine/git:latest
         run: |
           git config --global --add safe.directory /cloudbees/workspace
