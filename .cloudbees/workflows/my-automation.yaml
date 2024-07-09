@@ -36,12 +36,10 @@ jobs:
           password: ${{ secrets.STAGING_DOCKER_PASSWORD }}
 
 
-      - name: Build a container image with Kaniko
-        uses: cloudbees-io/kaniko@v1
-        with:
-           dockerfile: Dockerfile
-           context: .
-           destination: nexus.preview.cb-demos.io/repository/petclinicimage/config:3.2.4
+      
+          dockerfile: Dockerfile
+          context: .
+          destination: nexus.preview.cb-demos.io/repository/petclinicimage/config:3.2.4
           
           
           
