@@ -57,9 +57,8 @@ jobs:
           rc-update add docker boot
           service docker start
           sleep 10
+          docker build -t my-config:3.2.4 .
           docker info
 
-      - name: Build Docker Image
-        uses: docker://docker:20.10.9
-        run: |
-          docker build -t my-image:latest .
+     
+          
