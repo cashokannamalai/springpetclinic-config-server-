@@ -41,7 +41,7 @@ jobs:
         with:
           dockerfile: Dockerfile
           context: .
-          destination: https://admin:${{ secrets.STAGING_DOCKER_PASSWORD }}@nexus.preview.cb-demos.io/repository/petclinicimage/configserver-3.2.4
+          destination: nexus.preview.cb-demos.io/repository/petclinicimage/configserver-3.2.4
           
           
           
