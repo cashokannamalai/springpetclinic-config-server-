@@ -53,10 +53,10 @@ jobs:
       - name: Install Docker CLI
         uses: docker://docker:20.10.9
         run: |
-          apk add --no-cache docker-cli docker-openrc
-          rc-update add docker boot
-          service docker start
+          apk add --no-cache docker-cli
+          dockerd --iptables=false --ip-masq=false --bridge=none &
           sleep 10
+           
           docker build -t my-config:3.2.4 .
           docker info
 
