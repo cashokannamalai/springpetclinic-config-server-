@@ -27,20 +27,11 @@ jobs:
           mvn clean install -DskipTests=true
    
   
-  NextStage:
-   needs: Build
-   steps:
-    - name: Install Docker CLI
-      uses: docker://docker:20.10.9
-      run: |
-        apk add --no-cache docker-cli
-        dockerd --iptables=false --ip-masq=false --bridge=none &
-        sleep 10
-        cd /cloudbees/workspace/
-       
-        ls
+      - name: Build Docker Image
+        uses: docker://docker:20.10.9
+        run: |
+          docker build -t my-app:latest /cloudbees/workspace
 
-   
 
   
 
