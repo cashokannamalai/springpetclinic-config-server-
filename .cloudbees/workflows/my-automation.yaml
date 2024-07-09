@@ -27,11 +27,13 @@ jobs:
         run: |
             mvn clean install -DskipTests=true
 
-      - name: Docker Login
+      - id: dockerconfig
+        name: Configure container registry credentials
         uses: cloudbees-io/configure-oci-credentials@v1
         with:
-          username: logicfocus
-          password: ${{ secrets.DOCKER_PASSWORD }}
+          registry: ${{ vars.STAGING_DOCKER_REGISTRY }}
+          username: ${{ secrets.STAGING_DOCKER_USERNAME }}
+          password: ${{ secrets.STAGING_DOCKER_PASSWORD }}
 
 
       - name: Build a container image with Kaniko
