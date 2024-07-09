@@ -23,7 +23,7 @@ jobs:
       - name: Verify Docker Container
         uses: docker://docker:20.10.7
         run: |
-          docker ps -a
+          docker images
           
       - uses: docker://alpine/git:latest
         run: |
