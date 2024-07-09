@@ -36,10 +36,11 @@ jobs:
           password: ${{ secrets.STAGING_DOCKER_PASSWORD }}
 
 
-      
-          dockerfile: Dockerfile
-          context: .
-          destination: nexus.preview.cb-demos.io/repository/petclinicimage/config:3.2.4
+      - name: Push image to OCI registry
+        uses: cloudbees-io/kaniko@v1
+        with:
+          
+          destination: nexus.preview.cb-demos.io/repository/petclinicimage/${{ secrets.STAGING_DOCKER_USERNAME }}/configserver:3.2.4
           
           
           
