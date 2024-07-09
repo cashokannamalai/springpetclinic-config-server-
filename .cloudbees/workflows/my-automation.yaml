@@ -37,7 +37,7 @@ jobs:
   
       - name: Docker Build
         uses: docker://docker:19.03.12
-        with:
-          args: build -t your-image-name:latest .
+         run |
+          docker build -t docker:latest .
      
           
