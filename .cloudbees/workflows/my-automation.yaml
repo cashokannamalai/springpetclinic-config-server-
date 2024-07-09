@@ -20,10 +20,7 @@ jobs:
         run: |
           dockerd --host=unix:///var/run/docker.sock --host=tcp://0.0.0.0:2375 &>/dev/null &
           sleep 5  # Wait for Docker to start up
-      - name: Verify Docker Container
-        uses: docker://docker:20.10.7
-        run: |
-          docker images
+      
           
       - uses: docker://alpine/git:latest
         run: |
@@ -38,6 +35,11 @@ jobs:
             mvn clean install -DskipTests=true
      
   
-
+      - name: Build Docker image
+        uses: docker://docker:20.10.9-dind
+        run: |
+          
+          docker build -t my-config:3.2.4 .
+         
      
           
