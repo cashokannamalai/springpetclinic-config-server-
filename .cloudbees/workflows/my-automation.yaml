@@ -38,18 +38,8 @@ jobs:
         sleep 10
         docker ps -a
 
-    - name: Verify Dockerfile Path
-      uses: docker://alpine:latest
-      run: |
-          ls -l /cloudbees/workspace
-          if [ ! -f /cloudbees/workspace/Dockerfile ]; then
-            echo "Dockerfile not found!"
-            exit 1
-          fi
+   
 
-    - name: Build Docker Image
-      uses: docker://docker:20.10.9
-      run: |
         docker build -t my-docker-image:latest -f /cloudbees/workspace/Dockerfile /cloudbees/workspace
   
 
