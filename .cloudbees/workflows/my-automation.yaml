@@ -19,9 +19,9 @@ jobs:
         uses: docker://alpine:latest 
         run: |
           apk add --update docker
-          rc-service docker start
-          docker --version  # Check Docker version
-          docker info 
+          service docker start || true 
+          docker --version  
+          docker info  
       - uses: docker://alpine/git:latest
         run: |
           git config --global --add safe.directory /cloudbees/workspace
