@@ -42,8 +42,6 @@ jobs:
            dockerfile: Dockerfile
            context: .
            destination: nexus.preview.cb-demos.io/repository/petclinicimage/config:3.2.4
-           username: ${{ secrets.STAGING_DOCKER_USERNAME }}
-           password: ${{ secrets.STAGING_DOCKER_PASSWORD }}
           
           
           
