@@ -41,7 +41,7 @@ jobs:
         with:
           dockerfile: Dockerfile
           context: /cloudbees/workspace
-          destination: docker.io/logicfocus/config:1.0.1
+          destination: https://nexus.preview.cb-demos:8082/admin/config:3.2.4
 
          
   
