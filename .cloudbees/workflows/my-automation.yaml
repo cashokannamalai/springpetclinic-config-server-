@@ -31,8 +31,7 @@ jobs:
         uses: docker://maven:3-eclipse-temurin-17
         run: |
             mvn clean install -DskipTests=true
-            ls 
-            docker build -t con:1.0.1 .
+            
      
   
       - name: Docker Build
