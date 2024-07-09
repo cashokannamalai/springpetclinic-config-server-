@@ -25,6 +25,9 @@ jobs:
       - name: checkout
         uses: cloudbees-io/checkout@v1
 
+      - name: Set up Docker environment
+        uses: docker/setup-buildx-action@v1
+
       - name: Build
         uses: docker://maven:3-eclipse-temurin-17
         run: |
