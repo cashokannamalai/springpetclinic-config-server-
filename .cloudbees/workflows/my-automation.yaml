@@ -28,7 +28,7 @@ jobs:
       - name: Build
         uses: docker://maven:3-eclipse-temurin-17
         run: |
-          mvn clean install -DskipTests=true
+          docker version
 
       - name: Build Docker Image
         uses: docker://docker:20.10.9
