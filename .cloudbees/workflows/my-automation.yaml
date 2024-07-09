@@ -41,7 +41,7 @@ jobs:
         with:
           dockerfile: Dockerfile
           context: /cloudbees/workspace
-          destination: ${{ secrets.STAGING_DOCKER_REGISTRY }}/admin/config:3.2.4
+          destination: https://nexus.preview.cb-demos.io/admin/config:3.2.4
 
           
 
