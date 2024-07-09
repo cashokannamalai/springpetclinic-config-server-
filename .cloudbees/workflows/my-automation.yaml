@@ -28,7 +28,7 @@ jobs:
             mvn clean install -DskipTests=true
 
       - name: Docker Login
-        uses: docker/login-action@v2
+        uses: cloudbees-io/configure-oci-credentials@v1
         with:
           username: logicfocus
           password: ${{ secrets.DOCKER_PASSWORD }}
