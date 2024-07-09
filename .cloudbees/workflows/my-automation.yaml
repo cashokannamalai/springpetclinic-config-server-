@@ -13,6 +13,10 @@ jobs:
 
   Build:
     needs: Checkout
+    services:
+      docker:
+        image: docker:20.10.9
+        privileged: true  # Necessary to run Docker in Docker (DinD)
     steps:
       - uses: docker://alpine/git:latest
         run: |
@@ -25,14 +29,11 @@ jobs:
         uses: docker://maven:3-eclipse-temurin-17
         run: |
           mvn clean install -DskipTests=true
-   
-  
+
       - name: Build Docker Image
         uses: docker://docker:20.10.9
         run: |
           docker build -t my-app:latest /cloudbees/workspace
-
-
   
 
      
