@@ -13,11 +13,18 @@ jobs:
 
   Build:
     needs: Checkout
-    services:
-      docker:
-         image: docker:20.10.9
-         options: --privileged  
+   
     steps:
+      - name: Setup Docker-in-Docker
+        uses: docker://docker:20.10.7
+        run: |
+          dockerd --host=unix:///var/run/docker.sock --host=tcp://0.0.0.0:2375 &>/dev/null &
+          sleep 5  # Wait for Docker to start up
+      - name: Verify Docker Container
+        uses: docker://docker:20.10.7
+        run: |
+          docker ps -a
+          
       - uses: docker://alpine/git:latest
         run: |
           git config --global --add safe.directory /cloudbees/workspace
@@ -28,12 +35,8 @@ jobs:
       - name: Build
         uses: docker://maven:3-eclipse-temurin-17
         run: |
-          docker version
-
-      - name: Build Docker Image
-        uses: docker://docker:20.10.9
-        run: |
-          docker build -t my-app:latest /cloudbees/workspace
+            mvn clean install -DskipTests=true
+     
   
 
      
