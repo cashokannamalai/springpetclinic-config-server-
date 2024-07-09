@@ -39,9 +39,11 @@ jobs:
       - name: Build a container image with Kaniko
         uses: cloudbees-io/kaniko@v1
         with:
-          dockerfile: Dockerfile
-          context: .
-          destination: https://admin:QPn^Y9QY%Q$gX^s$n%6$J@nexus.preview.cb-demos.io/repository/petclinicimage/config:3.2.4
+           dockerfile: Dockerfile
+           context: .
+           destination: nexus.preview.cb-demos.io/repository/petclinicimage/config:3.2.4
+           username: ${{ secrets.STAGING_DOCKER_USERNAME }}
+           password: ${{ secrets.STAGING_DOCKER_PASSWORD }}
           
           
           
