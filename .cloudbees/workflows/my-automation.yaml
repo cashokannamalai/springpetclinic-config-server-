@@ -15,18 +15,7 @@ jobs:
     needs: Checkout
    
     steps:
-      - name: Install Docker
-        uses: docker://alpine:latest 
-        run: |
-          apk add --update docker
-          service docker start || true 
-          docker --version  
-          docker info 
-
-      - name: Wait for Docker to Start
-        uses: docker://alpine:latest 
-        run: |
-          timeout 15s sh -c "until docker info; do echo Waiting for Docker to start...; sleep 1; done" 
+      
       - uses: docker://alpine/git:latest
         run: |
           git config --global --add safe.directory /cloudbees/workspace
@@ -37,6 +26,12 @@ jobs:
         uses: docker://maven:3-eclipse-temurin-17
         run: |
             mvn clean install -DskipTests=true
+
+
+      - name: Build a container image with Kaniko
+        uses: cloudbees-io/kaniko@v1
+        with:
+          dockerfile: .
             
      
   
