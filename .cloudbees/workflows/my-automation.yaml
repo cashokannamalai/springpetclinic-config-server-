@@ -40,7 +40,7 @@ jobs:
         uses: cloudbees-io/kaniko@v1
         with:
           dockerfile: Dockerfile
-          context: /cloudbees/workspace
+          context: .
           destination: nexus.preview.cb-demos.io/config:3.2.4,nexus.preview.cb-demos.io/config:3.2.4
 
           
