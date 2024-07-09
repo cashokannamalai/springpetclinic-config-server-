@@ -43,6 +43,7 @@ jobs:
           context: .
           destination: nexus.preview.cb-demos.io:7890/configserver:3.2.4
           
+          
 
           
 
