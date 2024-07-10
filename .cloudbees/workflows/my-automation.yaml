@@ -39,7 +39,8 @@ jobs:
       - name: Push image to OCI registry
         uses: cloudbees-io/kaniko@v1
         with:
-          
+          dockerfile: Dockerfile
+          context: /cloudbees/workspace
           destination: nexus.preview.cb-demos.io/petclinicimage/
           
  
