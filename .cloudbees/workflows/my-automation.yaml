@@ -31,7 +31,7 @@ jobs:
         name: Configure container registry credentials
         uses: cloudbees-io/configure-oci-credentials@v1
         with:
-          registry: http://192.168.1.75:5003
+          registry: http://192.168.1.75:5003/repository/test/
           username: ${{ secrets.STAGING_DOCKER_USERNAME }}
           password: ${{ secrets.STAGING_DOCKER_PASSWORD }}
 
