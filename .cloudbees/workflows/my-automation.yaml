@@ -31,13 +31,11 @@ jobs:
           registry: nexus.preview.cb-demos.io/repository/petclinicimage/
           username: admin
           password: QPn^Y9QY%Q$gX^s$n%6$J
-  Dockerbuild:
-    needs: Dockerlogin
-    steps:
+  
       - uses: cloudbees-io/kaniko@v1
         name: dockerpush
         with:
-          dockerfile: /cloudbees/workspace/Dockerfile
+          dockerfile: Dockerfile
           context: /cloudbees/workspace
           destination: ${HOME}/.docker/config.json
           build-args: docker build -t configserver:3.2.4
