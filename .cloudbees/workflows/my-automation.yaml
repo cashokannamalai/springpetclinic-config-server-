@@ -31,7 +31,7 @@ jobs:
         name: Configure container registry credentials
         uses: cloudbees-io/configure-oci-credentials@v1
         with:
-          registry: 192.168.1.75:5003
+          registry: http://192.168.1.75:8082/repository/configserver/
           username: ${{ secrets.STAGING_DOCKER_USERNAME }}
           password: ${{ secrets.STAGING_DOCKER_PASSWORD }}
 
@@ -41,6 +41,6 @@ jobs:
         with:
           dockerfile: Dockerfile
           context: /cloudbees/workspace
-          destination: 192.168.1.75:5003/admin/config-server-3.2.4
+          destination: 192.168.1.75:5003/config-server-3.2.4
           
  
