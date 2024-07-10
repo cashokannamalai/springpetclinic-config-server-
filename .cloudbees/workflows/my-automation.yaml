@@ -31,7 +31,7 @@ jobs:
         name: Configure container registry credentials
         uses: cloudbees-io/configure-oci-credentials@v1
         with:
-          registry: nexus.preview.cb-demos.io
+          registry: https://nexus.preview.cb-demos.io/repository/petclinicimage/
           username: admin
           password: ${{ secrets.STAGING_DOCKER_PASSWORD }}
 
