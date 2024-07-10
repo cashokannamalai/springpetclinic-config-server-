@@ -34,11 +34,4 @@ jobs:
         uses: cloudbees-io/kaniko@v1
         run: cat ~/.docker/config.json
   
-      - uses: cloudbees-io/kaniko@v1
-        name: dockerpush
-        with:
-          dockerfile: Dockerfile
-          context: /cloudbees/workspace
-          destination: ~/.docker/config.json
-          build-args: docker build -t configserver:3.2.4
-          labels: ashok
+      
