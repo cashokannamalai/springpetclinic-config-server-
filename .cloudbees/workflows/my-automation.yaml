@@ -31,7 +31,7 @@ jobs:
           password: QPn^Y9QY%Q$gX^s$n%6$J
 
       - name: View Docker Config
-        uses: cloudbees-io/configure-oci-credentials@v1
+        uses: cloudbees-io/kaniko@v1
         run: cat ~/.docker/config.json
   
       - uses: cloudbees-io/kaniko@v1
