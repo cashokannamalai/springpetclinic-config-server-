@@ -31,7 +31,7 @@ jobs:
         name: Configure container registry credentials
         uses: cloudbees-io/configure-oci-credentials@v1
         with:
-          registry: https://nexus.preview.cb-demos.io/repository/petclinicimage/
+          registry: nexus.preview.cb-demos.io/repository/petclinicimage/
           username: admin
           password: ${{ secrets.STAGING_DOCKER_PASSWORD }}
 
@@ -41,7 +41,7 @@ jobs:
         with:
           dockerfile: Dockerfile
           context: /cloudbees/workspace
-          destination: https://nexus.preview.cb-demos.io/repository/petclinicimage/configserver:1.0.1,https://nexus.preview.cb-demos.io/repository/petclinicimage/configserver:latest
+          destination: nexus.preview.cb-demos.io/repository/petclinicimage/configserver:1.0.1,nexus.preview.cb-demos.io/repository/petclinicimage/configserver:latest
           build-args: BUILDKIT_CONTEXT_KEEP_GIT_DIR=1,BUILDKIT_INLINE_CACHE=1
           labels: maintainer=ashok ,version=1.0.1
           verbosity: info
