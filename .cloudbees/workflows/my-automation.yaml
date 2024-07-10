@@ -41,6 +41,6 @@ jobs:
         with:
           dockerfile: Dockerfile
           context: /cloudbees/workspace
-          destination: nexus.preview.cb-demos.io/repository/petclinicimage/admin/QPn%5EY9QY%Q$gX%5Es$n%6$J/config-server:3.2.4
+          destination: nexus.preview.cb-demos.io/repository/petclinicimage/admin/config-server-3.2.4
           
  
