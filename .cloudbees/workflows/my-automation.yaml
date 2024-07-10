@@ -22,12 +22,13 @@ jobs:
         uses: docker://maven:3-eclipse-temurin-17
         run: |
           mvn clean install -DskipTests=true
-  nexus:
+
+   
+   
+  nexus1:
     needs: Build
     steps:
-      - uses: docker/login-action@v1
+      - uses: docker/login-action
         with:
           username: admin
           password: lfadmin
-
-          
