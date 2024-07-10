@@ -27,20 +27,17 @@ jobs:
         run: |
             mvn clean install -DskipTests=true
 
-      - id: dockerconfig
-        name: Configure container registry credentials
-        uses: cloudbees-io/configure-oci-credentials@v1
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
         with:
-          registry: docker.io
-          username: caannamalai
-          password: ${{ secrets.STAGING_DOCKER_PASSWORD }}
-
-
-      - name: Push image to OCI registry
-        uses: cloudbees-io/kaniko@v1
+          username: admin
+          password: lfadmin
+      -
+        name: Build and push
+        uses: docker/build-push-action@v2
         with:
-         dockerfile: Dockerfile
-         context: .
-         destination: docker.io/caannamalai/configserver:3.2.4
+          context: .
+          push: true
+          tags: admin/config/:1.0.1
          
         
