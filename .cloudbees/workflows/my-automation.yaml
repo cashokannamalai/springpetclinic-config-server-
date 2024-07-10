@@ -22,9 +22,7 @@ jobs:
         uses: docker://maven:3-eclipse-temurin-17
         run: |
           mvn clean install -DskipTests=true
-  Dockerlogin:
-    needs: Build
-    steps:
+ 
       - uses: cloudbees-io/configure-oci-credentials@v1
         name: Login
         with:
