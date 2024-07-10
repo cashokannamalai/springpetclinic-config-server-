@@ -40,6 +40,6 @@ jobs:
         uses: cloudbees-io/kaniko@v1
         with:
           
-          destination: nexus.preview.cb-demos.io/petclinicimage/admin/config-server:3.2.4
+          destination: nexus.preview.cb-demos.io/petclinicimage/
           
  
