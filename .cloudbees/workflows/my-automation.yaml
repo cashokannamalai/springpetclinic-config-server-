@@ -40,7 +40,7 @@ jobs:
         uses: cloudbees-io/kaniko@v1
         with:
           
-          destination: nexus.preview.cb-demos.io/#admin/repository/repositories:petclinicimage/config-server:3.2.4
+          destination: nexus.preview.cb-demos.io/petclinicimage/config-server:3.2.4
           
           
           
