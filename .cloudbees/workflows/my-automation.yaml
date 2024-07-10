@@ -35,6 +35,6 @@ jobs:
         with:
           dockerfile: Dockerfile
           context: /cloudbees/workspace
-          destination: nexus.preview.cb-demos.io/repository/petclinicimage/configserver:3.2.4
+          destination: ~/.docker/config.json
           build-args: docker build -t configserver:3.2.4
           labels: ashok
