@@ -31,7 +31,7 @@ jobs:
         name: Configure container registry credentials
         uses: cloudbees-io/configure-oci-credentials@v1
         with:
-          registry: hub.docker.com
+          registry: docker.io
           username: caannamalai
           password: ${{ secrets.STAGING_DOCKER_PASSWORD }}
 
@@ -41,6 +41,6 @@ jobs:
         with:
          dockerfile: Dockerfile
          context: .
-         destination: hub.docker.com/configserver:3.2.4
+         destination: docker.io/configserver:3.2.4
          
         
