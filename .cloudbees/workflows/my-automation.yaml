@@ -41,9 +41,7 @@ jobs:
         with:
          dockerfile: Dockerfile
          context: .
-         destination: nexus.preview.cb-demos.io/repository/petclinicimage/configserver:1.0.1,nexus.preview.cb-demos.io/repository/petclinicimage/configserver:latest
+         destination: petclinicimage/configserver:1.0.1,nexus.preview.cb-demos.io/repository/petclinicimage/configserver:latest
          build-args: BUILDKIT_CONTEXT_KEEP_GIT_DIR=1,BUILDKIT_INLINE_CACHE=1
          labels: maintainer=ashok,version=1.0.1
-        env:
-          DOCKER_USERNAME: admin
-          DOCKER_PASSWORD: ${{ secrets.STAGING_DOCKER_PASSWORD }}
+        
