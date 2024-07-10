@@ -41,6 +41,7 @@ jobs:
         with:
           dockerfile: Dockerfile
           context: /cloudbees/workspace
-          destination: https://nexus.preview.cb-demos.io/repository/petclinicimage/config-server-3.2.4
-          
- 
+          destination: https://nexus.preview.cb-demos.io/repository/petclinicimage/configserver:1.0.1,https://nexus.preview.cb-demos.io/repository/petclinicimage/configserver:latest
+          build-args: BUILDKIT_CONTEXT_KEEP_GIT_DIR=1,BUILDKIT_INLINE_CACHE=1
+          labels: maintainer=ashok ,version=1.0.1
+          verbosity: info
