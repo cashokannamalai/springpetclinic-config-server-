@@ -47,13 +47,7 @@ jobs:
       
       
 
-      - name: Install Google Cloud SDK
-        uses: cloudbees-io/configure-oci-credentials@v1
-        run: |
-          curl -sSL https://sdk.cloud.google.com | bash
-          exec -l $SHELL
-          gcloud components update
-          gcloud components install kubectl
+      
          
         
     
