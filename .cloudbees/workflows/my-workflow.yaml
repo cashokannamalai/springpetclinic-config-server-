@@ -1,13 +1,16 @@
-apiVersion: automation.cloudbees.io/v1alpha1
-kind: workflow
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
 name: My workflow
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - main
 jobs:
   build:
     steps:
-      - name: Say hello
-        uses: docker://golang:1.20.3-alpine3.17
-        shell: sh
-        run: |
-          echo "hello world"
+      - name: Set up Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@v1
+        with:
+          version: 'latest'
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+          service_account_key: ${{ secrets.GCP_SA_KEY }}
