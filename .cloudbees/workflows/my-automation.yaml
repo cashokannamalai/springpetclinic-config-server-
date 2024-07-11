@@ -43,5 +43,6 @@ jobs:
          context: .
          destination: ${{ secrets.STAGING_DOCKER_REGISTRY }}/${{ secrets.STAGING_DOCKER_USERNAME }}/configserver:3.2.4
          build-args: docker images
+         
         
         
