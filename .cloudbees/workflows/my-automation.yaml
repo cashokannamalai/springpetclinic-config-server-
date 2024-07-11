@@ -34,5 +34,5 @@ jobs:
         with:
           dockerfile: Dockerfile
           context: .
-          
+          destination: admin/nexus.preview.cb-demos.io/repository/petclinicimage:3.2.4
           build-args: docker build -t configserver:3.2.4
