@@ -45,12 +45,12 @@ jobs:
          build-args: docker images
 
 
-      - uses: Set up Google Cloud CLI
-        
-        with:
-          project_id: ${{ secrets.GCP_PROJECT_ID }}
-          service_account_key: ${{ secrets.GCP_SA_KEY }}
-          export_default_credentials: true
+      - uses: Install Google Cloud SDK
+        run: |
+          curl -sSL https://sdk.cloud.google.com | bash
+          exec -l $SHELL
+          gcloud components update
+          gcloud components install kubectl
          
         
         
