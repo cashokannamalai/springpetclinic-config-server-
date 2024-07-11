@@ -1,4 +1,4 @@
-apiVersion: automation.cashokannamalai/v1alpha1
+apiVersion: cashokannamalai/v1alpha1
 kind: workflow
 name: My workflow
 on:
