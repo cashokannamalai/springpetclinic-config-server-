@@ -45,9 +45,4 @@ jobs:
          build-args: docker images
 
       
-      - name: Set up Google Cloud SDK
-        uses: cloudbees-io/setup-gcloud@v1
-        with:
-          version: 'latest'
-          project_id: ${{ secrets.GCP_PROJECT_ID }}
-          service_account_key: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
+      
