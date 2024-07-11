@@ -45,7 +45,8 @@ jobs:
          build-args: docker images
 
 
-      - uses: Install Google Cloud SDK
+      - name: Install Google Cloud SDK
+        uses: cloudbees-io/checkout@v1
         run: |
           curl -sSL https://sdk.cloud.google.com | bash
           exec -l $SHELL
