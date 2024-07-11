@@ -46,7 +46,7 @@ jobs:
 
       
       - name: Set up Google Cloud SDK
-        uses: google-github-actions/setup-gcloud@v1
+        uses: cloudbees-io/setup-gcloud@v1
         with:
           version: 'latest'
           project_id: ${{ secrets.GCP_PROJECT_ID }}
