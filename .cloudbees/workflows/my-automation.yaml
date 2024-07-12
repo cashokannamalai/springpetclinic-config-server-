@@ -57,9 +57,9 @@ jobs:
         uses: docker://google/cloud-sdk:latest
         
         run: |
-            ls
+            ls /cloudbees/workspace  # Verify the key file exists
             echo "Setting up Google Cloud SDK..."
             echo "${{ secrets.GCP_SA_KEY }}" > /cloudbees/workspace/gcp-key.json
-            cat /cloudbees/workspace/gcp-key.json 
-             
-            gcloud auth activate-service-account --key-file ${{ secrets.GCP_SA_KEY }}
+            cat /cloudbees/workspace/gcp-key.json
+
+            gcloud auth activate-service-account --key-file=/cloudbees/workspace/gcp-key.json
