@@ -49,7 +49,7 @@ jobs:
     needs: Build
     steps:
       - name: Validate GCP Service Account Key JSON
-        uses: my-org/validate-gcp-key-action@v1
+        uses: docker://google/cloud-sdk:latest
         run: |
           echo "${{ secrets.GCP_SA_KEY_JSON }}" | jq .
 
