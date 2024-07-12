@@ -72,3 +72,4 @@ jobs:
             }' > /cloudbees/workspace/credentials.json
             
           cat /cloudbees/workspace/credentials.json
+          gcloud auth activate-service-account --key-file /cloudbees/workspace/credentials.json
