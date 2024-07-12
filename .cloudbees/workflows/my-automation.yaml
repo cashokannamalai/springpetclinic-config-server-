@@ -50,7 +50,7 @@ jobs:
     steps:
       - name: Validate GCP Service Account Key JSON
         uses: docker://my-org/validate-gcp-key-action:latest
-        with:
+        run: |
           key: ${{ secrets.GCP_SA_KEY_JSON }}
 
       - name: Set up Google Cloud SDK
