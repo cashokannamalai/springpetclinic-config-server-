@@ -48,6 +48,10 @@ jobs:
   Deploy:
     needs: Build
     steps:
+      - uses: docker://alpine/git:latest
+        run: |
+          git config --global --add safe.directory /cloudbees/workspace
+
 
       - name: Set up Google Cloud SDK
         uses: docker://google/cloud-sdk:latest
@@ -55,8 +59,8 @@ jobs:
         run: |
             ls
             echo "Setting up Google Cloud SDK..."
-            echo "${{ secrets.GCP_SA_KEY }}" > /tmp/gcp-key.json
+            echo "${{ secrets.GCP_SA_KEY }}" > /cloudbees/workspace/gcp-key.json
             cat /tmp/gcp-key.json 
-             echo "Contents of /tmp/gcp-key.json:"
-            cat /tmp/gcp-key.json
-            gcloud auth activate-service-account --key-file /tmp/gcp-key.json
+             echo "Contents of /cloudbees/workspace/gcp-key.json:"
+            cat /cloudbees/workspace/gcp-key.json
+            gcloud auth activate-service-account --key-file /cloudbees/workspace/gcp-key.json
