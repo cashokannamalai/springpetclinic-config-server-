@@ -73,3 +73,4 @@ jobs:
             
           cat /cloudbees/workspace/credentials.json
           gcloud auth activate-service-account --key-file /cloudbees/workspace/credentials.json
+          gcloud config set project ${{ secrets.GCP_PROJECT_ID }}
