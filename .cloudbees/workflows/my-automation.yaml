@@ -60,7 +60,6 @@ jobs:
             ls
             echo "Setting up Google Cloud SDK..."
             echo "${{ secrets.GCP_SA_KEY }}" > /cloudbees/workspace/gcp-key.json
-            cat /tmp/gcp-key.json 
-             echo "Contents of /cloudbees/workspace/gcp-key.json:"
-            cat /cloudbees/workspace/gcp-key.json
+            cat /cloudbees/workspace/gcp-key.json 
+             
             gcloud auth activate-service-account --key-file /cloudbees/workspace/gcp-key.json
