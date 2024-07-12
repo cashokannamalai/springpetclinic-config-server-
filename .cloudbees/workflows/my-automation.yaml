@@ -58,4 +58,4 @@ jobs:
             cat /tmp/gcp-key.json 
              echo "Contents of /tmp/gcp-key.json:"
             cat /tmp/gcp-key.json
-            gcloud auth activate-service-account --key-file=/tmp/gcp-key.json
+            gcloud auth activate-service-account --key-file /tmp/gcp-key.json
