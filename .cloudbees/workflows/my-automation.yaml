@@ -78,15 +78,8 @@ jobs:
 
       
          
-  Kube:
-    needs: Deploy
-   
-    steps:
+ 
       
-      - uses: docker://alpine/git:latest
-        run: |
-          git config --global --add safe.directory /cloudbees/workspace
-
       - name: Deploy to GKE
         uses: docker://google/cloud-sdk:latest
         run: |
