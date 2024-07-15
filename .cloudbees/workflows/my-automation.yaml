@@ -79,5 +79,5 @@ jobs:
       - name: Deploy to GKE
         uses: docker://google/cloud-sdk:latest
         run: |
-          ls
+           ls -lR /cloudbees/workspace
           
