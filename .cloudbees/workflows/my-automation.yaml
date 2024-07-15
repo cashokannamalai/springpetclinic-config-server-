@@ -84,10 +84,10 @@ jobs:
 
       
          
-          kubectl get roles deployment-creator -n default
+          
 
       
   
            ls -la /cloudbees/workspace/
-           kubectl apply -f k0s.deployment.yaml
+           kubectl apply -f role.yaml
            
