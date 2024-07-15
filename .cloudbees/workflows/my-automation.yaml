@@ -79,6 +79,4 @@ jobs:
       - name: Deploy to GKE
         uses: docker://google/cloud-sdk:latest
         run: |
-            cd /cloudbees/workspace
-            ls
-            
+           kubectl apply -f /cloudbees/workspace/k0s.deployment.yaml
