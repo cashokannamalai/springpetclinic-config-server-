@@ -82,11 +82,7 @@ jobs:
           gcloud config set project ${{ secrets.GCP_PROJECT_ID }}
           gcloud container clusters get-credentials demo --zone us-central1-c
 
-      - name: Deploy to GKE
-        uses: docker://bitnami/kubectl:latest
-        env:
-          KUBECONFIG: /cloudbees/workspace/.kube/config
-        run: |
+      
           mkdir -p /cloudbees/workspace/.kube
           gcloud container clusters get-credentials demo --zone us-central1-c --project facimate-cluster --kubeconfig=/cloudbees/workspace/.kube/config
           kubectl apply -f /cloudbees/workspace/k0s.deployment.yaml
