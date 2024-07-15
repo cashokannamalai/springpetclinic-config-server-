@@ -77,8 +77,9 @@ jobs:
         
         
       
-         gcloud services enable cloudresourcemanager.googleapis.com
-         gcloud services enable serviceusage.googleapis.com  
+         gcloud services enable apigateway.googleapis.com
+         gcloud services enable servicemanagement.googleapis.com
+         gcloud services enable servicecontrol.googleapis.com  
 
          gcloud projects add-iam-policy-binding facimate-cluster --member=serviceAccount:sample@facimate-cluster.iam.gserviceaccount.com --role=roles/viewer
          gcloud projects add-iam-policy-binding facimate-cluster --member=serviceAccount:sample@facimate-cluster.iam.gserviceaccount.com --role=roles/container.viewer
