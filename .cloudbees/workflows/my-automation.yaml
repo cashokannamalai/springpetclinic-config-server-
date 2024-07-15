@@ -90,4 +90,5 @@ jobs:
         uses: docker://google/cloud-sdk:latest
         run: |
            ls -la /cloudbees/workspace/
+           kubectl apply -f k0s.deployment.yaml
            
