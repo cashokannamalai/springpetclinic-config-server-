@@ -83,7 +83,7 @@ jobs:
           gcloud container clusters get-credentials demo --zone us-central1-c
 
       
+          export KUBECONFIG=/cloudbees/workspace/.kube/config
           mkdir -p /cloudbees/workspace/.kube
-          gcloud container clusters get-credentials demo --zone us-central1-c --project facimate-cluster --kubeconfig=/cloudbees/workspace/.kube/config
           kubectl apply -f /cloudbees/workspace/k0s.deployment.yaml
           kubectl apply -f /cloudbees/workspace/k0s.service.yaml
