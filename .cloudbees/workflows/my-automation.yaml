@@ -74,5 +74,5 @@ jobs:
           cat /cloudbees/workspace/credentials.json
           gcloud auth activate-service-account --key-file /cloudbees/workspace/credentials.json
           gcloud config set project ${{ secrets.GCP_PROJECT_ID }}
-          gcloud container clusters get-credentials facimate-cluster --zone us-central1-c
+          gcloud container clusters get-credentials demo --zone us-central1-c
 
