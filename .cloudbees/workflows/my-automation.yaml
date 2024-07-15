@@ -78,9 +78,16 @@ jobs:
 
       
          
-      - name: Deploy to Kubernetes
-        uses: docker://bitnami/kubectl:latest
+  Kube:
+    needs: Deploy
+   
+    steps:
+      
+      - uses: docker://alpine/git:latest
         run: |
-          mkdir -p /cloudbees/home/.kube
-          cp /cloudbees/workspace/kube/config /cloudbees/home/.kube/config  # Adjust this line based on your actual setup
-          kubectl apply -f /cloudbees/workspace/k0s.deployment.yaml
+          git config --global --add safe.directory /cloudbees/workspace
+
+      - name: Deploy to GKE
+        uses: docker://google/cloud-sdk:latest
+        run: |
+           ls
