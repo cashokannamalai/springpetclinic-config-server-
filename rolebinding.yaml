@@ -6,9 +6,9 @@ metadata:
   namespace: default
 subjects:
 - kind: ServiceAccount
-  name: sample
+  name: sample@***.iam.gserviceaccount.com
   namespace: default
 roleRef:
   kind: Role
-  name: deployment-creator
+  name: sample@***.iam.gserviceaccount.com
   apiGroup: rbac.authorization.k8s.io
