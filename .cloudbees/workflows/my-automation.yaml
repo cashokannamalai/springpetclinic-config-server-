@@ -90,6 +90,6 @@ jobs:
   
            ls -la /cloudbees/workspace/
            kubectl apply -f role.yaml
-
+           kubectl apply -f rolebinding.yaml
            
            
