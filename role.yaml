@@ -1,10 +1,13 @@
-# role.yaml
 apiVersion: rbac.authorization.k8s.io/v1
-kind: Role
+kind: RoleBinding
 metadata:
-  name: deployment-creator
-  namespace: default
-rules:
-- apiGroups: ["apps"]
-  resources: ["deployments"]
-  verbs: ["create", "get", "list", "watch", "update", "patch", "delete"]
+  name: allow-create-roles
+  namespace: default  # Adjust the namespace if needed
+subjects:
+- kind: User
+  name: sample@***.iam.gserviceaccount.com
+  apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: ClusterRole  # or "Role" for namespace-specific roles
+  name: container.roles.create  # Adjust the role name as per your requirements
+  apiGroup: rbac.authorization.k8s.io
