@@ -99,3 +99,4 @@ jobs:
         uses: docker://bitnami/kubectl:latest
         run: |
           kubectl apply -f /cloudbees/workspace/k0s.deployment.yaml --kubeconfig=/cloudbees/workspace/kubeconfig
+
