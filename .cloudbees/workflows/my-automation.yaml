@@ -71,17 +71,19 @@ jobs:
           cat credentials.json
           gcloud auth activate-service-account --key-file credentials.json
           gcloud config set project ${{ secrets.GCP_PROJECT_ID }}
-          export KUBECONFIG=kubeconfig
           gcloud container clusters get-credentials demo --zone us-central1-c
-          
-
+          echo "KUBECONFIG environment variable: $KUBECONFIG"
+          export KUBECONFIG=$KUBECONFIG:~/.kube/config
+          echo "Updated KUBECONFIG environment variable: $KUBECONFIG"
 
       - name: Debug - Show kubeconfig file
         uses: docker://google/cloud-sdk:latest
         run: |
-          cat kubeconfig
-     
+         cat ~/.kube/config
+
       - name: Apply k0s deployment
         uses: docker://google/cloud-sdk:latest
         run: |
           kubectl apply -f /cloudbees/workspace/k0s.deployment.yaml
+
+      
