@@ -91,7 +91,11 @@ jobs:
         run: |
            ls -al /cloudbees/workspace
 
-      
+      - name: Apply roles
+        uses: docker://google/cloud-sdk:latest
+        run: |
+          kubectl apply -f /cloudbees/workspace/role.yaml
+          
       - name: Apply k0s deployment
         uses: docker://google/cloud-sdk:latest
         run: |
