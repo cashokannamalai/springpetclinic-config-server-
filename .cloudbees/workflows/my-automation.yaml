@@ -123,3 +123,25 @@ jobs:
         run: |
           kubectl apply -f /cloudbees/workspace/deployment.yaml
 
+      - name: Create service.yaml
+        uses: docker://alpine:latest
+        run: |
+         cat <<EOF > /cloudbees/workspace/service.yaml
+         apiVersion: v1
+         kind: Service
+          metadata:
+           name: configserver-service
+           labels:
+             app: configserver
+          spec:
+            ports:
+             - port: 8080
+               targetPort: 8080
+           selector:
+             app: configserver
+          EOF
+
+      - name: Apply Kubernetes service
+        uses: docker://google/cloud-sdk:latest
+        run: |
+         kubectl apply -f /cloudbees/workspace/service.yaml
