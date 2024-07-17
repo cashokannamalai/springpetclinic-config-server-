@@ -80,7 +80,7 @@ jobs:
           cat /cloudbees/workspace/credentials.json
           gcloud auth activate-service-account --key-file /cloudbees/workspace/credentials.json
           gcloud config set project ${{ secrets.GCP_PROJECT_ID }}
-          export KUBECONFIG=/cloudbees/workspace/kubeconfig
+          export KUBECONFIG=kubeconfig
           gcloud container clusters get-credentials demo --zone us-central1-c
          
      
@@ -88,8 +88,9 @@ jobs:
       - name: Install kubectl
         uses: docker://bitnami/kubectl:latest
         run: |
-          kubectl version --client --kubeconfig=/cloudbees/workspace/kubeconfig
+          kubectl version --client --kubeconfig=kubeconfig
           ls
+          cat kubeconfig
 
       - name: Deploy to K0s
         uses: docker://bitnami/kubectl:latest
