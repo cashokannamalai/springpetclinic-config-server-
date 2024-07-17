@@ -83,7 +83,6 @@ jobs:
           export KUBECONFIG=/cloudbees/workspace/kubeconfig
           gcloud container clusters get-credentials demo --zone us-central1-c
          
-         chmod 600 /cloudbees/workspace/kubeconfig
      
       
       - name: Install kubectl
