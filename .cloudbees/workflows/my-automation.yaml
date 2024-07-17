@@ -89,7 +89,7 @@ jobs:
       - name: Install kubectl
         uses: docker://bitnami/kubectl:latest
         run: |
-          chmod 600 /cloudbees/workspace/kubeconfig
+          sudo chmod 600 /cloudbees/workspace/kubeconfig
 
           kubectl version --client --kubeconfig=/cloudbees/workspace/kubeconfig
 
