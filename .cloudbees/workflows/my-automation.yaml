@@ -128,17 +128,17 @@ jobs:
         run: |
          cat <<EOF > /cloudbees/workspace/service.yaml
           apiVersion: v1
-           kind: Service
-           metadata:
-            name: configserver-service
-            labels:
-               app: configserver
-        spec:
-        ports:
-         - port: 8080
-           targetPort: 8080
-        selector:
-         app: configserver
+          kind: Service
+          metadata:
+           name: configserver-service
+           labels:
+             app: configserver
+          spec:
+            ports:
+             - port: 8080
+               targetPort: 8080
+            selector:
+              app: configserver
           EOF
 
       - name: Apply Kubernetes service
