@@ -48,16 +48,7 @@ jobs:
   Deploy:
     needs: Build
     steps:
-      - uses: docker://alpine/git:latest
-        run: |
-          git config --global --add safe.directory /cloudbees/workspace
-
-      - name: checkout
-        uses: cloudbees-io/checkout@v1
-      - name: Build
-        uses: docker://maven:3-eclipse-temurin-17
-        run: |
-            mvn clean install -DskipTests=true
+     
 
       - name: Set up Google Cloud SDK
         uses: docker://google/cloud-sdk:latest
@@ -75,10 +66,10 @@ jobs:
             "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
             "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/sample%40facimate-cluster.iam.gserviceaccount.com",
             "universe_domain": "googleapis.com"
-            }' > /cloudbees/workspace/credentials.json
+            }' > /tmp/credentials.json
             
-          cat /cloudbees/workspace/credentials.json
-          gcloud auth activate-service-account --key-file /cloudbees/workspace/credentials.json
+          cat /tmp/credentials.json
+          gcloud auth activate-service-account --key-file /tmp/credentials.json
           gcloud config set project ${{ secrets.GCP_PROJECT_ID }}
           export KUBECONFIG=kubeconfig
           gcloud container clusters get-credentials demo --zone us-central1-c
@@ -90,7 +81,7 @@ jobs:
       - name: Install kubectl
         uses: docker://bitnami/kubectl:latest
         run: |
-         kubectl version --client --kubeconfig=/cloudbees/workspace/kubeconfig          ls
+         kubectl version --client --kubeconfig=/kubeconfig  
           
           
       - name: Deploy to K0s
