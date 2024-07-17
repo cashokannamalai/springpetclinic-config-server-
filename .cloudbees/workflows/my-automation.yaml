@@ -84,16 +84,13 @@ jobs:
           gcloud container clusters get-credentials demo --zone us-central1-c
          
      
-      
+    Deploy1:
+      needs: Deploy
+      steps:
       - name: Install kubectl
         uses: docker://bitnami/kubectl:latest
         run: |
           kubectl version --client --kubeconfig=kubeconfig
-          ls -l /cloudbees/workspace/kubeconfig
-          chmod 600 /cloudbees/workspace/kubeconfig
-          cat /cloudbees/workspace/kubeconfig 
           
-      - name: Deploy to K0s
-        uses: docker://bitnami/kubectl:latest
-        run: |
-          kubectl apply -f /cloudbees/workspace/k0s.deployment.yaml --kubeconfig=/cloudbees/workspace/kubeconfig
+          
+      
