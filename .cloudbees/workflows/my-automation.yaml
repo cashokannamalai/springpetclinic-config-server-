@@ -84,9 +84,9 @@ jobs:
           gcloud container clusters get-credentials demo --zone us-central1-c
          
      
-    Deploy1:
-      needs: Deploy
-      steps:
+  Deploy1:
+    needs: Deploy
+    steps:
       - name: Install kubectl
         uses: docker://bitnami/kubectl:latest
         run: |
