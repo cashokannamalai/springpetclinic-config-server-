@@ -71,7 +71,7 @@ jobs:
           cat /tmp/credentials.json
           gcloud auth activate-service-account --key-file /tmp/credentials.json
           gcloud config set project ${{ secrets.GCP_PROJECT_ID }}
-          export KUBECONFIG=kubeconfig
+          export KUBECONFIG=/tmp/kubeconfig
           gcloud container clusters get-credentials demo --zone us-central1-c
          
      
@@ -81,11 +81,11 @@ jobs:
       - name: Install kubectl
         uses: docker://bitnami/kubectl:latest
         run: |
-         kubectl version --client --kubeconfig=/kubeconfig  
-         ls
+         kubectl version --client --kubeconfig=/tmp/kubeconfig 
+      
           
           
       - name: Deploy to K0s
         uses: docker://bitnami/kubectl:latest
         run: |
-           ls -l /tmp
+           cat /tmp/kubeconfig
