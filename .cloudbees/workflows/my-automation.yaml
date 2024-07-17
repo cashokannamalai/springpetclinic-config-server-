@@ -87,3 +87,8 @@ jobs:
         run: |
           kubectl version --client
           ls
+
+      - name: Deploy to K0s
+        uses: docker://bitnami/kubectl:latest
+        run: |
+          kubectl apply -f k0s.deployment.yaml
