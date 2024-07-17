@@ -83,19 +83,14 @@ jobs:
           export KUBECONFIG=/cloudbees/workspace/kubeconfig
           gcloud container clusters get-credentials demo --zone us-central1-c
          
-
+         chmod 600 /cloudbees/workspace/kubeconfig
      
       
       - name: Install kubectl
         uses: docker://bitnami/kubectl:latest
         run: |
-          sudo chmod 600 /cloudbees/workspace/kubeconfig
-
           kubectl version --client --kubeconfig=/cloudbees/workspace/kubeconfig
 
-          ls
-
-      
 
       - name: Deploy to K0s
         uses: docker://bitnami/kubectl:latest
