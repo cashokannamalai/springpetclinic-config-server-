@@ -85,7 +85,7 @@ jobs:
       - name: Install kubectl
         uses: docker://bitnami/kubectl:latest
         run: |
-          kubectl version --client
+          kubectl version --client --kubeconfig /cloudbees/workspace/kubeconfig
           ls
 
       - name: Deploy to K0s
