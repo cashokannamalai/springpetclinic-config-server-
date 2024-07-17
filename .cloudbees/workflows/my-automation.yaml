@@ -118,10 +118,7 @@ jobs:
                   - containerPort: 8080
           EOF
 
-      - name: Apply Kubernetes deployment
-        uses: docker://google/cloud-sdk:latest
-        run: |
-          kubectl apply -f /cloudbees/workspace/deployment.yaml
+      
 
       - name: Create service.yaml
         uses: docker://alpine:latest
@@ -134,14 +131,15 @@ jobs:
            labels:
              app: configserver
           spec:
-            ports:
-              - port: 8080
-                targetPort: 8080
+            ports: 8080
+             
+              targetPort: 8080
             selector:
               app: configserver
           EOF
 
-      - name: Apply Kubernetes service
+      - name: Apply Kubernetes deployment
         uses: docker://google/cloud-sdk:latest
         run: |
-           kubectl apply -f /cloudbees/workspace/service.yaml
+          kubectl apply -f /cloudbees/workspace/deployment.yaml
+          kubectl apply -f /cloudbees/workspace/service.yaml
