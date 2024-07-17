@@ -104,6 +104,5 @@ jobs:
       - name: Deploy to K0s
         uses: docker://bitnami/kubectl:latest
         run: |
-          chmod 600 /cloudbees/workspace/kubeconfig
           kubectl apply -f /cloudbees/workspace/k0s.deployment.yaml --kubeconfig=/cloudbees/workspace/kubeconfig
 
