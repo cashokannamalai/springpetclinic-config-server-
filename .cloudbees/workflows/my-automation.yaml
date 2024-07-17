@@ -81,8 +81,4 @@ jobs:
         run: |
           cat kubeconfig
      
-      - name: Debug - Show kubeconfig file
-        uses: docker://google/cloud-sdk:latest
-        run: |
-          echo "Kubeconfig:"
-          cat ~/.kube/config
+     
