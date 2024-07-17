@@ -91,6 +91,7 @@ jobs:
         uses: docker://bitnami/kubectl:latest
         run: |
           kubectl version --client --kubeconfig=kubeconfig
+          ls
           
           
       
