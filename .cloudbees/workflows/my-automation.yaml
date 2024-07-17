@@ -123,4 +123,3 @@ jobs:
         run: |
           kubectl apply -f /cloudbees/workspace/deployment.yaml
 
-          
