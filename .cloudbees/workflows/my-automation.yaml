@@ -92,6 +92,7 @@ jobs:
           ls -l /cloudbees/workspace/kubeconfig
           chmod 600 /cloudbees/workspace/kubeconfig
           cat /cloudbees/workspace/kubeconfig 
+          
       - name: Deploy to K0s
         uses: docker://bitnami/kubectl:latest
         run: |
