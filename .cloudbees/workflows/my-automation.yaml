@@ -66,23 +66,20 @@ jobs:
             "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
             "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/sample%40facimate-cluster.iam.gserviceaccount.com",
             "universe_domain": "googleapis.com"
-            }' > /tmp/credentials.json
+            }' > credentials.json
             
-          cat /tmp/credentials.json
-          gcloud auth activate-service-account --key-file /tmp/credentials.json
+          cat credentials.json
+          gcloud auth activate-service-account --key-file credentials.json
           gcloud config set project ${{ secrets.GCP_PROJECT_ID }}
-          export KUBECONFIG=/tmp/kubeconfig
+          export KUBECONFIG=kubeconfig
           gcloud container clusters get-credentials demo --zone us-central1-c
           
-      - name: Debug - List tmp directory contents
-        uses: docker://google/cloud-sdk:latest
-        run: |
-          ls -la /tmp
+
 
       - name: Debug - Show kubeconfig file
         uses: docker://google/cloud-sdk:latest
         run: |
-          cat /tmp/kubeconfig
+          cat kubeconfig
      
   Deploy1:
     needs: Deploy
@@ -90,7 +87,7 @@ jobs:
       - name: Install kubectl
         uses: docker://bitnami/kubectl:latest
         run: |
-          kubectl version --client --kubeconfig=/tmp/kubeconfig 
+          kubectl version --client --kubeconfig=kubeconfig 
           
           
       - name: Deploy to K8s
