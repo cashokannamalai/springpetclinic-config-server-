@@ -89,9 +89,8 @@ jobs:
         uses: docker://bitnami/kubectl:latest
         run: |
           kubectl version --client --kubeconfig=kubeconfig
-          ls
-          cat kubeconfig
-
+          ls -l /cloudbees/workspace/kubeconfig  # Check file permissions
+          cat /cloudbees/workspace/kubeconfig 
       - name: Deploy to K0s
         uses: docker://bitnami/kubectl:latest
         run: |
