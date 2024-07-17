@@ -84,7 +84,8 @@ jobs:
       - uses: docker://alpine/git:latest
         run: |
           git config --global --add safe.directory /cloudbees/workspace
-
+      - name: checkout
+        uses: cloudbees-io/checkout@v1
       - name: Debug - List workspace contents
         uses: docker://google/cloud-sdk:latest
         run: |
