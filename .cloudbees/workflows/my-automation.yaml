@@ -88,4 +88,4 @@ jobs:
       - name: Deploy to K0s
         uses: docker://bitnami/kubectl:latest
         run: |
-           ls
+           ls -l /tmp
