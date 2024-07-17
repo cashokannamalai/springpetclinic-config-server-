@@ -135,8 +135,8 @@ jobs:
              app: configserver
           spec:
             ports:
-             - port: 8080
-               targetPort: 8080
+              - port: 8080
+                targetPort: 8080
             selector:
               app: configserver
           EOF
@@ -144,4 +144,4 @@ jobs:
       - name: Apply Kubernetes service
         uses: docker://google/cloud-sdk:latest
         run: |
-         kubectl apply -f /cloudbees/workspace/service.yaml
+           kubectl apply -f /cloudbees/workspace/service.yaml
