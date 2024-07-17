@@ -117,3 +117,8 @@ jobs:
                   ports:
                   - containerPort: 8080
           EOF
+
+      - name: Apply Kubernetes deployment
+        uses: docker://google/cloud-sdk:latest
+        run: |
+          kubectl apply -f /cloudbees/workspace/deployment.yaml
