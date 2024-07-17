@@ -93,4 +93,4 @@ jobs:
       - name: Deploy to K8s
         uses: docker://bitnami/kubectl:latest
         run: |
-          cat /tmp/kubeconfig
+          cat kubeconfig
