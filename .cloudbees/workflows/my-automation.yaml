@@ -83,7 +83,9 @@ jobs:
           export KUBECONFIG=kubeconfig
           gcloud container clusters get-credentials demo --zone us-central1-c
          
-     
+      - uses: Ensure kubeconfig permissions
+        run:  chmod 600 /cloudbees/workspace/kubeconfig
+        user: root
       
       - name: Install kubectl
         uses: docker://bitnami/kubectl:latest
