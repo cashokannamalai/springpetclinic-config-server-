@@ -81,11 +81,16 @@ jobs:
         run: |
          cat ~/.kube/config
 
+      - uses: docker://alpine/git:latest
+        run: |
+          git config --global --add safe.directory /cloudbees/workspace
+
       - name: Debug - List workspace contents
         uses: docker://google/cloud-sdk:latest
         run: |
-          ls -al /cloudbees/workspace
+           ls -al /cloudbees/workspace
 
+      
       - name: Apply k0s deployment
         uses: docker://google/cloud-sdk:latest
         run: |
