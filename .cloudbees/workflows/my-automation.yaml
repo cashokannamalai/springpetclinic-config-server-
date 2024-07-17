@@ -91,13 +91,29 @@ jobs:
         run: |
            ls -al /cloudbees/workspace
 
-      - name: Apply roles
-        uses: docker://google/cloud-sdk:latest
+      - name: Create deployment.yaml
+        uses: docker://alpine:latest
         run: |
-          kubectl apply -f role.yaml
-          
-      - name: Apply k0s deployment
-        uses: docker://google/cloud-sdk:latest
-        run: |
-          kubectl apply -f /cloudbees/workspace/k0s.deployment.yaml
-   
+          cat <<EOF > /cloudbees/workspace/deployment.yaml
+          apiVersion: apps/v1
+          kind: Deployment
+          metadata:
+            name: configserver-deployment
+            labels:
+              app: configserver
+          spec:
+            replicas: 1
+            selector:
+              matchLabels:
+                app: configserver
+            template:
+              metadata:
+                labels:
+                  app: configserver
+              spec:
+                containers:
+                - name: configserver
+                  image: ${{ secrets.STAGING_DOCKER_REGISTRY }}/${{ secrets.STAGING_DOCKER_USERNAME }}/configserver:3.2.4
+                  ports:
+                  - containerPort: 8080
+          EOF
