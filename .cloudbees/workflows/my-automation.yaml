@@ -94,8 +94,8 @@ jobs:
       - name: Apply roles
         uses: docker://google/cloud-sdk:latest
         run: |
-          kubectl apply -f /cloudbees/workspace/role.yaml
-           kubectl apply -f /cloudbees/workspace/rolebinding.yaml
+          kubectl apply -f role.yaml
+          
       - name: Apply k0s deployment
         uses: docker://google/cloud-sdk:latest
         run: |
