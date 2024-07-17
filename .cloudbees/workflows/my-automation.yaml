@@ -81,14 +81,8 @@ jobs:
         run: |
           cat kubeconfig
      
-  Deploy1:
-    needs: Deploy
-    steps:
-      - name: Install kubectl
-        uses: docker://bitnami/kubectl:latest
+      - name: Debug - Show kubeconfig file
+        uses: docker://google/cloud-sdk:latest
         run: |
-          kubectl version --client --kubeconfig=kubeconfig 
-          
-          
-    
-          cat kubeconfig
+          echo "Kubeconfig:"
+          cat ~/.kube/config
