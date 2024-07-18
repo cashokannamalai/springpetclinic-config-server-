@@ -127,13 +127,13 @@ jobs:
           apiVersion: v1
           kind: Service
           metadata:
-           name: configserver-service
-           labels:
-             app: configserver
+            name: configserver-service
+            labels:
+              app: configserver
           spec:
-           ports:
-            - port: 8080
-             targetPort: 8080
+            ports:
+              - port: 8080
+                targetPort: 8080
             selector:
               app: configserver
           EOF
