@@ -140,13 +140,18 @@ jobs:
           kubectl get pods
           kubectl get svc
 
-      - name: Allow all traffic through the firewall
+      - name: Allow traffic on port 31490
         uses: docker://google/cloud-sdk:latest
         run: |
-          gcloud compute firewall-rules create allow-all-traffic \
+          gcloud compute firewall-rules create allow-traffic-31490 \
             --direction=INGRESS \
             --priority=1000 \
             --network=default \
             --action=ALLOW \
-            --rules=all \
+            --rules=tcp:31490 \
             --source-ranges=0.0.0.0/0
+
+      - name: Verify firewall rules
+        uses: docker://google/cloud-sdk:latest
+        run: |
+          gcloud compute firewall-rules list
