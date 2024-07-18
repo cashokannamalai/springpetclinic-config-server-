@@ -91,10 +91,10 @@ jobs:
         run: |
            ls -al /cloudbees/workspace
 
-      - name: Create deployment.yaml
+      - name: Create combined deployment and service YAML
         uses: docker://alpine:latest
         run: |
-          cat <<EOF > /cloudbees/workspace/deployment.yaml
+          cat <<EOF > /cloudbees/workspace/deployment-service.yaml
           apiVersion: apps/v1
           kind: Deployment
           metadata:
@@ -116,14 +116,7 @@ jobs:
                   image: ${{ secrets.STAGING_DOCKER_REGISTRY }}/${{ secrets.STAGING_DOCKER_USERNAME }}/configserver:3.2.4
                   ports:
                   - containerPort: 8080
-          EOF
-
-      
-
-      - name: Create service.yaml
-        uses: docker://alpine:latest
-        run: |
-         cat <<EOF > /cloudbees/workspace/service.yaml
+          ---
           apiVersion: v1
           kind: Service
           metadata:
@@ -134,13 +127,14 @@ jobs:
             ports:
               - port: 8080
                 targetPort: 8080
-            
+            selector:
+              app: configserver
           EOF
 
       - name: Apply Kubernetes deployment
         uses: docker://google/cloud-sdk:latest
         run: |
-          kubectl apply -f /cloudbees/workspace/deployment.yaml
-          kubectl apply -f /cloudbees/workspace/service.yaml
+          kubectl apply -f /cloudbees/workspace/deployment-service.yaml
+
           kubectl get pods
           kubectl get svc
