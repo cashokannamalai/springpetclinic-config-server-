@@ -124,6 +124,7 @@ jobs:
             labels:
               app: configserver
           spec:
+            type: LoadBalancer
             ports:
               - port: 8080
                 targetPort: 8080
