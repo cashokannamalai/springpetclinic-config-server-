@@ -133,9 +133,8 @@ jobs:
           spec:
             ports:
               - port: 8080
-                targetPort 8080
-            selector:
-              app: configserver
+                targetPort: 8080
+            
           EOF
 
       - name: Apply Kubernetes deployment
