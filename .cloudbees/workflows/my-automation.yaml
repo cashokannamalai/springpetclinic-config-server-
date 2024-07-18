@@ -142,4 +142,4 @@ jobs:
         uses: docker://google/cloud-sdk:latest
         run: |
           kubectl apply -f /cloudbees/workspace/deployment.yaml
-          kubectl apply -f /cloudbees/workspace/service.yaml
+          kubectl get pods
