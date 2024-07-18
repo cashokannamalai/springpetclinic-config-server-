@@ -49,8 +49,10 @@ jobs:
     needs: Build
     steps:
      
+
       - name: Set up Google Cloud SDK
         uses: docker://google/cloud-sdk:latest
+        
         run: |
          echo '{
             "type": "service_account",
@@ -89,7 +91,7 @@ jobs:
         run: |
            ls -al /cloudbees/workspace
 
-      - name: Create combined deployment, service, and ingress YAML
+      - name: Create combined deployment and service YAML
         uses: docker://alpine:latest
         run: |
           cat <<EOF > /cloudbees/workspace/deployment-service.yaml
@@ -128,28 +130,6 @@ jobs:
                 targetPort: 8080
             selector:
               app: configserver
-          ---
-          apiVersion: networking.k8s.io/v1
-          kind: Ingress
-          metadata:
-            name: configserver-ingress
-            annotations:
-              nginx.ingress.kubernetes.io/rewrite-target: /
-          spec:
-            rules:
-            - host: example.com
-              http:
-                paths:
-                - path: /
-                  pathType: Prefix
-                  backend:
-                    service:
-                      name: configserver-service
-                      port:
-                        number: 8080
-            ports:
-              - port: 80
-                targetPort: 31490
           EOF
 
       - name: Apply Kubernetes deployment
@@ -159,4 +139,14 @@ jobs:
 
           kubectl get pods
           kubectl get svc
-          kubectl get ingress
+
+      - name: Allow all traffic through the firewall
+        uses: docker://google/cloud-sdk:latest
+        run: |
+          gcloud compute firewall-rules create allow-all-traffic \
+            --direction=INGRESS \
+            --priority=1000 \
+            --network=default \
+            --action=ALLOW \
+            --rules=all \
+            --source-ranges=0.0.0.0/0
