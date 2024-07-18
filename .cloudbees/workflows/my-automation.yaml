@@ -151,8 +151,18 @@ jobs:
             --rules=tcp:31490 \
             --source-ranges=0.0.0.0/0
 
+      - name: Allow traffic from specific IP
+        uses: docker://google/cloud-sdk:latest
+        run: |
+          gcloud compute firewall-rules create allow-external-cluster-traffic \
+            --direction=INGRESS \
+            --priority=1000 \
+            --network=default \
+            --action=ALLOW \
+            --rules=tcp:31490 \
+            --source-ranges=34.134.175.99/32
+
       - name: Verify firewall rules
         uses: docker://google/cloud-sdk:latest
         run: |
           gcloud compute firewall-rules list
-          
