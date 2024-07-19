@@ -79,9 +79,4 @@ jobs:
         run: |
           export KUBECONFIG=/cloudbees/workspace/kubeconfig.yaml
           kubectl config view
-
-      - name: Get Kubernetes nodes
-        uses: docker://bitnami/kubectl:latest
-        run: |
-          export KUBECONFIG=/cloudbees/workspace/kubeconfig.yaml
-          kubectl get nodes
+          kubectl cluster-info
