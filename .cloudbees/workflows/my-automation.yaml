@@ -74,9 +74,14 @@ jobs:
 
           ls -l /cloudbees/workspace
             
-      - name: Create or update a Kubernetes resource
-        uses: cloudbees-io/kubernetes-create-resource@v1
-        with:
-          file-path: /cloudbees/workspace/kubeconfig.yaml
+      - name: Install kubectl
+        uses: docker://bitnami/kubectl:latest
+        run: |
+          kubectl version --client
+
+      - name: Set KUBECONFIG environment variable
+        uses: docker://alpine:latest
+        run: |
+          export KUBECONFIG=/cloudbees/workspace/kubeconfig.yaml
           
           
