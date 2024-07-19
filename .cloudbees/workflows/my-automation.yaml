@@ -74,9 +74,8 @@ jobs:
 
           ls -l /cloudbees/workspace
             
-      - name: Set KUBECONFIG and verify kubectl config
-        uses: docker://bitnami/kubectl:latest
+      - name: Set KUBECONFIG environment variable
+        uses: docker://alpine:latest
         run: |
           export KUBECONFIG=/cloudbees/workspace/kubeconfig.yaml
-          kubectl config view
-          kubectl cluster-info
+          kubectl get nodes
