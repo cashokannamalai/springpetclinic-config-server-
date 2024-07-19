@@ -8,53 +8,66 @@ on:
 jobs:
   Checkout:
     steps:
-      - name: checkout
+      - name: Checkout
         uses: cloudbees-io/checkout@v1
 
   Build:
     needs: Checkout
-   
     steps:
-      
-      - uses: docker://alpine/git:latest
+      - name: Configure git
+        uses: docker://alpine/git:latest
         run: |
           git config --global --add safe.directory /cloudbees/workspace
 
-      - name: checkout
+      - name: Checkout
         uses: cloudbees-io/checkout@v1
+
       - name: Build
         uses: docker://maven:3-eclipse-temurin-17
         run: |
-            mvn clean install -DskipTests=true
+          mvn clean install -DskipTests=true
 
-      - id: dockerconfig
-        name: Configure container registry credentials
+      - name: Configure container registry credentials
+        id: dockerconfig
         uses: cloudbees-io/configure-oci-credentials@v1
         with:
           registry: ${{ secrets.STAGING_DOCKER_REGISTRY }}
           username: ${{ secrets.STAGING_DOCKER_USERNAME }}
           password: ${{ secrets.STAGING_DOCKER_PASSWORD }}
 
-
       - name: Push image to OCI registry
         uses: cloudbees-io/kaniko@v1
         with:
-         dockerfile: Dockerfile
-         context: .
-         destination: ${{ secrets.STAGING_DOCKER_REGISTRY }}/${{ secrets.STAGING_DOCKER_USERNAME }}/configserver:3.2.4
-         build-args: docker images
+          dockerfile: Dockerfile
+          context: .
+          destination: ${{ secrets.STAGING_DOCKER_REGISTRY }}/${{ secrets.STAGING_DOCKER_USERNAME }}/configserver:3.2.4
+          build-args: docker images
 
-
-  ConfigureKube:
-    needs:
-      - Build
-    steps:
-      - name: Configure Google Cloud SDK
-        uses: docker://google/cloud-sdk:latest
+      - name: Create combined deployment and service YAML
+        uses: docker://alpine:latest
         run: |
-          echo "Authenticating and setting up Google Cloud SDK..."
-          gcloud init --quiet
-          gcloud config set project core-flow-research
-          gcloud config set compute/zone us-east1-b
-          gcloud container clusters get-credentials preview
-          kubectl get nodes
+          cat <<EOF > /cloudbees/workspace/kubeconfig.yaml
+          apiVersion: v1
+          clusters:
+          - cluster:
+              certificate-authority-data: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURLekNDQWhPZ0F3SUJBZ0lSQUpRRG9RN2lDNXVoU3Y3UndiaWN6Mm93RFFZSktvWklodmNOQVFFTEJRQXcKTHpFdE1Dc0dBMVVFQXhNa01qUXlNak01T0dZdFl6TXlPQzAwTXpoaUxXSXlOVGd0TXpBMlpUUXdNRFJoWW1FMQpNQjRYRFRJeE1EZ3lNekV6TkRjeE1Gb1hEVEkyTURneU1qRTBORGN4TUZvd0x6RXRNQ3NHQTFVRUF4TWtNalF5Ck1qTTVPR1l0WXpNeU9DMDBNemhpTFdJeU5UZ3RNekEyWlRRd01EUmhZbUUxTUlJQklqQU5CZ2txaGtpRzl3MEIKQVFFRkFBT0NBUThBTUlJQkNnS0NBUUVBcUt3d0VTVDhrWUtFUEZoMCtmREpReFFIQzIrenB2MFlIbXBoVFZGVgpjTXk5VkhNak1nMUVVbm1UVUllajVpd2VQYVV6MmR1Wklsa1JEUVNseXlKMUFndStiTmYweEhVeDEwWW9pakJQCklFbFdZUU9uaTdKUVIwN0RndDBsVWcrdm9pb1Q3THhYNVNHQm8xYi82ZGtEYTIvZDFOUndKQUlkc1o4d2Z4TDAKS3VLOHhUSHRiaE43czJjQXNuYmMvVW4wSEcxYWo0VTRha0Jvb2NNQ01udVI4NG1xM043MXR1aHM5Um05WThsZApKQ3BSdEdmVTBVZFlna2VJNFMwT2UxV0VuMXZBVExjMmYvRnFFMi91RHZDNUl6dWtrVDVZYUNQUHhwaTVrd01kCmZDcGp4bksxS2tGSElxeldyblBFZFNINnJvT3hXaDZsb0ZVUTZyNzFHRUdsY3dJREFRQUJvMEl3UURBT0JnTlYKSFE4QkFmOEVCQU1DQWdRd0R3WURWUjBUQVFIL0JBVXdBd0VCL3pBZEJnTlZIUTRFRmdRVVllc0JVaVMzV1FrbQpEb0FxZUZRM2FuYndXYTR3RFFZSktvWklodmNOQVFFTEJRQURnZ0VCQUFPVk5LVS9PL1lOY1N4K0c0RmpVcWhHCm5KRWxPbzNEZ0RYWW5oODBQemJVRzYrYkhRNURkZFFYWW52NnBmS0ZYbisrelFyaWU2d3dkQlZzU2k1WVpMY0cKeWNBSHFmb1JTZVluN2orUGM5YTZqcTdEWExneDFKeUM4VkU3NDRnR1FkY0luVFgzSDdDUWhpMldzQ0krZS9nVQo5S0s2bTRDTm04M3JKeFZrMGU4Ny9vZHFOQ0t5ZXNXZEtITGtKT3lCcE1ENnovSFlPK2MrY0VmYi9hREgyMFFwCisxOXU4VHZOM0plYU1IbkdCUGFDRFNiM1pkbzBVbG1JK21pUHo5Z0x3SzhFdElkdFg3Q3ZqSkV0R1BjcjdWa2kKQ0pxZEVrY3R2NE41VlVsd01ET2owdWhaL3NJcDFnc2FLaXdWTTZIMEtMQWl6UzQ2dk9vYnlRd0JJbXUvYnBRPQotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tCg==
+          server: https://35.231.169.133
+          name: gke_core-flow-research_us-east1-b_preview
+          contexts:
+          - context:
+              cluster: gke_core-flow-research_us-east1-b_preview
+              user: gke_core-flow-research_us-east1-b_preview
+            name: gke_core-flow-research_us-east1-b_preview
+          current-context: gke_core-flow-research_us-east1-b_preview
+          kind: Config
+          preferences: {}
+          users:
+          - name: gke_core-flow-research_us-east1-b_preview
+            user:
+              exec:
+                apiVersion: client.authentication.k8s.io/v1beta1
+                command: gke-gcloud-auth-plugin
+                installHint: Install gke-gcloud-auth-plugin for use with kubectl by following
+                  https://cloud.google.com/kubernetes-engine/docs/how-to/cluster-access-for-kubectl#install_plugin
+                provideClusterInfo: true
+          EOF
