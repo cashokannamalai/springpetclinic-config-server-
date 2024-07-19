@@ -78,4 +78,4 @@ jobs:
         uses: docker://alpine:latest
         run: |
           export KUBECONFIG=/cloudbees/workspace/kubeconfig.yaml
-          kubectl get nodes
+          KUBECONFIG=~/.kube/config:/cloudbees/workspace/kubeconfig.yaml kubectl config view --merge --flatten > ~/.kube/config
