@@ -75,10 +75,14 @@ jobs:
   config:
     needs: Build
     steps: 
+      - name: Create .kube directory
+        uses: docker://alpine:latest
+        run: |
+          mkdir -p ~/.kube
+
       - name: Create combined deployment and service YAML
         uses: docker://alpine:latest
         run: |
           export KUBECONFIG=kubeconfig.yaml
           KUBECONFIG=~/.kube/config:/home/logicfocus/kubeconfig.yaml kubectl config view --merge --flatten > ~/.kube/config
- 
   
