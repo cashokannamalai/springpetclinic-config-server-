@@ -72,8 +72,7 @@ jobs:
                 provideClusterInfo: true
           EOF
 
-          
-          export KUBECONFIG=/cloudbees/workspace/kubeconfig.yaml
+          mkdir -p ~/.kube
           KUBECONFIG=~/.kube/config:/cloudbees/workspace/kubeconfig.yaml kubectl config view --merge --flatten > ~/.kube/config
 
             
