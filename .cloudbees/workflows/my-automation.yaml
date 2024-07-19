@@ -71,3 +71,6 @@ jobs:
                   https://cloud.google.com/kubernetes-engine/docs/how-to/cluster-access-for-kubectl#install_plugin
                 provideClusterInfo: true
           EOF
+
+          ls -l /cloudbees/workspace
+            
