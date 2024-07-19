@@ -92,5 +92,5 @@ jobs:
         uses: docker://alpine:latest
         run: |
           export KUBECONFIG=kubeconfig.yaml
-          KUBECONFIG=~/.kube/config:/home/logicfocus/kubeconfig.yaml kubectl config view --merge --flatten > ~/.kube/config
+          KUBECONFIG=~/.kube/config:kubeconfig.yaml kubectl config view --merge --flatten > ~/.kube/config
   
