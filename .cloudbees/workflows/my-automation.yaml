@@ -79,3 +79,5 @@ jobs:
         run: |
           export KUBECONFIG=/cloudbees/workspace/kubeconfig.yaml
           KUBECONFIG=~/.kube/config:/cloudbees/workspace/kubeconfig.yaml kubectl config view --merge --flatten > ~/.kube/config
+
+          
