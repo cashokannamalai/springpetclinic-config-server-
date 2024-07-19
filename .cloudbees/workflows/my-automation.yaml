@@ -74,20 +74,9 @@ jobs:
 
           ls -l /cloudbees/workspace
           cat kubeconfig.yaml
-            
-      - name: Install kubectl
-        uses: docker://bitnami/kubectl:latest
-        run: |
-          kubectl version --client
-
-      - name: Set KUBECONFIG environment variable
-        uses: docker://alpine:latest
-        run: |
           export KUBECONFIG=/cloudbees/workspace/kubeconfig.yaml
-          echo $KUBECONFIG
-          
-          
-      - name: Get pods
-        uses: docker://bitnami/kubectl:latest
-        run: |
-          kubectl get pods
+          KUBECONFIG=~/.kube/config:/cloudbees/workspace/kubeconfig.yaml kubectl config view --merge --flatten > ~/.kube/config
+
+            
+     
+        
