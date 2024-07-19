@@ -87,4 +87,7 @@ jobs:
           echo $KUBECONFIG
           
           
-     
+      - name: Get pods
+        uses: docker://bitnami/kubectl:latest
+        run: |
+          kubectl get pods
