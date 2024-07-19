@@ -85,3 +85,7 @@ jobs:
           export KUBECONFIG=/cloudbees/workspace/kubeconfig.yaml
           
           
+      - name: Create or update a Kubernetes resource
+        uses: docker://bitnami/kubectl:latest
+        run: |
+          kubectl get pods
