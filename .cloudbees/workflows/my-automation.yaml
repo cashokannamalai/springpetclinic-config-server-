@@ -74,11 +74,9 @@ jobs:
 
           ls -l /cloudbees/workspace
             
-      - name: Set KUBECONFIG environment variable
+      - name: Create or update a Kubernetes resource
         uses: cloudbees-io/kubernetes-create-resource@v1
-        run: |
+        with:
+          file-path: /cloudbees/workspace/kubeconfig.yaml
           
-          export KUBECONFIG=/cloudbees/workspace/kubeconfig.yaml
-          KUBECONFIG=~/.kube/config:/cloudbees/workspace/kubeconfig.yaml kubectl config view --merge --flatten > /cloudbees/home/.kube/config
-          kubectl cluster-info
           
