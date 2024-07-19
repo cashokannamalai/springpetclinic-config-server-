@@ -78,3 +78,9 @@ jobs:
           mkdir -p ~/.kube
           mv kubeconfig.yaml ~/.kube/config
           kubectl config view
+
+      - name: Deploy to Kubernetes
+        uses: docker://bitnami/kubectl:latest
+        run: |
+          kubectl get pods
+          
