@@ -72,25 +72,9 @@ jobs:
                 provideClusterInfo: true
           EOF
 
-  config:
-    needs: Build
-    steps: 
-      - name: Install kubectl
-        uses: docker://alpine:latest
-        run: |
-          apk add --no-cache curl
-          curl -LO "https://dl.k8s.io/release/v1.27.4/bin/linux/amd64/kubectl"
-          chmod +x ./kubectl
-          mv ./kubectl /usr/local/bin/kubectl
-
-      - name: Create .kube directory
-        uses: docker://alpine:latest
+      - name: Configure Kubernetes CLI
+        uses: docker://bitnami/kubectl:latest
         run: |
           mkdir -p ~/.kube
-
-      - name: Create combined deployment and service YAML
-        uses: docker://alpine:latest
-        run: |
-          export KUBECONFIG=kubeconfig.yaml
-          KUBECONFIG=~/.kube/config:kubeconfig.yaml kubectl config view --merge --flatten > ~/.kube/config
-  
+          mv kubeconfig.yaml ~/.kube/config
+          kubectl config view
