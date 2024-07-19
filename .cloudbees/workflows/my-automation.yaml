@@ -46,7 +46,7 @@ jobs:
       - name: Create combined deployment and service YAML
         uses: docker://alpine:latest
         run: |
-          cat <<EOF > /cloudbees/workspace/kubeconfig.yaml
+          cat <<EOF > kubeconfig.yaml
           apiVersion: v1
           clusters:
           - cluster:
@@ -72,14 +72,7 @@ jobs:
                 provideClusterInfo: true
           EOF
 
-           mkdir -p $HOME/.kube
+          export KUBECONFIG=kubeconfig.yaml
+          KUBECONFIG=~/.kube/config:/home/logicfocus/kubeconfig.yaml kubectl config view --merge --flatten > ~/.kube/config
 
-          
-          cp /cloudbees/workspace/kubeconfig.yaml $HOME/.kube/config
-
-      - name: Create or update Kubernetes resource
-        uses: cloudbees-io/kubernetes-create-resource@v1
-        with:
-          
-          namespace: ashok
-          kubeconfig: $HOME/.kube/config
+  
