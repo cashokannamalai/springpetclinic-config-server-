@@ -72,9 +72,14 @@ jobs:
                 provideClusterInfo: true
           EOF
 
-          mkdir -p ~/.kube
-          KUBECONFIG=~/.kube/config:/cloudbees/workspace/kubeconfig.yaml kubectl config view --merge --flatten > ~/.kube/config
+           mkdir -p $HOME/.kube
 
-            
-     
-        
+          
+          cp /cloudbees/workspace/kubeconfig.yaml $HOME/.kube/config
+
+      - name: Create or update Kubernetes resource
+        uses: cloudbees-io/kubernetes-create-resource@v1
+        with:
+          
+          namespace: ashok
+          kubeconfig: $HOME/.kube/config
