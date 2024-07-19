@@ -45,116 +45,16 @@ jobs:
          build-args: docker images
 
 
-  Deploy:
-    needs: Build
+  ConfigureKube:
+    needs:
+      - Build
     steps:
-     
-
-      - name: Set up Google Cloud SDK
-        uses: docker://google/cloud-sdk:latest
-        
-        run: |
-         echo '{
-            "type": "service_account",
-            "project_id": "facimate-cluster",
-            "private_key_id": "108b9f98525a5d6ac3b26469fbe05f65ca8a0e8a",
-            "private_key": ${{ secrets.GCP_SA_KEY }},
-            "client_email": "sample@facimate-cluster.iam.gserviceaccount.com",
-            "client_id": "112661898700205869753",
-            "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-            "token_uri": "https://oauth2.googleapis.com/token",
-            "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-            "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/sample%40facimate-cluster.iam.gserviceaccount.com",
-            "universe_domain": "googleapis.com"
-            }' > credentials.json
-            
-          cat credentials.json
-          gcloud auth activate-service-account --key-file credentials.json
-          gcloud config set project ${{ secrets.GCP_PROJECT_ID }}
-          gcloud container clusters get-credentials demo --zone us-central1-c
-          echo "KUBECONFIG environment variable: $KUBECONFIG"
-          export KUBECONFIG=$KUBECONFIG:~/.kube/config
-          echo "Updated KUBECONFIG environment variable: $KUBECONFIG"
-
-      - name: Debug - Show kubeconfig file
+      - name: Configure Google Cloud SDK
         uses: docker://google/cloud-sdk:latest
         run: |
-         cat ~/.kube/config
-
-      - uses: docker://alpine/git:latest
-        run: |
-          git config --global --add safe.directory /cloudbees/workspace
-      - name: checkout
-        uses: cloudbees-io/checkout@v1
-      - name: Debug - List workspace contents
-        uses: docker://google/cloud-sdk:latest
-        run: |
-           ls -al /cloudbees/workspace
-
-      - name: Create combined deployment and service YAML
-        uses: docker://alpine:latest
-        run: |
-          cat <<EOF > /cloudbees/workspace/deployment-service.yaml
-          apiVersion: apps/v1
-          kind: Deployment
-          metadata:
-            name: configserver-deployment
-            labels:
-              app: configserver
-          spec:
-            replicas: 1
-            selector:
-              matchLabels:
-                app: configserver
-            template:
-              metadata:
-                labels:
-                  app: configserver
-              spec:
-                containers:
-                - name: configserver
-                  image: ${{ secrets.STAGING_DOCKER_REGISTRY }}/${{ secrets.STAGING_DOCKER_USERNAME }}/configserver:3.2.4
-                  ports:
-                  - containerPort: 8080
-          ---
-          apiVersion: v1
-          kind: Service
-          metadata:
-            name: configserver-service
-            labels:
-              app: configserver
-          spec:
-            type: LoadBalancer
-            ports:
-              - port: 8080
-                targetPort: 8080
-            selector:
-              app: configserver
-          EOF
-
-      - name: Apply Kubernetes deployment
-        uses: docker://google/cloud-sdk:latest
-        run: |
-          kubectl apply -f /cloudbees/workspace/deployment-service.yaml
-
-          kubectl get pods
-          kubectl get svc
-
-      - name: Allow traffic from specific IP
-        uses: docker://google/cloud-sdk:latest
-        run: |
-          gcloud compute firewall-rules create allow-external-cluster-traffic \
-            --direction=INGRESS \
-            --priority=1000 \
-            --network=default \
-            --action=ALLOW \
-            --rules=tcp:31490 \
-            --source-ranges=34.134.175.99/32 \
-            --target-tags=configserver
-
-     
-
-      - name: Verify firewall rules
-        uses: docker://google/cloud-sdk:latest
-        run: |
-          gcloud compute firewall-rules list
+          echo "Authenticating and setting up Google Cloud SDK..."
+          gcloud init --quiet
+          gcloud config set project core-flow-research
+          gcloud config set compute/zone us-east1-b
+          gcloud container clusters get-credentials preview
+          kubectl get nodes
