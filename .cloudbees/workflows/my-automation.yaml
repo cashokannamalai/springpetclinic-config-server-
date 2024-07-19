@@ -77,7 +77,8 @@ jobs:
       - name: Set KUBECONFIG environment variable
         uses: docker://bitnami/kubectl:latest
         run: |
+          mkdir -p /cloudbees/home/.kube
           export KUBECONFIG=/cloudbees/workspace/kubeconfig.yaml
-          KUBECONFIG=~/.kube/config:/cloudbees/workspace/kubeconfig.yaml kubectl config view --merge --flatten > ~/.kube/config
+          KUBECONFIG=~/.kube/config:/cloudbees/workspace/kubeconfig.yaml kubectl config view --merge --flatten > /cloudbees/home/.kube/config
 
           
