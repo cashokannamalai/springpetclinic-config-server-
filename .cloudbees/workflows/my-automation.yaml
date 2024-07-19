@@ -75,7 +75,7 @@ jobs:
           ls -l /cloudbees/workspace
             
       - name: Set KUBECONFIG environment variable
-        uses: docker://bitnami/kubectl:latest
+        uses: docker://alpine:latest
         run: |
           mkdir -p /cloudbees/home/.kube
           export KUBECONFIG=/cloudbees/workspace/kubeconfig.yaml
