@@ -50,7 +50,7 @@ jobs:
         run: |
          
           export KUBECONFIG=/cloudbees/workspace/kubeconfig.yaml
-          kubectl config view 
+          #kubectl config view 
           kubectl get pods
 
       
