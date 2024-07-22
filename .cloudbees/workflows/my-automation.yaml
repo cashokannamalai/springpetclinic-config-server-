@@ -45,12 +45,15 @@ jobs:
           build-args: docker images
 
       
-      - name: Configure kubectl
-        uses: docker://bitnami/kubectl:latest
+      - name: Configure Kubernetes CLI
+        uses: docker://google/cloud-sdk:latest
         run: |
-            mkdir -p ~/.kube
-            
-            
+          mkdir -p ~/.kube
+          mv /cloudbees/workspace/kubeconfig.yaml  ~/.kube/config
+          kubectl config view 
+          kubectl get pods
+
+      
       
 
 
