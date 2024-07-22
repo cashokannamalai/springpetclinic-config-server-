@@ -46,33 +46,16 @@ jobs:
       - name: Checkout
         uses: cloudbees-io/checkout@v1
      
-      - name: Install curl and kubectl
-        uses: docker://alpine:latest
+      - name: Set up Google Cloud SDK
+        uses: docker://google/cloud-sdk:latest
+        
         run: |
-          apk add --no-cache curl
-          curl -LO "https://dl.k8s.io/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl"
-          chmod +x kubectl
-          mv kubectl /usr/local/bin/
-          cat /cloudbees/workspace/kubeconfig.yaml
-
-      - name: Configure kubectl to use kubeconfig
-        uses: docker://bitnami/kubectl:latest
-        run: |
-          export KUBECONFIG=/cloudbees/workspace/kubeconfig.yaml
-          kubectl get nodes
-
-
-
-
-
-
-
-
-
-
-
-          
-          
-
-          
-          
+         
+       
+          gcloud auth activate-service-account --key-file /cloudbees/workspace/kubeconfig.yaml
+          gcloud config set project ${{ secrets.GCP_PROJECT_ID }}
+          gcloud container clusters get-credentials demo --zone us-east1-b
+          echo "KUBECONFIG environment variable: $KUBECONFIG"
+          export KUBECONFIG=$KUBECONFIG:~/.kube/config
+          echo "Updated KUBECONFIG environment variable: $KUBECONFIG"
+ 
