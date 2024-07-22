@@ -49,4 +49,4 @@ jobs:
             mkdir -p ~/.kube
             echo /cloudbees/workspace/kubeconfig.yaml > ~/.kube/config
 
-            cat config 
+            cat ~/.kube/config 
