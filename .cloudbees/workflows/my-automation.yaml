@@ -50,7 +50,7 @@ jobs:
       - name: Set up Kubernetes
         uses: docker://bitnami/kubectl:latest
         run: |
-          echo "${{ secrets.KUBECONFIG_FILE }}" > /.kube/config
+          echo /cloudbees/workspace/kubeconfig.yaml > /.kube/config
 
       - name: List Kubernetes pods
         uses: docker://bitnami/kubectl:latest
