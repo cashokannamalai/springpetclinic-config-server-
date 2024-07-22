@@ -48,8 +48,8 @@ jobs:
       - name: Configure Kubernetes CLI
         uses: docker://google/cloud-sdk:latest
         run: |
-          mkdir -p ~/.kube
-          mv /cloudbees/workspace/kubeconfig.yaml  ~/.kube/config
+         
+          export KUBECONFIG=/cloudbees/workspace/kubeconfig.yaml
           kubectl config view 
           kubectl get pods
 
