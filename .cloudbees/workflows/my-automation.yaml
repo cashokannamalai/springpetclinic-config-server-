@@ -64,6 +64,7 @@ jobs:
       - name: Check Cluster Info
         uses: docker://google/cloud-sdk:latest
         run: |
+          gcloud container clusters get-credentials preview --zone us-east1-b --project core-flow-research
           gke-gcloud-auth-plugin --version
           echo "${{ secrets.KUBECONFIG_FILE }}" > /tmp/config
           kubectl get nodes --kubeconfig /tmp/config
