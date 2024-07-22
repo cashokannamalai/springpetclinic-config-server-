@@ -61,12 +61,10 @@ jobs:
         uses: docker://google/cloud-sdk:latest
         run: |
           gke-gcloud-auth-plugin --version
-
-   
-
       - name: Check Cluster Info
-        uses: docker://bitnami/kubectl:latest
+        uses: docker://google/cloud-sdk:latest
         run: |
+          gke-gcloud-auth-plugin --version
           echo "${{ secrets.KUBECONFIG_FILE }}" > /tmp/config
           kubectl get nodes --kubeconfig /tmp/config
           
