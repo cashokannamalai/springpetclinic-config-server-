@@ -68,5 +68,5 @@ jobs:
       - name: Check Cluster Info
         uses: docker://bitnami/kubectl:latest
         run: |
-          ls
+          kubectl get nodes --kubeconfig /cloudbees/workspace/config
           
