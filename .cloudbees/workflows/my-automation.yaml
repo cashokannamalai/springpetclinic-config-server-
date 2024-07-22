@@ -63,6 +63,11 @@ jobs:
   ClusterInfo:
     needs: CheckGKEPluginVersion
     steps:
+      - name: Install gke-gcloud-auth-plugin
+        uses: docker://google/cloud-sdk:latest
+        run: |
+          gcloud components install gke-gcloud-auth-plugin --quiet
+          
       - name: Configure kubectl
         uses: docker://bitnami/kubectl:latest
         run: |
