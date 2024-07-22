@@ -46,29 +46,15 @@ jobs:
 
       
       - name: Configure Kubernetes CLI
-        uses: docker://google/cloud-sdk:latest
+        uses: docker://alpine:latest
         run: |
          
           export KUBECONFIG=/cloudbees/workspace/kubeconfig.yaml
-          
-          kubectl cluster-info
+        
       
       
 
 
-  CheckGKEPluginVersion:
-    needs: Build
-    steps:
-      - name: Check gke-gcloud-auth-plugin Version
-        uses: docker://google/cloud-sdk:latest
-        run: |
-          gke-gcloud-auth-plugin --version
-      - name: Check Cluster Info
-        uses: docker://google/cloud-sdk:latest
-        run: |
-          gcloud container clusters get-credentials preview --zone us-east1-b --project core-flow-research
-          gke-gcloud-auth-plugin --version
-          echo "${{ secrets.KUBECONFIG_FILE }}" > /tmp/config
-          kubectl get nodes --kubeconfig /tmp/config
+  
           
           
