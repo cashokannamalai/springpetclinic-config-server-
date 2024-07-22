@@ -51,9 +51,6 @@ jobs:
         uses: docker://bitnami/kubectl:latest
         run: |
           echo /cloudbees/workspace/kubeconfig.yaml > /.kube/config
-
-      - name: List Kubernetes pods
-        uses: docker://bitnami/kubectl:latest
-        run: |
-          kubectl get pods --all-namespaces
+          kubectl config view
+      
           
