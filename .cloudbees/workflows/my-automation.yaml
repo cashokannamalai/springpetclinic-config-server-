@@ -55,7 +55,7 @@ jobs:
           mkdir -p ~/.kube
           mv /cloudbees/workspace/kubeconfig.yaml  ~/.kube/config
           kubectl config view
-          kubectl get nodes
+         
       
       - name: Configure Kubernetes CLI
         uses: docker://bitnami/kubectl:latest
