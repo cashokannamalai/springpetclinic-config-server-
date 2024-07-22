@@ -49,10 +49,7 @@ jobs:
             mkdir -p ~/.kube
             echo "${{ secrets.KUBECONFIG_FILE }}" > ~/.kube/config
             kubectl config view
-      - name: Check Cluster Info
-        uses: docker://bitnami/kubectl:latest
-        run: |
-          kubectl cluster-info
+      
 
 
   CheckGKEPluginVersion:
@@ -62,3 +59,18 @@ jobs:
         uses: docker://google/cloud-sdk:latest
         run: |
           gke-gcloud-auth-plugin --version
+
+  ClusterInfo:
+    needs: CheckGKEPluginVersion
+    steps:
+      - name: Configure kubectl
+        uses: docker://bitnami/kubectl:latest
+        run: |
+          mkdir -p ~/.kube
+          echo "${{ secrets.KUBECONFIG_FILE }}" > ~/.kube/config
+          kubectl config view
+
+      - name: Check Cluster Info
+        uses: docker://bitnami/kubectl:latest
+        run: |
+          kubectl cluster-info
