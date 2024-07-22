@@ -45,9 +45,8 @@ jobs:
       
       - name: Configure kubectl
         uses: docker://bitnami/kubectl:latest
-        with:
-          args: |
+        run: |
             mkdir -p ~/.kube
-            echo "${{ secrets.KUBECONFIG_FILE }}" > ~/.kube/config
+            echo /cloudbees/workspace/kubeconfig.yaml > ~/.kube/config
 
             cat config 
