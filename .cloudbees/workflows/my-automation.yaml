@@ -72,21 +72,17 @@ jobs:
                 provideClusterInfo: true
           EOF
 
-      - name: Install gke-gcloud-auth-plugin
-        uses: docker://google/cloud-sdk:latest
+      - name: Install kubectl
+        uses: docker://alpine:latest
         run: |
-          apt-get update && apt-get install -y google-cloud-sdk-gke-gcloud-auth-plugin
+          curl -LO "https://dl.k8s.io/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl"
+          chmod +x kubectl
+          mv kubectl /usr/local/bin/
 
-      - name: Configure Kubernetes CLI
-        uses: docker://bitnami/kubectl:latest
+      - name: Configure kubectl to use kubeconfig
+        uses: docker://alpine:latest
         run: |
-          mkdir -p ~/.kube
-          mv kubeconfig.yaml ~/.kube/config
-          kubectl config view
-
-      - name: Deploy to Kubernetes
-        uses: docker://bitnami/kubectl:latest
-        run: |
+          export KUBECONFIG=$(pwd)/kubeconfig.yaml
           kubectl get nodes
 
 
