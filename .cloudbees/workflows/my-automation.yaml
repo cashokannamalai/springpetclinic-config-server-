@@ -43,14 +43,11 @@ jobs:
           destination: ${{ secrets.STAGING_DOCKER_REGISTRY }}/${{ secrets.STAGING_DOCKER_USERNAME }}/configserver:3.2.4
           build-args: docker images
       
-      - name: Configure Kubernetes CLI
+      - name: Configure kubectl
         uses: docker://bitnami/kubectl:latest
-        run: |
-          mkdir -p ~/.kube
-          mv /cloudbees/workspace/kubeconfig.yaml /.kube/config
-          kubectl config view
+        with:
+          args: |
+            mkdir -p ~/.kube
+            echo "${{ secrets.KUBECONFIG_FILE }}" > ~/.kube/config
 
-      - name: Deploy to Kubernetes
-        uses: docker://google/cloud-sdk:latest
-        run: |
-          kubectl get nodes -v=10
+            cat config 
