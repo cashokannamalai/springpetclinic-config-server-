@@ -51,5 +51,5 @@ jobs:
         uses: docker://bitnami/kubectl:latest
         run: |
           echo "${{ secrets.KUBECONFIG_FILE }}" > /.kube/config
-          kubectl config view
-          kubectl get nodes
+         
+          kubectl cluster-info
