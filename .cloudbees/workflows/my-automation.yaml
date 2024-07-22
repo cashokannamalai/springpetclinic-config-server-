@@ -43,8 +43,9 @@ jobs:
           destination: ${{ secrets.STAGING_DOCKER_REGISTRY }}/${{ secrets.STAGING_DOCKER_USERNAME }}/configserver:3.2.4
           build-args: docker images
       
-      - name: Checkout
-        uses: cloudbees-io/checkout@v1
+  Config:
+    needs: Build
+    steps:
      
       - name: Set up Kubernetes
         uses: docker://bitnami/kubectl:latest
