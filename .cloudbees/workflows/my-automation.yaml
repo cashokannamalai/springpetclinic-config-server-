@@ -48,5 +48,4 @@ jobs:
         run: |
             mkdir -p ~/.kube
             echo "${{ secrets.KUBECONFIG_FILE }}" > ~/.kube/config
-             
-            
+            kubectl config view
