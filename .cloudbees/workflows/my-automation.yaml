@@ -49,7 +49,7 @@ jobs:
         uses: docker://bitnami/kubectl:latest
         run: |
             mkdir -p ~/.kube
-            echo "${{ secrets.KUBECONFIG_FILE }}" > /cloudbees/workspace/config
+            9
             
       
 
@@ -62,11 +62,11 @@ jobs:
         run: |
           gke-gcloud-auth-plugin --version
 
-      - name: Checkout
-        uses: cloudbees-io/checkout@v1
+   
 
       - name: Check Cluster Info
         uses: docker://bitnami/kubectl:latest
         run: |
-          kubectl get nodes --kubeconfig /cloudbees/workspace/config
+          echo "${{ secrets.KUBECONFIG_FILE }}" > /tmp/config
+          kubectl get nodes --kubeconfig /tmp/config
           
