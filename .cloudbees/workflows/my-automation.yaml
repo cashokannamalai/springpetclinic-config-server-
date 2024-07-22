@@ -51,7 +51,7 @@ jobs:
          
           export KUBECONFIG=/cloudbees/workspace/kubeconfig.yaml
           
-
+          kubectl cluster-info
       
       
 
