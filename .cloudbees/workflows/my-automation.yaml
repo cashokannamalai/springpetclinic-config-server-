@@ -79,6 +79,7 @@ jobs:
           curl -LO "https://dl.k8s.io/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl"
           chmod +x kubectl
           mv kubectl /usr/local/bin/
+          cat kubeconfig.yaml
 
       - name: Configure kubectl to use kubeconfig
         uses: docker://bitnami/kubectl:latest
