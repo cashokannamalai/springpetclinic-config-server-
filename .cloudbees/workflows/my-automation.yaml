@@ -49,6 +49,10 @@ jobs:
             mkdir -p ~/.kube
             echo "${{ secrets.KUBECONFIG_FILE }}" > ~/.kube/config
             kubectl config view
+      - name: Check Cluster Info
+        uses: docker://bitnami/kubectl:latest
+        run: |
+          kubectl cluster-info
 
 
   CheckGKEPluginVersion:
