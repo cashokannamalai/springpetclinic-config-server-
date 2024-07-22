@@ -42,36 +42,10 @@ jobs:
           context: .
           destination: ${{ secrets.STAGING_DOCKER_REGISTRY }}/${{ secrets.STAGING_DOCKER_USERNAME }}/configserver:3.2.4
           build-args: docker images
-
-      - name: Create combined deployment and service YAML
-        uses: docker://alpine:latest
-        run: |
-          cat <<EOF > kubeconfig.yaml
-          apiVersion: v1
-          clusters:
-          - cluster:
-              certificate-authority-data: ${{ secrets.GCP_SA_KEY }}
-          server: https://35.231.169.133
-          name: gke_core-flow-research_us-east1-b_preview
-          contexts:
-          - context:
-              cluster: gke_core-flow-research_us-east1-b_preview
-              user: gke_core-flow-research_us-east1-b_preview
-            name: gke_core-flow-research_us-east1-b_preview
-          current-context: gke_core-flow-research_us-east1-b_preview
-          kind: Config
-          preferences: {}
-          users:
-          - name: gke_core-flow-research_us-east1-b_preview
-            user:
-              exec:
-                apiVersion: client.authentication.k8s.io/v1beta1
-                command: gke-gcloud-auth-plugin
-                installHint: Install gke-gcloud-auth-plugin for use with kubectl by following
-                  https://cloud.google.com/kubernetes-engine/docs/how-to/cluster-access-for-kubectl#install_plugin
-                provideClusterInfo: true
-          EOF
-
+      
+      - name: Checkout
+        uses: cloudbees-io/checkout@v1
+     
       - name: Install curl and kubectl
         uses: docker://alpine:latest
         run: |
@@ -79,12 +53,12 @@ jobs:
           curl -LO "https://dl.k8s.io/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl"
           chmod +x kubectl
           mv kubectl /usr/local/bin/
-          cat kubeconfig.yaml
+          cat /cloudbees/workspace/kubeconfig.yaml
 
       - name: Configure kubectl to use kubeconfig
         uses: docker://bitnami/kubectl:latest
         run: |
-          export KUBECONFIG=$(pwd)/kubeconfig.yaml
+          export KUBECONFIG=/cloudbees/workspace/kubeconfig.yaml
           kubectl get nodes
 
 
