@@ -46,12 +46,11 @@ jobs:
 
       
       - name: Configure Kubernetes CLI
-        uses: docker://google/cloud-sdk:latest
+        uses: docker://alpine:latest
         run: |
          
           export KUBECONFIG=/cloudbees/workspace/kubeconfig.yaml
-          #kubectl config view 
-          kubectl get pods
+          
 
       
       
