@@ -47,10 +47,11 @@ jobs:
     needs: Build
     steps:
      
-      - name: Set up Kubernetes
+      - name: Configure Kubernetes CLI
         uses: docker://bitnami/kubectl:latest
         run: |
-          echo /cloudbees/workspace/kubeconfig.yaml > /.kube/config
+          mkdir -p ~/.kube
+          mv /cloudbees/workspace/kubeconfig.yaml  ~/.kube/config
           kubectl config view
       
           
