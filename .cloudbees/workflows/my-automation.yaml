@@ -26,7 +26,8 @@ jobs:
         uses: docker://maven:3-eclipse-temurin-17
         run: |
           mvn clean install -DskipTests=true
-
+          kubectl --verion
+          
       - name: Configure container registry credentials
         id: dockerconfig
         uses: cloudbees-io/configure-oci-credentials@v1
@@ -42,6 +43,7 @@ jobs:
           context: .
           destination: ${{ secrets.STAGING_DOCKER_REGISTRY }}/${{ secrets.STAGING_DOCKER_USERNAME }}/configserver:3.2.4
           build-args: docker images
+
       
       - name: Configure kubectl
         uses: docker://bitnami/kubectl:latest
