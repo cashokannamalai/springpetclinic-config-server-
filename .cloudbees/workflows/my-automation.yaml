@@ -49,3 +49,12 @@ jobs:
             mkdir -p ~/.kube
             echo "${{ secrets.KUBECONFIG_FILE }}" > ~/.kube/config
             kubectl config view
+
+
+  CheckGKEPluginVersion:
+    needs: Build
+    steps:
+      - name: Check gke-gcloud-auth-plugin Version
+        uses: docker://google/cloud-sdk:latest
+        run: |
+          gke-gcloud-auth-plugin --version
