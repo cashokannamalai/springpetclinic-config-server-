@@ -68,3 +68,4 @@ jobs:
           echo "${{ secrets.KUBECONFIG_FILE }}" > /tmp/config
           kubectl get nodes --kubeconfig /tmp/config
           
+          
