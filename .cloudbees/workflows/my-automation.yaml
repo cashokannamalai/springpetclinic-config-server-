@@ -49,7 +49,7 @@ jobs:
         uses: docker://bitnami/kubectl:latest
         run: |
             mkdir -p ~/.kube
-            echo /cloudbees/workspace/kubeconfig.yaml > /cloudbees/workspace/config
+            echo "${{ secrets.KUBECONFIG_FILE }}" > /cloudbees/workspace/config
             
       
 
