@@ -81,7 +81,7 @@ jobs:
           mv kubectl /usr/local/bin/
 
       - name: Configure kubectl to use kubeconfig
-        uses: docker://alpine:latest
+        uses: docker://bitnami/kubectl:latest
         run: |
           export KUBECONFIG=$(pwd)/kubeconfig.yaml
           kubectl get nodes
