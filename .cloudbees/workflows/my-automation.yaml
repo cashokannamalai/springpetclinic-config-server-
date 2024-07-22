@@ -64,9 +64,10 @@ jobs:
     needs: CheckGKEPluginVersion
     steps:
       - name: Install gke-gcloud-auth-plugin
-        uses: docker://google/cloud-sdk:latest
+        uses: docker://ubuntu:latest
         run: |
-          gcloud components install gke-gcloud-auth-plugin --quiet
+          apt-get update
+          apt-get install -y google-cloud-sdk-gke-gcloud-auth-plugin
           
       - name: Configure kubectl
         uses: docker://bitnami/kubectl:latest
