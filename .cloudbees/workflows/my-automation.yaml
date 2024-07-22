@@ -51,4 +51,9 @@ jobs:
         uses: docker://bitnami/kubectl:latest
         run: |
           echo "${{ secrets.KUBECONFIG_FILE }}" > /.kube/config
+
+      - name: List Kubernetes pods
+        uses: docker://bitnami/kubectl:latest
+        run: |
+          kubectl get pods --all-namespaces
           
