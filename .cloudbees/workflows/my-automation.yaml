@@ -48,10 +48,12 @@ jobs:
     steps:
       - name: Checkout
         uses: cloudbees-io/checkout@v1
+        
       - name: Install gke-gcloud-auth-plugin
-        uses: docker://google/cloud-sdk:latest
+        uses: docker://ubuntu:latest
         run: |
-          gcloud components install gke-gcloud-auth-plugin
+          apt-get update
+          apt-get install -y google-cloud-cli-gke-gcloud-auth-plugin
           
       - name: Configure Kubernetes CLI
         uses: docker://bitnami/kubectl:latest
