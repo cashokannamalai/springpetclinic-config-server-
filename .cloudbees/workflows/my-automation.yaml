@@ -49,7 +49,7 @@ jobs:
         uses: docker://bitnami/kubectl:latest
         run: |
             mkdir -p ~/.kube
-            9
+            
             
       
 
