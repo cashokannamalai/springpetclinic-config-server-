@@ -49,5 +49,5 @@ jobs:
       - name: Set up Kubernetes
         uses: docker://bitnami/kubectl:latest
         run: |
-          echo "${{ secrets.KUBECONFIG_FILE }}" > /root/.kube/config
+          echo "${{ secrets.KUBECONFIG_FILE }}" > ~/.kube/config
           kubectl config view
