@@ -49,7 +49,7 @@ jobs:
     needs: Build
     steps:
       - name: Install kubectl
-        uses: cloudbees-io/configure-kubectl@v1
+        uses: docker://bitnami/kubectl:latest
         run: |
             mkdir -p $HOME/.kube
             echo "${{ secrets.KUBECONFIG }}" > $HOME/.kube/config
