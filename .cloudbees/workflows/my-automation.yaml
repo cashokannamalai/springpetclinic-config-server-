@@ -53,10 +53,11 @@ jobs:
 
      
         run: |
-          gcloud components update
-          gcloud components install gke-gcloud-auth-plugin
-          mkdir -p $HOME/.kube
-          echo "${{ secrets.KUBECONFIG }}" > $HOME/.kube/config
+           apt-get update
+           apt-get --only-upgrade install google-cloud-cli google-cloud-cli-gke-gcloud-auth-plugin kubectl
+
+           mkdir -p $HOME/.kube
+           echo "${{ secrets.KUBECONFIG }}" > $HOME/.kube/config
 
       
-          kubectl get pods
+           kubectl get pods
