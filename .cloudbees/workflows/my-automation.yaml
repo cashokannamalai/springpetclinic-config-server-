@@ -49,15 +49,10 @@ jobs:
     needs: Build
     steps:
       - name: Install kubectl
-        uses: docker://google/cloud-sdk:latest
-
-     
+        uses: cloudbees-io/configure-kubectl@v1
         run: |
-          
+            mkdir -p $HOME/.kube
+            echo "${{ secrets.KUBECONFIG }}" > $HOME/.kube/config
 
-           mkdir -p $HOME/.kube
-           echo "${{ secrets.KUBECONFIG }}" > $HOME/.kube/config
-
-      
-           kubectl get pods
+            kubectl config view
 
