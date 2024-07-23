@@ -53,11 +53,11 @@ jobs:
 
      
         run: |
-           apt-get update
-           apt-get --only-upgrade install google-cloud-cli google-cloud-cli-gke-gcloud-auth-plugin kubectl
+          
 
            mkdir -p $HOME/.kube
            echo "${{ secrets.KUBECONFIG }}" > $HOME/.kube/config
 
       
            kubectl get pods
+
