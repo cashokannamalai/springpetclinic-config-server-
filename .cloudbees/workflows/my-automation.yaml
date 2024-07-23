@@ -45,15 +45,16 @@ jobs:
           build-args: docker images
 
       
-  Deploy:
-    needs: Build
-    steps:
       - name: Install kubectl
-        uses: docker://google/cloud-sdk:latest
+        uses: docker://bitnami/kubectl:latest
         run: |
-            mkdir -p $HOME/.kube
-            echo "${{ secrets.KUBECONFIG }}" > $HOME/.kube/config
+          curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+          chmod +x kubectl
+          mv kubectl /usr/local/bin/
 
-            kubectl config view
+      
+          mkdir -p $HOME/.kube
+          echo "${{ secrets.KUBECONFIG }}" | base64 --decode > $HOME/.kube/config
 
-            kubectl get nodes
+    
+          kubectl get nodes
