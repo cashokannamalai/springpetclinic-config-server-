@@ -54,5 +54,8 @@ jobs:
           mv ./kubectl /usr/local/bin/kubectl
           export KUBECONFIG=/cloudbees/workspace/kubeconfig.yaml
         
-      
+      - name: Check Kubernetes Cluster Info
+        uses: docker://google/cloud-sdk:latest
+        run: |
           kubectl cluster-info
+         
