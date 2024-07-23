@@ -57,5 +57,6 @@ jobs:
       - name: Check Kubernetes Cluster Info
         uses: docker://google/cloud-sdk:latest
         run: |
+          export KUBECONFIG=/cloudbees/workspace/kubeconfig.yaml
           kubectl cluster-info
          
