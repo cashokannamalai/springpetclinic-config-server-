@@ -52,11 +52,15 @@ jobs:
           curl -LO "https://dl.k8s.io/release/v1.26.0/bin/linux/amd64/kubectl"
           chmod +x ./kubectl
           mv ./kubectl /usr/local/bin/kubectl
-          export KUBECONFIG=/cloudbees/workspace/kubeconfig.yaml
-        
+
+      - name: Set up kubeconfig
+        uses: docker://alpine:latest
+        run: |
+          mkdir -p ~/.kube
+          echo "${{ secrets.KUBECONFIG_CONTENT }}" > ~/.kube/config
+          export KUBECONFIG=~/.kube/config
+
       - name: Check Kubernetes Cluster Info
         uses: docker://google/cloud-sdk:latest
         run: |
-          export KUBECONFIG=/cloudbees/workspace/kubeconfig.yaml
           kubectl cluster-info
-         
