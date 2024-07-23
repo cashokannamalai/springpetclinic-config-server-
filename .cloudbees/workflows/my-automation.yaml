@@ -46,7 +46,7 @@ jobs:
 
       
       - name: Install kubectl
-        uses: docker://bitnami/kubectl:latest
+        uses: docker://google/cloud-sdk:latest
         run: |
           kubectl version --client
 
