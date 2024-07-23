@@ -49,10 +49,12 @@ jobs:
     needs: Build
     steps:
       - name: Install kubectl
-        uses: docker://bitnami/kubectl:latest
+        uses: docker://google/cloud-sdk:latest
 
      
         run: |
+          gcloud components update
+          gcloud components install gke-gcloud-auth-plugin
           mkdir -p $HOME/.kube
           echo "${{ secrets.KUBECONFIG }}" > $HOME/.kube/config
 
