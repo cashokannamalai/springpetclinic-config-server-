@@ -50,4 +50,4 @@ jobs:
         run: |
           export KUBECONFIG=/cloudbees/workspace/kubeconfig.yaml
           kubectl config view
-          gcloud container clusters get-credentials cluster-1 --zone us-central1-c --project facimate-cluster
+          kubectl cluster-info
