@@ -49,4 +49,4 @@ jobs:
         uses: docker://bitnami/kubectl:latest
         run: |
           export KUBECONFIG=/cloudbees/workspace/kubeconfig.yaml
-          kubectl cluster-info
+          kubectl config view
