@@ -46,8 +46,8 @@ jobs:
 
       
       - name: Install kubectl
-        uses: docker://bitnami/kubectl:latest
+        uses: docker://google/cloud-sdk:latest
         run: |
           export KUBECONFIG=/cloudbees/workspace/kubeconfig.yaml
           kubectl config view
-          kubectl cluster-info
+          gcloud container clusters get-credentials cluster-1 --zone us-central1-c --project facimate-cluster
