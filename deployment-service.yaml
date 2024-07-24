@@ -1,35 +1,37 @@
 apiVersion: apps/v1
-          kind: Deployment
-          metadata:
-            name: configserver-deployment
-            labels:
-              app: configserver
-          spec:
-            replicas: 1
-            selector:
-              matchLabels:
-                app: configserver
-            template:
-              metadata:
-                labels:
-                  app: configserver
-              spec:
-                containers:
-                - name: configserver
-                  image: ${{ secrets.STAGING_DOCKER_REGISTRY }}/${{ secrets.STAGING_DOCKER_USERNAME }}/configserver:3.2.4
-                  ports:
-                  - containerPort: 8080
-          ---
-          apiVersion: v1
-          kind: Service
-          metadata:
-            name: configserver-service
-            labels:
-              app: configserver
-          spec:
-            type: LoadBalancer
-            ports:
-              - port: 8080
-                targetPort: 8080
-            selector:
-              app: configserver
+kind: Deployment
+metadata:
+  name: configserver-deployment
+  namespace: default
+  labels:
+    app: configserver
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: configserver
+  template:
+    metadata:
+      labels:
+        app: configserver
+    spec:
+      containers:
+        - name: configserver
+          image: ${{ secrets.STAGING_DOCKER_REGISTRY }}/${{ secrets.STAGING_DOCKER_USERNAME }}/configserver:3.2.4
+          ports:
+            - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: configserver-service
+  namespace: default
+  labels:
+    app: configserver
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 8080
+      targetPort: 8080
+  selector:
+    app: configserver
