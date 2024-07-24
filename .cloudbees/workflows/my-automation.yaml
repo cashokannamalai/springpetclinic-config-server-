@@ -46,11 +46,6 @@ jobs:
 
       
       - name: Install kubectl
-        uses: docker://google/cloud-sdk:latest
+        uses: docker://bitnami/kubectl:latest
         run: |
-          kubectl version --client
-
-      
-          mkdir -p $HOME/.kube
-          echo "${{ secrets.KUBECONFIG }}"  > $HOME/.kube/config
-          kubectl cluster-info
+          export KUBECONFIG=/cloudbees/workspace/kubeconfig.yaml
