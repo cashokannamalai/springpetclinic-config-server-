@@ -27,7 +27,12 @@ jobs:
         run: |
           mvn clean install -DskipTests=true
          
-          
+  DockerImageBuildAndPush:
+    needs: Build
+    steps:
+      - name: Checkout
+        uses: cloudbees-io/checkout@v1
+
       - name: Configure container registry credentials
         id: dockerconfig
         uses: cloudbees-io/configure-oci-credentials@v1
@@ -44,7 +49,12 @@ jobs:
           destination: ${{ secrets.STAGING_DOCKER_REGISTRY }}/${{ secrets.STAGING_DOCKER_USERNAME }}/configserver:3.2.4
           build-args: docker images
 
-      
+  DeployInGKE:
+    needs: DockerImageBuildAndPush
+    steps: 
+      - name: Checkout
+        uses: cloudbees-io/checkout@v1
+         
       - name: Install kubectl
         uses: docker://google/cloud-sdk:latest
         run: |
