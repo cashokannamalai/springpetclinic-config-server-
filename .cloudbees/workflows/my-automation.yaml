@@ -103,4 +103,5 @@ jobs:
           PORT=$(kubectl get svc configserver-service -n ashok -o=jsonpath='{.spec.ports[0].port}')
           echo "External IP: $EXTERNAL_IP"
           echo "Port: $PORT"
+          
       
