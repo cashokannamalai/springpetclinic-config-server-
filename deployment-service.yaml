@@ -34,7 +34,7 @@ spec:
     app: configserver
   ports:
     - protocol: TCP
-      port: 80
+      port: 8888
       targetPort: 8888
 
 ---
@@ -57,4 +57,4 @@ spec:
               service:
                 name: configserver-service
                 port:
-                  number: 80
+                  number: 8888
