@@ -25,10 +25,20 @@ jobs:
       - name: Build
         uses: docker://maven:3-eclipse-temurin-17
         run: |
-          mvn clean install -DskipTests=true
+          mvn clean install 
+  UnitTest:
+    needs: Build
+    steps:
+      - name: Checkout
+        uses: cloudbees-io/checkout@v1
+
+      - name: Run Unit Tests
+        uses: docker://maven:3-eclipse-temurin-17
+        run: |
+          mvn test
 
   StaticAnalysis:
-    needs: Build
+    needs: UnitTest
     steps:
       - uses: cloudbees-io/sonarqube-sast-scan-code@v1
         name: Scan
