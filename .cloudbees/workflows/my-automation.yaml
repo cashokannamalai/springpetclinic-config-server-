@@ -39,7 +39,6 @@ jobs:
           ls -lR /cloudbees/workspace
 
   StaticAnalysis:
-    needs: UnitTest
     steps:
       - uses: cloudbees-io/sonarqube-sast-scan-code@v1
         name: Scan
@@ -66,7 +65,7 @@ jobs:
           token: ${{ secrets.token }}
          
   DockerImageBuildAndPush:
-    needs: StaticAnalysis
+    needs: UnitTest
     steps:
       - name: Checkout
         uses: cloudbees-io/checkout@v1
