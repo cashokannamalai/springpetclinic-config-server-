@@ -63,9 +63,26 @@ jobs:
         with:
           project-key: config-server
           token: ${{ secrets.token }}
-         
-  DockerImageBuildAndPush:
+
+  ArtifactPublish:
     needs: UnitTest
+      - StaticAnalysis
+    steps:
+      - name: checkout
+        uses: cloudbees-io/checkout@v1
+
+      - name: Publish to Nexus
+        uses: docker://maven:3-eclipse-temurin-17
+        env:
+          NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
+          NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
+
+        run: |
+          mvn deploy \
+            -DaltDeploymentRepository=nexus::default::https://${NEXUS_USERNAME}:${NEXUS_PASSWORD}@nexus.preview.cb-demos.io/repository/Petclinic/
+
+  DockerImageBuildAndPush:
+    needs: ArtifactPublish
     steps:
       - name: Checkout
         uses: cloudbees-io/checkout@v1
