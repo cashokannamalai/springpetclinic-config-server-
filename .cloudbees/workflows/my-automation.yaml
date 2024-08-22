@@ -109,7 +109,7 @@ jobs:
    needs: DockerImageBuildAndPush
    steps:
     - name: Manual Approval
-      uses: trstringer/manual-approval@v1
+      uses: cashokannamalai/manualapproval@v1
       with:
         approver: ${{ secrets.APPROVER_USER }}
         message: "Waiting for manual approval from ashok.alogicfocus@gmail.com..."
