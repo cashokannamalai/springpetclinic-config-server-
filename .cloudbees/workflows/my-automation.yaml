@@ -106,13 +106,21 @@ jobs:
           build-args: docker images
 
   ManualApproval:
-    needs: DockerImageBuildAndPush
+    needs: StaticAnalysis
     steps:
-      - name: Manual Approval Step
-        uses: cashokannamalai/manualapproval@v1
+      - name: Request Approval
+        uses: ghcr.io/trstringer/manual-approval@v1
         with:
-          approver_email: ashok.alogicfocus@gmail.com
-          approval_message: "Please approve the deployment to GKE."
+          approvers: ${{ secrets.approvers }}
+          secret: ${{ secrets.secret }}
+          minimum-approvals: 1
+          timeout-minutes: 30
+          issue-title: "Approval Required"
+          issue-body: "Please review and approve the changes to continue."
+          exclude-workflow-initiator-as-approver: true
+          additional-approved-words: "yes, approve"
+          additional-denied-words: "no, deny"
+
 
 
   DeployInGKE:
