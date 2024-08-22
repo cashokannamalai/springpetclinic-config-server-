@@ -105,8 +105,20 @@ jobs:
           destination: ${{ secrets.STAGING_DOCKER_REGISTRY }}/${{ secrets.STAGING_DOCKER_USERNAME }}/configserver:3.2.4
           build-args: docker images
 
+  ManualApproval:
+   needs: DockerImageBuildAndPush
+   steps:
+    - name: Manual Approval
+      uses: cloudbees-io/manual-approval-action@v1
+      with:
+        approver: ${{ secrets.APPROVER_USER }}
+        message: "Waiting for manual approval from ashok.alogicfocus@gmail.com..."
+        timeout: 60 
+
+
+
   DeployInGKE:
-    needs: DockerImageBuildAndPush
+    needs: ManualApproval
     steps:
       - name: checkout
         uses: cloudbees-io/checkout@v1
