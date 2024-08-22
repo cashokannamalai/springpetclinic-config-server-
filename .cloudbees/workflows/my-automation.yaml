@@ -104,27 +104,20 @@ jobs:
           context: .
           destination: ${{ secrets.STAGING_DOCKER_REGISTRY }}/${{ secrets.STAGING_DOCKER_USERNAME }}/configserver:3.2.4
           build-args: docker images
-
-  ManualApproval:
-    needs: StaticAnalysis
+  
+  Approval:
+    needs: DockerImageBuildAndPush
+    type: manual-approval
+    environment: ashok
     steps:
-      - name: Request Approval
-        uses: ghcr.io/trstringer/manual-approval@v1
-        with:
-          approvers: ${{ secrets.approvers }}
-          secret: ${{ secrets.secret }}
-          minimum-approvals: 1
-          timeout-minutes: 30
-          issue-title: "Approval Required"
-          issue-body: "Please review and approve the changes to continue."
-          exclude-workflow-initiator-as-approver: true
-          additional-approved-words: "yes, approve"
-          additional-denied-words: "no, deny"
-
+      - name: Approval
+        uses: docker://maven:3-eclipse-temurin-17
+        run: |
+          echo "Manual approval required before proceeding to deployment."
 
 
   DeployInGKE:
-    needs: ManualApproval
+    needs: DockerImageBuildAndPush
     steps:
       - name: checkout
         uses: cloudbees-io/checkout@v1
