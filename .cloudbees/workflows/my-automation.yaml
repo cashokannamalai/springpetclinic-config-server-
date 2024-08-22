@@ -117,7 +117,7 @@ jobs:
 
 
   DeployInGKE:
-    needs: DockerImageBuildAndPush
+    needs: Approval
     steps:
       - name: checkout
         uses: cloudbees-io/checkout@v1
