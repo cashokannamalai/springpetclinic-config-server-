@@ -106,15 +106,13 @@ jobs:
           build-args: docker images
 
   ManualApproval:
-   needs: DockerImageBuildAndPush
-   steps:
-    - name: Manual Approval
-      uses: cashokannamalai/manualapproval@v1
-      with:
-        approver: ${{ secrets.APPROVER_USER }}
-        message: "Waiting for manual approval from ashok.alogicfocus@gmail.com..."
-        timeout: 60 
-
+    needs: DockerImageBuildAndPush
+    steps:
+      - name: Manual Approval Step
+        uses: cashokannamalai/manualapproval@v1
+        with:
+          approver_email: ashok.alogicfocus@gmail.com
+          approval_message: "Please approve the deployment to GKE."
 
 
   DeployInGKE:
