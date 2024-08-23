@@ -126,13 +126,8 @@ jobs:
       - name: Checkout
         uses: cloudbees-io/checkout@v1
         
-      - name: Get Commit Information
-        uses: docker://alpine/git:latest
-        run: |
-          COMMIT_ID=$(git rev-parse HEAD)
-          echo "COMMIT_ID=${COMMIT_ID}"
-          cb_set_property --name COMMIT_ID --value $COMMIT_ID
-
+    
+         
       - name: Publish test results
         uses: cloudbees-io/publish-test-results@v1
         with:
@@ -145,6 +140,5 @@ jobs:
           content: |-
             # Sample Evidence output
             - Workflow ID: ${{ cloudbees.run_id }}
-            - Commit ID: ${{ env.COMMIT_ID }}
-            - Commit Message: ${{ env.COMMIT_MESSAGE }}
+           
 
