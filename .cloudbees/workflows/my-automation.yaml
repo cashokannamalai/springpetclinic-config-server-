@@ -18,20 +18,21 @@ jobs:
         uses: docker://alpine/git:latest
         run: |
           git config --global --add safe.directory /cloudbees/workspace
-
       - name: Checkout
         uses: cloudbees-io/checkout@v1
+        
+      - name: Get Commit Information
+        uses: docker://alpine/git:latest
+        run: |
+           echo "Commit ID: $(git rev-parse HEAD)" > /cloudbees/workspace/commit-info.txt
+           echo "Commit Message: $(git log -1 --pretty=format:%s)" >> /cloudbees/workspace/commit-info.txt
 
       - name: Build
         uses: docker://maven:3-eclipse-temurin-17
         run: |
           mvn clean install 
-          git log -1 --pretty=format:"%H - %s" > /cloudbees/workspace/commit-info.txt
-      - name: Capture Commit Info
-        id: commit_info
-        uses: docker://alpine:latest
-        run: |
-          cat /cloudbees/workspace/commit-info.txt
+          ls -lR /cloudbees/workspace
+          cat commit-info.txt
 
   UnitTest:
     needs: Build
@@ -44,22 +45,33 @@ jobs:
         run: |
           mvn test
           ls -lR /cloudbees/workspace
-          mvn surefire-report:report
+        
 
   StaticAnalysis:
     steps:
       - uses: cloudbees-io/sonarqube-sast-scan-code@v1
-        name: SonarQube Scan
+        name: Scan
         kind: scan
         with:
           server-url: https://sonarqube.cb-demos.io
           username: ${{ secrets.username }}
           password: ${{ secrets.password }}
           language: Java
-      - name: Capture Code Coverage and Violations
-        uses: docker://alpine:latest
-        run: |
-          curl -u ${{ secrets.username }}:${{ secrets.password }} "https://sonarqube.cb-demos.io/api/measures/component?componentKey=myproject&metricKeys=coverage,violations,critical_violations" > /cloudbees/workspace/sonar-results.json
+      - uses: cloudbees-io/sonarqube-bundled-sast-scan-code@v2
+        name: Scan with Java
+        kind: scan
+        with:
+          language: JAVA
+      - uses: cloudbees-io/findsecbugs-sast-scan-code@v1
+        name: Scan with Find Security Bugs
+        kind: scan
+        with:
+          language: LANGUAGE_JAVA
+      - uses: sbatchelder-cba/sonarqube-cba@v0.0.3
+        name: Scan GP
+        with:
+          project-key: config-server
+          token: ${{ secrets.token }}
 
   ArtifactPublish:
     needs: UnitTest
@@ -107,6 +119,7 @@ jobs:
     steps:
       - name: Approval
         uses: docker://maven:3-eclipse-temurin-17
+
         run: |
           echo "Manual approval required before proceeding to deployment."
 
@@ -132,20 +145,26 @@ jobs:
       - name: Checkout
         uses: cloudbees-io/checkout@v1
         
-      - name: Publish Unit Test Results
+      - name: Get Commit Information
+        uses: docker://alpine/git:latest
+        run: |
+           echo "Commit ID: $(git rev-parse HEAD)" > /cloudbees/workspace/commit-info.txt
+           echo "Commit Message: $(git log -1 --pretty=format:%s)" >> /cloudbees/workspace/commit-info.txt
+
+      - name: Publish test results
         uses: cloudbees-io/publish-test-results@v1
         with:
           test-type: JUnit
           folder-name: src/test
-
+         
       - uses: cloudbees-io/publish-evidence-item@v1
-        name: Publish Evidence
+        name: Publish workflow evidence
         with:
           content: |-
-            # Workflow Evidence
-            - **Workflow ID:** ${{ cloudbees.run_id }}
-            - **Commit ID and Message:** ${{ steps.commit_info.outputs.commit_info }}
-            - **Link to CI Build:** [CI Build Link](https://cloudbees-ci.example.com/${{ cloudbees.run_id }})
-            - **Unit Test Results:** Available in JUnit report
-            - **Code Coverage:** $(jq '.component.measures[] | select(.metric == "coverage") | .value' /cloudbees/workspace/sonar-results.json)%
-            - **Critical Violations:** $(jq '.component.measures[] | select(.metric == "critical_violations") | .value' /cloudbees/workspace/sonar-results.json)
+            # Sample Evidence output
+            - Workflow ID: ${{ cloudbees.run_id }}
+            - Commit Information:
+              ```
+              $(cat /cloudbees/workspace/commit-info.txt)
+              ```
+
