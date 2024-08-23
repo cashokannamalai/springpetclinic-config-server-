@@ -19,13 +19,17 @@ jobs:
         run: |
           git config --global --add safe.directory /cloudbees/workspace
 
-      - name: Checkout
-        uses: cloudbees-io/checkout@v1
+      - name: Get Commit Information
+        uses: docker://alpine/git:latest
+        run: |
+          echo "Commit ID: $(git rev-parse HEAD)"
+          echo "Commit Message: $(git log -1 --pretty=format:%s)"
 
       - name: Build
         uses: docker://maven:3-eclipse-temurin-17
         run: |
           mvn clean install 
+
   UnitTest:
     needs: Build
     steps:
@@ -67,7 +71,7 @@ jobs:
   ArtifactPublish:
     needs: UnitTest
     steps:
-      - name: checkout
+      - name: Checkout
         uses: cloudbees-io/checkout@v1
 
       - name: Publish to Nexus
@@ -75,7 +79,6 @@ jobs:
         env:
           NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
           NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
-
         run: |
           mvn deploy \
             -DaltDeploymentRepository=nexus::default::https://${NEXUS_USERNAME}:${NEXUS_PASSWORD}@nexus.preview.cb-demos.io/repository/Petclinic/
@@ -85,7 +88,7 @@ jobs:
     steps:
       - name: Checkout
         uses: cloudbees-io/checkout@v1
-      - name: Build
+      - name: Build Docker Image
         uses: docker://maven:3-eclipse-temurin-17
         run: |
           mvn clean install -DskipTests=true
@@ -103,8 +106,7 @@ jobs:
           dockerfile: Dockerfile
           context: .
           destination: ${{ secrets.STAGING_DOCKER_REGISTRY }}/${{ secrets.STAGING_DOCKER_USERNAME }}/configserver:3.2.4
-          build-args: docker images
-  
+
   Approval:
     needs: DockerImageBuildAndPush
     type: manual-approval
@@ -112,15 +114,14 @@ jobs:
     steps:
       - name: Approval
         uses: docker://maven:3-eclipse-temurin-17
-        run: |
-         
-          echo "Manual approval required before proceeding to deployment."
 
+        run: |
+          echo "Manual approval required before proceeding to deployment."
 
   DeployInGKE:
     needs: Approval
     steps:
-      - name: checkout
+      - name: Checkout
         uses: cloudbees-io/checkout@v1
         
       - uses: cashokannamalai/kubeconfig@v1
@@ -132,6 +133,7 @@ jobs:
         shell: sh
         run: |
           kubectl apply -f /cloudbees/workspace/deployment-service.yaml
+
   Evidence:
     needs: DeployInGKE
     steps:
@@ -141,14 +143,18 @@ jobs:
       - name: Publish test results
         uses: cloudbees-io/publish-test-results@v1
         with:
-         test-type: JUnit
-         folder-name: src/test
+          test-type: JUnit
+          folder-name: src/test
          
-
       - uses: cloudbees-io/publish-evidence-item@v1
         name: Publish workflow evidence
         with:
           content: |-
             # Sample Evidence output
             - Workflow ID: ${{ cloudbees.run_id }}
-           
+            - Commit ID: $(git rev-parse HEAD)
+            - Commit Message: $(git log -1 --pretty=format:%s)
+            - Notifications for the workflow can be set up in the CloudBees platform under the notifications section. You can use this workflow name 'ashokconfig' for notifications.
+
+
+
