@@ -25,10 +25,8 @@ jobs:
       - name: Get Commit Information
         uses: docker://alpine/git:latest
         run: |
-           echo "COMMIT_ID=$(git rev-parse HEAD)" >> $GITHUB_ENV
-           echo "COMMIT_MESSAGE=$(git log -1 --pretty=format:%s)" >> $GITHUB_ENV
-           echo "Commit ID: $(git rev-parse HEAD)" > /cloudbees/workspace/commit-info.txt
-           echo "Commit Message: $(git log -1 --pretty=format:%s)" >> /cloudbees/workspace/commit-info.txt
+            echo "COMMIT_ID=$(git rev-parse HEAD)" >> $GITHUB_ENV
+            echo "COMMIT_MESSAGE=$(git log -1 --pretty=format:%s)" >> $GITHUB_ENV
 
       - name: Build
         uses: docker://maven:3-eclipse-temurin-17
@@ -137,8 +135,6 @@ jobs:
         run: |
            echo "COMMIT_ID=$(git rev-parse HEAD)" >> $GITHUB_ENV
            echo "COMMIT_MESSAGE=$(git log -1 --pretty=format:%s)" >> $GITHUB_ENV
-           echo "Commit ID: $(git rev-parse HEAD)" > /cloudbees/workspace/commit-info.txt
-           echo "Commit Message: $(git log -1 --pretty=format:%s)" >> /cloudbees/workspace/commit-info.txt
 
 
       - name: Publish test results
