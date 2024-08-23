@@ -145,11 +145,10 @@ jobs:
          folder-name: src/test
          
 
-      - name: Publish workflow evidence item
-        uses: cloudbees-io/publish-evidence-item@v1
+      - uses: cloudbees-io/publish-evidence-item@v1
+        name: Publish workflow evidence
         with:
-         content: |
-          
-           - Run ID: ${{ cloudbees.run_id }}
-           - **Artifact Link**: [backend.tar](https://github.com/cashokannamalai/spring-petclinic-config-server/backend.tar)
+          content: |-
+            # Sample Evidence output
+            - Workflow ID: ${{ cloudbees.run_id }}
            
