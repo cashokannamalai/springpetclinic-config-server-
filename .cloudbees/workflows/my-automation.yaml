@@ -144,5 +144,10 @@ jobs:
             - Run ID: ${{ cloudbees.run_id }}
             - Color test: <span style="color:green">This text should be green</span>
             - [backend.tar](https://ourcompany.com/repo/backend.tar)
-          format: MARKDOWN
+            ## Table
+            | Test     | Reults  |
+            | -------- | ------- |
+            | Test 1   | PASS    |
+            | Test 2   | FAIL    |
+            | Test 3   | PASS    |
             
