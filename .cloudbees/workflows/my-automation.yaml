@@ -143,13 +143,15 @@ jobs:
         with:
          test-type: JUnit
          folder-name: src/test
+         
 
       - name: Publish workflow evidence item
         uses: cloudbees-io/publish-evidence-item@v1
         with:
          content: |
           
-          - Run ID: ${{ cloudbees.run_id }}
+           - Run ID: ${{ cloudbees.run_id }}
            - **Test Results**: [View Test Report](https://ourcompany.com/repo/backend.tar) 
             - **JUnit Report**: [View JUnit Report](https://ourcompany.com/repo/junit-report.xml) # Include the public link to the report if available
             - **Artifact Link**: [backend.tar](https://ourcompany.com/repo/backend.tar)
+            ls -lR /cloudbees/workspace
