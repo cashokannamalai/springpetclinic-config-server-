@@ -132,3 +132,12 @@ jobs:
         shell: sh
         run: |
           kubectl apply -f /cloudbees/workspace/deployment-service.yaml
+  Evidence:
+    needs: DeployInGKE
+    steps:
+      - name: Publish workflow evidence item
+        uses: cloudbees-io/publish-evidence-item@v1
+        with:
+          content: |
+            - Run ID: ${{ cloudbees.run_id }}
+            - [backend.tar](https://ourcompany.com/repo/backend.tar)
