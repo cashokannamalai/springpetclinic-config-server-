@@ -14,6 +14,7 @@ jobs:
       - name: Get Commit ID
         uses: docker://alpine/git:latest
         run: |
+          mkdir -p /cloudbees/workspace
           COMMIT_ID=$(git rev-parse --short HEAD)
           echo "COMMIT_ID=${COMMIT_ID}" >> $GITHUB_ENV
    
