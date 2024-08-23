@@ -33,7 +33,7 @@ jobs:
           mvn clean install
  
       - name: Publish Build Evidence
-        uses: ./.github/actions/publish-evidence-item
+        uses: cloudbees-io/publish-evidence-item@v1
         with:
           content: |
             Commit ID: $(git rev-parse HEAD)
