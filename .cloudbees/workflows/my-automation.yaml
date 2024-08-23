@@ -61,4 +61,3 @@ jobs:
               ```
               $(cat /cloudbees/workspace/commit-info.txt)
               ```
-
