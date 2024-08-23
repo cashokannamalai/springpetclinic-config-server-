@@ -135,6 +135,8 @@ jobs:
   Evidence:
     needs: DeployInGKE
     steps:
+      - name: Checkout
+        uses: cloudbees-io/checkout@v1
       - name: Publish workflow evidence item
         uses: cloudbees-io/publish-evidence-item@v1
         with:
@@ -144,10 +146,9 @@ jobs:
             - Run ID: ${{ cloudbees.run_id }}
             - Color test: <span style="color:green">This text should be green</span>
             - [backend.tar](https://ourcompany.com/repo/backend.tar)
-            ## Table
-            | Test     | Reults  |
-            | -------- | ------- |
-            | Test 1   | PASS    |
-            | Test 2   | FAIL    |
-            | Test 3   | PASS    |
+      - name: Publish test results
+        uses: cloudbees-io/publish-test-results@v1
+        with:
+         test-type: JUnit
+         folder-name: src/test
             
