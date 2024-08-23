@@ -13,33 +13,26 @@ jobs:
 
   Build:
     needs: Checkout
-    outputs:
-      commit_id: ${{ steps.get_commit_info.outputs.commit_id }}
-      commit_message: ${{ steps.get_commit_info.outputs.commit_message }}
     steps:
       - name: Configure git
         uses: docker://alpine/git:latest
         run: |
           git config --global --add safe.directory /cloudbees/workspace
-
       - name: Checkout
         uses: cloudbees-io/checkout@v1
         
       - name: Get Commit Information
-        id: get_commit_info
         uses: docker://alpine/git:latest
         run: |
-           echo "::set-output name=commit_id::$(git rev-parse HEAD)"
-           echo "::set-output name=commit_message::$(git log -1 --pretty=format:%s)"
-        outputs:
-          commit_id: $(git rev-parse HEAD)
-          commit_message: $(git log -1 --pretty=format:%s)
+           echo "Commit ID: $(git rev-parse HEAD)" > /cloudbees/workspace/commit-info.txt
+           echo "Commit Message: $(git log -1 --pretty=format:%s)" >> /cloudbees/workspace/commit-info.txt
 
       - name: Build
         uses: docker://maven:3-eclipse-temurin-17
         run: |
-          mvn clean install
+          mvn clean install 
           ls -lR /cloudbees/workspace
+          cat commit-info.txt
 
   UnitTest:
     needs: Build
@@ -52,6 +45,7 @@ jobs:
         run: |
           mvn test
           ls -lR /cloudbees/workspace
+        
 
   StaticAnalysis:
     steps:
@@ -79,8 +73,23 @@ jobs:
           project-key: config-server
           token: ${{ secrets.token }}
 
-  DockerImageBuildAndPush:
+  ArtifactPublish:
     needs: UnitTest
+    steps:
+      - name: Checkout
+        uses: cloudbees-io/checkout@v1
+
+      - name: Publish to Nexus
+        uses: docker://maven:3-eclipse-temurin-17
+        env:
+          NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
+          NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
+        run: |
+          mvn deploy \
+            -DaltDeploymentRepository=nexus::default::https://${NEXUS_USERNAME}:${NEXUS_PASSWORD}@nexus.preview.cb-demos.io/repository/Petclinic/
+
+  DockerImageBuildAndPush:
+    needs: ArtifactPublish
     steps:
       - name: Checkout
         uses: cloudbees-io/checkout@v1
@@ -110,6 +119,7 @@ jobs:
     steps:
       - name: Approval
         uses: docker://maven:3-eclipse-temurin-17
+
         run: |
           echo "Manual approval required before proceeding to deployment."
 
@@ -136,26 +146,17 @@ jobs:
         uses: cloudbees-io/checkout@v1
         
       - name: Get Commit Information
-        id: get_commit_info
         uses: docker://alpine/git:latest
         run: |
-           echo "::set-output name=commit_id::$(git rev-parse HEAD)"
-           echo "::set-output name=commit_message::$(git log -1 --pretty=format:%s)"
-        outputs:
-          commit_id: $(git rev-parse HEAD)
-          commit_message: $(git log -1 --pretty=format:%s)
-
-      - name: Print Commit Information
-        uses: docker://alpine:latest
-        run: |
-          cat /cloudbees/workspace/commit-info.txt
+           echo "Commit ID: $(git rev-parse HEAD)" > /cloudbees/workspace/commit-info.txt
+           echo "Commit Message: $(git log -1 --pretty=format:%s)" >> /cloudbees/workspace/commit-info.txt
 
       - name: Publish test results
         uses: cloudbees-io/publish-test-results@v1
         with:
           test-type: JUnit
           folder-name: src/test
-
+         
       - uses: cloudbees-io/publish-evidence-item@v1
         name: Publish workflow evidence
         with:
@@ -163,7 +164,7 @@ jobs:
             # Sample Evidence output
             - Workflow ID: ${{ cloudbees.run_id }}
             - Commit Information:
-            ```plaintext
-            Commit ID: ${{ outputs.commit_id }}
-            Commit Message: ${{ outputs.commit_message }}
-            ```
+              ```
+              $(cat /cloudbees/workspace/commit-info.txt)
+              ```
+
