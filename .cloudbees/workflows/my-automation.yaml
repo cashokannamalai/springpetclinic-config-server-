@@ -137,18 +137,18 @@ jobs:
     steps:
       - name: Checkout
         uses: cloudbees-io/checkout@v1
+      - name: Get commit ID
+        uses: docker://alpine/git:latest
+        run: |
+         COMMIT_ID=$(git rev-parse HEAD)
+         echo "COMMIT_ID=$COMMIT_ID" >> $GITHUB_ENV
+
       - name: Publish workflow evidence item
         uses: cloudbees-io/publish-evidence-item@v1
         with:
-          content: |
-            # Markdown evidence
-            ## List
-            - Run ID: ${{ cloudbees.run_id }}
-            - [backend.tar](https://ourcompany.com/repo/backend.tar)
-     
-      - name: Publish test results
-        uses: cloudbees-io/publish-test-results@v1
-        with:
-         test-type: JUnit
-         folder-name: src/test
+         content: |
+          
+          - **Run ID**: ${{ cloudbees.run_id }}
+          - **Commit ID**: ${{ env.COMMIT_ID }}
+          - [backend.tar](https://ourcompany.com/repo/backend.tar)
             
