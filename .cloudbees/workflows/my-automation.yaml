@@ -30,8 +30,17 @@ jobs:
       - name: Build
         uses: docker://maven:3-eclipse-temurin-17
         run: |
-          mvn clean install 
+          mvn clean install
  
+      - name: Publish Build Evidence
+        uses: ./.github/actions/publish-evidence-item
+        with:
+          content: |
+            Commit ID: $(git rev-parse HEAD)
+            Commit Message: $(git log -1 --pretty=format:%s)
+            Build Status: Success
+          format: MARKDOWN
+
   Evidence:
     needs: Build
     steps:
@@ -49,15 +58,3 @@ jobs:
         with:
           test-type: JUnit
           folder-name: src/test
-         
-      - uses: cloudbees-io/publish-evidence-item@v1
-        name: Publish workflow evidence
-        with:
-          content: |-
-            # Sample Evidence output
-            - Workflow ID: ${{ cloudbees.run_id }}
-            - Commit ID: $(git rev-parse HEAD)
-            - Commit Information:
-              ```
-              $(cat /cloudbees/workspace/commit-info.txt)
-              ```
