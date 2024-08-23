@@ -164,6 +164,6 @@ jobs:
             - Workflow ID: ${{ cloudbees.run_id }}
             - Commit Information:
             ```plaintext
-            Commit ID: ${{ needs.Build.outputs.commit_id }}
-            Commit Message: ${{ needs.Build.outputs.commit_message }}
+            Commit ID: ${{ outputs.commit_id }}
+            Commit Message: ${{ outputs.commit_message }}
             ```
