@@ -26,7 +26,12 @@ jobs:
         uses: docker://maven:3-eclipse-temurin-17
         run: |
           mvn clean install 
-         
+          git log -1 --pretty=format:"%H - %s" > /cloudbees/workspace/commit-info.txt
+      - name: Capture Commit Info
+        id: commit_info
+        uses: docker://alpine:latest
+        run: |
+          cat /cloudbees/workspace/commit-info.txt
 
   UnitTest:
     needs: Build
@@ -39,18 +44,22 @@ jobs:
         run: |
           mvn test
           ls -lR /cloudbees/workspace
+          mvn surefire-report:report
 
   StaticAnalysis:
     steps:
       - uses: cloudbees-io/sonarqube-sast-scan-code@v1
-        name: Scan
+        name: SonarQube Scan
         kind: scan
         with:
           server-url: https://sonarqube.cb-demos.io
           username: ${{ secrets.username }}
           password: ${{ secrets.password }}
           language: Java
-      # Additional static analysis steps omitted for brevity...
+      - name: Capture Code Coverage and Violations
+        uses: docker://alpine:latest
+        run: |
+          curl -u ${{ secrets.username }}:${{ secrets.password }} "https://sonarqube.cb-demos.io/api/measures/component?componentKey=myproject&metricKeys=coverage,violations,critical_violations" > /cloudbees/workspace/sonar-results.json
 
   ArtifactPublish:
     needs: UnitTest
@@ -123,19 +132,20 @@ jobs:
       - name: Checkout
         uses: cloudbees-io/checkout@v1
         
-    
-         
-      - name: Publish test results
+      - name: Publish Unit Test Results
         uses: cloudbees-io/publish-test-results@v1
         with:
           test-type: JUnit
           folder-name: src/test
 
       - uses: cloudbees-io/publish-evidence-item@v1
-        name: Publish workflow evidence
+        name: Publish Evidence
         with:
           content: |-
-            # Sample Evidence output
-            - Workflow ID: ${{ cloudbees.run_id }}
-           
-
+            # Workflow Evidence
+            - **Workflow ID:** ${{ cloudbees.run_id }}
+            - **Commit ID and Message:** ${{ steps.commit_info.outputs.commit_info }}
+            - **Link to CI Build:** [CI Build Link](https://cloudbees-ci.example.com/${{ cloudbees.run_id }})
+            - **Unit Test Results:** Available in JUnit report
+            - **Code Coverage:** $(jq '.component.measures[] | select(.metric == "coverage") | .value' /cloudbees/workspace/sonar-results.json)%
+            - **Critical Violations:** $(jq '.component.measures[] | select(.metric == "critical_violations") | .value' /cloudbees/workspace/sonar-results.json)
