@@ -18,7 +18,9 @@ jobs:
         uses: docker://alpine/git:latest
         run: |
           git config --global --add safe.directory /cloudbees/workspace
-
+      - name: Checkout
+        uses: cloudbees-io/checkout@v1
+        
       - name: Get Commit Information
         uses: docker://alpine/git:latest
         run: |
