@@ -141,6 +141,11 @@ jobs:
     steps:
       - name: Checkout
         uses: cloudbees-io/checkout@v1
+      - name: Get Commit Information
+        uses: docker://alpine/git:latest
+        run: |
+          echo "Commit ID: $(git rev-parse HEAD)"
+          echo "Commit Message: $(git log -1 --pretty=format:%s)"
 
       - name: Publish test results
         uses: cloudbees-io/publish-test-results@v1
@@ -156,7 +161,6 @@ jobs:
             - Workflow ID: ${{ cloudbees.run_id }}
             - Commit ID: $(git rev-parse HEAD)
             - Commit Message: $(git log -1 --pretty=format:%s)
-            - Notifications for the workflow can be set up in the CloudBees platform under the notifications section. You can use this workflow name 'ashokconfig' for notifications.
 
 
 
