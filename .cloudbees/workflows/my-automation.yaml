@@ -144,11 +144,12 @@ jobs:
     steps:
       - name: Checkout
         uses: cloudbees-io/checkout@v1
+        
       - name: Get Commit Information
         uses: docker://alpine/git:latest
         run: |
-          echo "Commit ID: $(git rev-parse HEAD)"
-          echo "Commit Message: $(git log -1 --pretty=format:%s)"
+           echo "Commit ID: $(git rev-parse HEAD)" > /cloudbees/workspace/commit-info.txt
+           echo "Commit Message: $(git log -1 --pretty=format:%s)" >> /cloudbees/workspace/commit-info.txt
 
       - name: Publish test results
         uses: cloudbees-io/publish-test-results@v1
