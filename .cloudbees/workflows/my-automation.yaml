@@ -12,8 +12,8 @@ jobs:
         uses: cloudbees-io/checkout@v1
 
       - name: Get Commit ID
-        id: get-commit-id
         uses: docker://alpine/git:latest
+        id: get-commit-id
         run: |
           COMMIT_ID=$(git rev-parse --short HEAD)
           echo "COMMIT_ID=${COMMIT_ID}" >> $GITHUB_ENV
