@@ -32,6 +32,7 @@ jobs:
         run: |
           mvn clean install 
           ls -lR /cloudbees/workspace
+          cat commit-info.txt
 
   UnitTest:
     needs: Build
@@ -44,6 +45,7 @@ jobs:
         run: |
           mvn test
           ls -lR /cloudbees/workspace
+        
 
   StaticAnalysis:
     steps:
