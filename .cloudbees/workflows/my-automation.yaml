@@ -119,7 +119,6 @@ jobs:
     steps:
       - name: Approval
         uses: docker://maven:3-eclipse-temurin-17
-
         run: |
           echo "Manual approval required before proceeding to deployment."
 
@@ -147,9 +146,9 @@ jobs:
         
       - name: Get Commit Information
         uses: docker://alpine/git:latest
-        run: |
-           echo "Commit ID: $(git rev-parse HEAD)" > /cloudbees/workspace/commit-info.txt
-           echo "Commit Message: $(git log -1 --pretty=format:%s)" >> /cloudbees/workspace/commit-info.txt
+        env:
+          COMMIT_INFO: $(cat /cloudbees/workspace/commit-info.txt)
+        run: echo "Commit Info captured for evidence."
 
       - name: Publish test results
         uses: cloudbees-io/publish-test-results@v1
@@ -165,6 +164,5 @@ jobs:
             - Workflow ID: ${{ cloudbees.run_id }}
             - Commit Information:
               ```
-              $(cat /cloudbees/workspace/commit-info.txt)
+              ${{ steps.GetCommitInformation.outputs.COMMIT_INFO }}
               ```
-
