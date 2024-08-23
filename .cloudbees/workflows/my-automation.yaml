@@ -73,74 +73,12 @@ jobs:
           project-key: config-server
           token: ${{ secrets.token }}
 
-  ArtifactPublish:
-    needs: UnitTest
-    steps:
-      - name: Checkout
-        uses: cloudbees-io/checkout@v1
-
-      - name: Publish to Nexus
-        uses: docker://maven:3-eclipse-temurin-17
-        env:
-          NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
-          NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
-        run: |
-          mvn deploy \
-            -DaltDeploymentRepository=nexus::default::https://${NEXUS_USERNAME}:${NEXUS_PASSWORD}@nexus.preview.cb-demos.io/repository/Petclinic/
-
-  DockerImageBuildAndPush:
-    needs: ArtifactPublish
-    steps:
-      - name: Checkout
-        uses: cloudbees-io/checkout@v1
-      - name: Build Docker Image
-        uses: docker://maven:3-eclipse-temurin-17
-        run: |
-          mvn clean install -DskipTests=true
-      - name: Configure container registry credentials
-        id: dockerconfig
-        uses: cloudbees-io/configure-oci-credentials@v1
-        with:
-          registry: ${{ secrets.STAGING_DOCKER_REGISTRY }}
-          username: ${{ secrets.STAGING_DOCKER_USERNAME }}
-          password: ${{ secrets.STAGING_DOCKER_PASSWORD }}
-
-      - name: Push image to OCI registry
-        uses: cloudbees-io/kaniko@v1
-        with:
-          dockerfile: Dockerfile
-          context: .
-          destination: ${{ secrets.STAGING_DOCKER_REGISTRY }}/${{ secrets.STAGING_DOCKER_USERNAME }}/configserver:3.2.4
-
-  Approval:
-    needs: DockerImageBuildAndPush
-    type: manual-approval
-    environment: ashok
-    steps:
-      - name: Approval
-        uses: docker://maven:3-eclipse-temurin-17
-
-        run: |
-          echo "Manual approval required before proceeding to deployment."
-
-  DeployInGKE:
-    needs: Approval
-    steps:
-      - name: Checkout
-        uses: cloudbees-io/checkout@v1
-        
-      - uses: cashokannamalai/kubeconfig@v1
-        name: Set kubeconfig
-        with:
-          secname: ${{ secrets.kubeconfig }}
-      - uses: docker://bitnami/kubectl:latest
-        name: Deploy image
-        shell: sh
-        run: |
-          kubectl apply -f /cloudbees/workspace/deployment-service.yaml
+  
+  
+  
 
   Evidence:
-    needs: DeployInGKE
+    needs: UnitTest
     steps:
       - name: Checkout
         uses: cloudbees-io/checkout@v1
@@ -163,8 +101,8 @@ jobs:
           content: |-
             # Sample Evidence output
             - Workflow ID: ${{ cloudbees.run_id }}
-            - Commit Information: $(cat /cloudbees/workspace/commit-info.txt)
-
-           
-
+            - Commit Information:
+              ```
+              $(cat /cloudbees/workspace/commit-info.txt)
+              ```
 
