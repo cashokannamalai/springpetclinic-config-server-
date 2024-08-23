@@ -13,26 +13,33 @@ jobs:
 
   Build:
     needs: Checkout
+    outputs:
+      commit_id: ${{ steps.get_commit_info.outputs.commit_id }}
+      commit_message: ${{ steps.get_commit_info.outputs.commit_message }}
     steps:
       - name: Configure git
         uses: docker://alpine/git:latest
         run: |
           git config --global --add safe.directory /cloudbees/workspace
+
       - name: Checkout
         uses: cloudbees-io/checkout@v1
         
       - name: Get Commit Information
+        id: get_commit_info
         uses: docker://alpine/git:latest
         run: |
-           echo "Commit ID: $(git rev-parse HEAD)" > /cloudbees/workspace/commit-info.txt
-           echo "Commit Message: $(git log -1 --pretty=format:%s)" >> /cloudbees/workspace/commit-info.txt
+           echo "::set-output name=commit_id::$(git rev-parse HEAD)"
+           echo "::set-output name=commit_message::$(git log -1 --pretty=format:%s)"
+        outputs:
+          commit_id: $(git rev-parse HEAD)
+          commit_message: $(git log -1 --pretty=format:%s)
 
       - name: Build
         uses: docker://maven:3-eclipse-temurin-17
         run: |
-          mvn clean install 
+          mvn clean install
           ls -lR /cloudbees/workspace
-          cat commit-info.txt
 
   UnitTest:
     needs: Build
@@ -45,7 +52,6 @@ jobs:
         run: |
           mvn test
           ls -lR /cloudbees/workspace
-        
 
   StaticAnalysis:
     steps:
@@ -72,8 +78,6 @@ jobs:
         with:
           project-key: config-server
           token: ${{ secrets.token }}
-
-
 
   DockerImageBuildAndPush:
     needs: UnitTest
@@ -106,7 +110,6 @@ jobs:
     steps:
       - name: Approval
         uses: docker://maven:3-eclipse-temurin-17
-
         run: |
           echo "Manual approval required before proceeding to deployment."
 
@@ -133,10 +136,14 @@ jobs:
         uses: cloudbees-io/checkout@v1
         
       - name: Get Commit Information
+        id: get_commit_info
         uses: docker://alpine/git:latest
         run: |
-           echo "Commit ID: $(git rev-parse HEAD)" > /cloudbees/workspace/commit-info.txt
-           echo "Commit Message: $(git log -1 --pretty=format:%s)" >> /cloudbees/workspace/commit-info.txt
+           echo "::set-output name=commit_id::$(git rev-parse HEAD)"
+           echo "::set-output name=commit_message::$(git log -1 --pretty=format:%s)"
+        outputs:
+          commit_id: $(git rev-parse HEAD)
+          commit_message: $(git log -1 --pretty=format:%s)
 
       - name: Print Commit Information
         uses: docker://alpine:latest
@@ -148,7 +155,7 @@ jobs:
         with:
           test-type: JUnit
           folder-name: src/test
-         
+
       - uses: cloudbees-io/publish-evidence-item@v1
         name: Publish workflow evidence
         with:
@@ -157,5 +164,6 @@ jobs:
             - Workflow ID: ${{ cloudbees.run_id }}
             - Commit Information:
             ```plaintext
-            $(cat /cloudbees/workspace/commit-info.txt)
+            Commit ID: ${{ needs.Build.outputs.commit_id }}
+            Commit Message: ${{ needs.Build.outputs.commit_message }}
             ```
