@@ -18,31 +18,116 @@ jobs:
         uses: docker://alpine/git:latest
         run: |
           git config --global --add safe.directory /cloudbees/workspace
+
       - name: Checkout
         uses: cloudbees-io/checkout@v1
         
       - name: Get Commit Information
         uses: docker://alpine/git:latest
         run: |
+           echo "COMMIT_ID=$(git rev-parse HEAD)" >> $GITHUB_ENV
+           echo "COMMIT_MESSAGE=$(git log -1 --pretty=format:%s)" >> $GITHUB_ENV
            echo "Commit ID: $(git rev-parse HEAD)" > /cloudbees/workspace/commit-info.txt
            echo "Commit Message: $(git log -1 --pretty=format:%s)" >> /cloudbees/workspace/commit-info.txt
 
       - name: Build
         uses: docker://maven:3-eclipse-temurin-17
         run: |
-          mvn clean install
- 
-      - name: Publish Build Evidence
-        uses: cloudbees-io/publish-evidence-item@v1
+          mvn clean install 
+          ls -lR /cloudbees/workspace
+          cat commit-info.txt
+
+  UnitTest:
+    needs: Build
+    steps:
+      - name: Checkout
+        uses: cloudbees-io/checkout@v1
+
+      - name: Run Unit Tests
+        uses: docker://maven:3-eclipse-temurin-17
+        run: |
+          mvn test
+          ls -lR /cloudbees/workspace
+
+  StaticAnalysis:
+    steps:
+      - uses: cloudbees-io/sonarqube-sast-scan-code@v1
+        name: Scan
+        kind: scan
         with:
-          content: |
-            Commit ID: $(git rev-parse HEAD)
-            Commit Message: $(git log -1 --pretty=format:%s)
-            Build Status: Success
-          format: MARKDOWN
+          server-url: https://sonarqube.cb-demos.io
+          username: ${{ secrets.username }}
+          password: ${{ secrets.password }}
+          language: Java
+      # Additional static analysis steps omitted for brevity...
+
+  ArtifactPublish:
+    needs: UnitTest
+    steps:
+      - name: Checkout
+        uses: cloudbees-io/checkout@v1
+
+      - name: Publish to Nexus
+        uses: docker://maven:3-eclipse-temurin-17
+        env:
+          NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
+          NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
+        run: |
+          mvn deploy \
+            -DaltDeploymentRepository=nexus::default::https://${NEXUS_USERNAME}:${NEXUS_PASSWORD}@nexus.preview.cb-demos.io/repository/Petclinic/
+
+  DockerImageBuildAndPush:
+    needs: ArtifactPublish
+    steps:
+      - name: Checkout
+        uses: cloudbees-io/checkout@v1
+      - name: Build Docker Image
+        uses: docker://maven:3-eclipse-temurin-17
+        run: |
+          mvn clean install -DskipTests=true
+      - name: Configure container registry credentials
+        id: dockerconfig
+        uses: cloudbees-io/configure-oci-credentials@v1
+        with:
+          registry: ${{ secrets.STAGING_DOCKER_REGISTRY }}
+          username: ${{ secrets.STAGING_DOCKER_USERNAME }}
+          password: ${{ secrets.STAGING_DOCKER_PASSWORD }}
+
+      - name: Push image to OCI registry
+        uses: cloudbees-io/kaniko@v1
+        with:
+          dockerfile: Dockerfile
+          context: .
+          destination: ${{ secrets.STAGING_DOCKER_REGISTRY }}/${{ secrets.STAGING_DOCKER_USERNAME }}/configserver:3.2.4
+
+  Approval:
+    needs: DockerImageBuildAndPush
+    type: manual-approval
+    environment: ashok
+    steps:
+      - name: Approval
+        uses: docker://maven:3-eclipse-temurin-17
+        run: |
+          echo "Manual approval required before proceeding to deployment."
+
+  DeployInGKE:
+    needs: Approval
+    steps:
+      - name: Checkout
+        uses: cloudbees-io/checkout@v1
+        
+      - uses: cashokannamalai/kubeconfig@v1
+        name: Set kubeconfig
+        with:
+          secname: ${{ secrets.kubeconfig }}
+      - uses: docker://bitnami/kubectl:latest
+        name: Deploy image
+        shell: sh
+        run: |
+          kubectl apply -f /cloudbees/workspace/deployment-service.yaml
 
   Evidence:
-    needs: Build
+    needs: DeployInGKE
     steps:
       - name: Checkout
         uses: cloudbees-io/checkout@v1
@@ -50,11 +135,23 @@ jobs:
       - name: Get Commit Information
         uses: docker://alpine/git:latest
         run: |
+           echo "COMMIT_ID=$(git rev-parse HEAD)" >> $GITHUB_ENV
+           echo "COMMIT_MESSAGE=$(git log -1 --pretty=format:%s)" >> $GITHUB_ENV
            echo "Commit ID: $(git rev-parse HEAD)" > /cloudbees/workspace/commit-info.txt
            echo "Commit Message: $(git log -1 --pretty=format:%s)" >> /cloudbees/workspace/commit-info.txt
+
 
       - name: Publish test results
         uses: cloudbees-io/publish-test-results@v1
         with:
           test-type: JUnit
           folder-name: src/test
+
+      - uses: cloudbees-io/publish-evidence-item@v1
+        name: Publish workflow evidence
+        with:
+          content: |-
+            # Sample Evidence output
+            - Workflow ID: ${{ cloudbees.run_id }}
+            - Commit ID: ${{ env.COMMIT_ID }}
+            - Commit Message: ${{ env.COMMIT_MESSAGE }}
