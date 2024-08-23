@@ -143,5 +143,6 @@ jobs:
             ## List
             - Run ID: ${{ cloudbees.run_id }}
             - [backend.tar](https://ourcompany.com/repo/backend.tar)
+          format: MARKDOWN
             ## Table
             ## Numbered list
