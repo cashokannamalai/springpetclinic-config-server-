@@ -145,6 +145,12 @@ jobs:
   CommitInfoStage:
     needs: Evidence
     steps:
+      - name: Download Test Results
+        uses: cloudbees-io/download-artifact@v1
+        with:
+          name: unit-test-results
+          path: /cloudbees/workspace/unit-test-results
+
       - name: Checkout
         uses: cloudbees-io/checkout@v1
         
@@ -158,3 +164,4 @@ jobs:
            echo "BUILD_URL=$BUILD_URL"
            echo "COMMIT_ID=$COMMIT_ID" 
            echo "COMMIT_MSG=$COMMIT_MSG" 
+           echo "Test Results Path: /cloudbees/workspace/unit-test-results"
