@@ -151,7 +151,7 @@ jobs:
       - uses: cloudbees-io/publish-evidence-item@v1
         name: Publish workflow evidence
         with:
-          content: |-
+          format: |-
             # Sample Evidence output
             - Workflow ID: ${{ cloudbees.run_id }}
             - Commit ID: $(cat /workspace/commit-info.txt | grep COMMIT_ID | cut -d'=' -f2)
