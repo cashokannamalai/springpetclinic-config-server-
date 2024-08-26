@@ -71,6 +71,14 @@ jobs:
           project-key: config-server
           token: ${{ secrets.token }}
 
+      - name: Fetch Coverage Data
+        uses: docker://alpine/git:latest
+        id: fetch_coverage
+        run: |
+         curl -u ${{ secrets.username }}:${{ secrets.password }} \
+            "https://sonarqube.cb-demos.io/api/measures/component?componentKey=config-server&metricKeys=coverage" \
+            -o coverage.json
+
   
 
   DockerImageBuildAndPush:
@@ -153,13 +161,4 @@ jobs:
            echo "BUILD_URL=$BUILD_URL"
            echo "COMMIT_ID=$COMMIT_ID" 
            echo "COMMIT_MSG=$COMMIT_MSG" 
-      - name: Echo Test Results
-        id: echo-test-results
-        uses: docker://alpine:latest
-        run: |
-          if [ -f target/surefire-reports/TEST-*.xml ]; then
-            echo "Test Results:"
-            cat target/surefire-reports/TEST-*.xml
-          else
-            echo "No test results found."
-          fi
+      
