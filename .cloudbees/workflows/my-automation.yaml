@@ -139,7 +139,7 @@ jobs:
           kubectl apply -f /cloudbees/workspace/deployment-service.yaml
           
   CommitInfoStage:
-    needs: Evidence
+    needs: DeployInGKE
     steps:
       - name: Checkout
         uses: cloudbees-io/checkout@v1
@@ -156,10 +156,10 @@ jobs:
           BUILD_URL="https://sda.preview.cb-demos.io/ashok-petclinic/build/${{ cloudbees.run_id }}"
           echo "BUILD_URL=$BUILD_URL"
           echo "COMMIT_ID=$COMMIT_ID" 
-          echo "COMMIT_MSG=$COMMIT_MSG" 
+          echo "COMMIT_MSG=$COMMIT_MSG"
 
   Evidence:
-    needs: DeployInGKE
+    needs: CommitInfoStage
     steps:
       - uses: cloudbees-io/publish-evidence-item@v1
         name: Publish workflow evidence
@@ -174,5 +174,3 @@ jobs:
             - Code Coverage: $(cat /cloudbees/workspace/coverage.json | jq '.component.measures[] | select(.metric == "coverage") | .value')
             - Critical Violations: $(cat /cloudbees/workspace/violations.json | jq '.total')
           format: Table
-
-  
