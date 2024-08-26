@@ -38,11 +38,11 @@ jobs:
       - name: Checkout
         uses: cloudbees-io/checkout@v1
 
-      - name: Run Unit Tests
-        uses: docker://maven:3-eclipse-temurin-17
-        run: |
-          mvn test
-          ls -lR /cloudbees/workspace
+      - name: Publish test results
+        uses: cloudbees-io/publish-test-results@v1
+        with:
+         test-type: JUnit
+         folder-name: target/surefire-reports
         
 
   StaticAnalysis:
@@ -127,14 +127,7 @@ jobs:
   Evidence:
     needs: DeployInGKE
     steps:
-      
-
-      - name: Publish test results
-        uses: cloudbees-io/publish-test-results@v1
-        with:
-         test-type: JUnit
-         folder-name: target/surefire-reports
-         
+  
       - uses: cloudbees-io/publish-evidence-item@v1
         name: Publish workflow evidence
         with:
