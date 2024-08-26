@@ -43,6 +43,25 @@ jobs:
         with:
           test-type: JUnit
           folder-name: target/surefire-reports
+
+      - name: Process Test Results
+        uses: docker://alpine:latest
+        id: process_results
+        run: |
+          apk add --no-cache xmlstarlet
+          xmlstarlet sel -t -m "//testcase" -v "concat(@classname, ':', @name)" -o " | " -v "concat(floor(100 * (1 - (@failures + @errors) / @tests)), '%%') | " -o " " -v "concat('PASS' if not(@failures) else 'FAIL')" -n target/surefire-reports/TEST-*.xml
+
+      - name: Display Unit Test Results
+        uses: cloudbees-io/publish-evidence-item@v1
+        run: |
+          echo "| Test    | Runtime (m:s) | Result |"
+          echo "| ------- | ------------- | ------ |"
+          # Example output; replace with actual processed results
+          echo "| [FE1]()  | 1:15 | PASS    |"
+          echo "| [BE2]() | 10:05 | PASS    |"
+          echo "| [INT1]()    | 15:15 | **FAIL**    |"
+          echo "| [INT2]()    | 20:10* | _RUNNING_    |"
+
       
 
   StaticAnalysis:
@@ -162,7 +181,6 @@ jobs:
   Evidence:
     needs: CommitInfoStage
     steps:
-  
       - uses: cloudbees-io/publish-evidence-item@v1
         name: Publish workflow evidence
         with:
