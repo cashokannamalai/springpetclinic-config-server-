@@ -158,15 +158,32 @@ jobs:
           echo "COMMIT_ID=$COMMIT_ID" 
           echo "COMMIT_MSG=$COMMIT_MSG"
 
-  Evidence:
+  evidence:
     needs: CommitInfoStage
     steps:
-      - uses: cloudbees-io/publish-evidence-item@v1
-        name: Publish workflow evidence
-        with:
-          content: |-
-            # Sample Evidence output
-            - Workflow ID: ${{ cloudbees.run_id }}
-            - Build URL: https://sda.preview.cb-demos.io/ashok-petclinic/build/${{ cloudbees.run_id }}
-            - **Unit Test Results**: $(cat target/surefire-reports/*.txt | grep -oP '<testsuite .*? tests="\K\d+')
-            
+        - name: Capture Unit Test Results
+          uses: docker://alpine/git:latest
+          id: unit_test
+          run: echo "::set-output name=unit_tests::$(grep -oP '<testsuite .*? tests="\K\d+' target/surefire-reports/*.txt)"
+
+        - name: Capture Code Coverage
+          uses: docker://alpine/git:latest
+          id: coverage
+          run: echo "::set-output name=coverage::$(jq -r '.component.measures[] | select(.metric == "coverage") | .value' /cloudbees/workspace/coverage.json)"
+
+        - name: Capture Critical Violations
+          uses: docker://alpine/git:latest
+          id: violations
+          run: echo "::set-output name=violations::$(jq -r '.total' /cloudbees/workspace/violations.json)"
+
+        - uses: cloudbees-io/publish-evidence-item@v1
+          name: Publish workflow evidence
+          with:
+           content: |
+            # Sample Evidence Output
+            - **Workflow ID**: ${{ cloudbees.run_id }}
+            - **Build URL**: https://sda.preview.cb-demos.io/ashok-petclinic/build/${{ cloudbees.run_id }}
+            - **Unit Test Results**: ${{ steps.unit_test.outputs.unit_tests }}
+            - **Code Coverage**: ${{ steps.coverage.outputs.coverage }}
+            - **Critical Violations**: ${{ steps.violations.outputs.violations }}
+           format: Table
