@@ -146,7 +146,7 @@ jobs:
     needs: Evidence
     steps:
       - name: Download Test Results
-        uses: cloudbees-io/download-artifact@v1
+        uses: docker://alpine/git:latest
         with:
           name: unit-test-results
           path: /cloudbees/workspace/unit-test-results
