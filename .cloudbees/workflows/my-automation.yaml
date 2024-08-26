@@ -147,9 +147,10 @@ jobs:
     steps:
       - name: Download Test Results
         uses: docker://alpine/git:latest
-        with:
-          name: unit-test-results
-          path: /cloudbees/workspace/unit-test-results
+       
+        run: |
+         mkdir -p /cloudbees/workspace/unit-test-results
+        
 
       - name: Checkout
         uses: cloudbees-io/checkout@v1
