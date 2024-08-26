@@ -72,12 +72,13 @@ jobs:
           token: ${{ secrets.token }}
 
       - name: Fetch Coverage Data
-        uses: docker://alpine/git:latest
+        uses: docker://alpine:latest
         id: fetch_coverage
         run: |
+         apk add --no-cache curl
          curl -u ${{ secrets.username }}:${{ secrets.password }} \
-            "https://sonarqube.cb-demos.io/api/measures/component?componentKey=config-server&metricKeys=coverage" \
-            -o coverage.json
+         "https://sonarqube.cb-demos.io/api/measures/component?componentKey=config-server&metricKeys=coverage" \
+         -o coverage.json
 
   
 
