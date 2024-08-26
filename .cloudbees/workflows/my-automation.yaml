@@ -43,15 +43,7 @@ jobs:
         with:
           test-type: JUnit
           folder-name: target/surefire-reports
-      - name: Parse Test Results
-        uses: docker://alpine/git:latest
-        run: |
-         if ls target/surefire-reports/*.txt 1> /dev/null 2>&1; then
-          xmlstarlet sel -t -m "//testsuite/testcase" -v "concat('Test ', @name, ': ', if(@status='' then 'PASS' else @status))" -n target/surefire-reports/*.txt > /cloudbees/workspace/test_summary.txt
-         else
-          echo "No XML reports found"
-         fi
-         cat /cloudbees/workspace/test_summary.txt
+      
 
   StaticAnalysis:
     steps:
