@@ -75,10 +75,11 @@ jobs:
         uses: docker://alpine:latest
         id: fetch_coverage
         run: |
-         apk add --no-cache curl
+        
+         apk add --no-cache curl jq
          curl -u ${{ secrets.username }}:${{ secrets.password }} \
          "https://sonarqube.cb-demos.io/api/measures/component?componentKey=config-server&metricKeys=coverage" \
-         -o coverage.json
+          -o /cloudbees/workspace/coverage.json
 
   
 
@@ -156,11 +157,12 @@ jobs:
         id: commitinfo
         uses: docker://alpine/git:latest
         run: |
+           apk add --no-cache jq
            COMMIT_ID=$(git rev-parse HEAD)
            COMMIT_MSG=$(git log -1 --pretty=format:%s)
            BUILD_URL="https://sda.preview.cb-demos.io/ashok-petclinic/build/$${{ cloudbees.run_id }}"
            echo "BUILD_URL=$BUILD_URL"
-           COVERAGE=$(cat coverage.json | jq '.component.measures[0].value')
+           COVERAGE=$(cat /cloudbees/workspace/coverage.json | jq '.component.measures[0].value')
            echo "COVERAGE=$COVERAGE"
            echo "COMMIT_ID=$COMMIT_ID" 
            echo "COMMIT_MSG=$COMMIT_MSG" 
