@@ -127,20 +127,7 @@ jobs:
   Evidence:
     needs: DeployInGKE
     steps:
-      - name: Checkout
-        uses: cloudbees-io/checkout@v1
-        
-      - name: Capture Commit Information
-        id: commitinfo
-        uses: docker://alpine/git:latest
-        run: |
-           COMMIT_ID=$(git rev-parse HEAD)
-           COMMIT_MSG=$(git log -1 --pretty=format:%s)
-           echo "COMMIT_ID=$COMMIT_ID" > /workspace/commit-info.txt
-           echo "COMMIT_MSG=$COMMIT_MSG" >> /workspace/commit-info.txt
-        outputs:
-          commit_id: /workspace/commit-info.txt
-          commit_msg: /workspace/commit-info.txt
+      
 
       - name: Publish test results
         uses: cloudbees-io/publish-test-results@v1
@@ -157,8 +144,14 @@ jobs:
   CommitInfoStage:
     needs: Evidence
     steps:
-      - name: Read Commit Information
+      - name: Checkout
+        uses: cloudbees-io/checkout@v1
+        
+      - name: Capture Commit Information
+        id: commitinfo
         uses: docker://alpine/git:latest
         run: |
-          echo "Commit ID: ${{ needs.Evidence.outputs.commit_id }}"
-          echo "Commit Message: ${{ needs.Evidence.outputs.commit_msg }}"
+           COMMIT_ID=$(git rev-parse HEAD)
+           COMMIT_MSG=$(git log -1 --pretty=format:%s)
+           echo "COMMIT_ID=$COMMIT_ID" 
+           echo "COMMIT_MSG=$COMMIT_MSG" 
