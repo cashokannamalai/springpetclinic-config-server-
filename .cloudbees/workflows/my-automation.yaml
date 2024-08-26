@@ -28,7 +28,7 @@ jobs:
           url: https://sda.preview.cb-demos.io/ashok-petclinic/
           username:  c_aannamalai
           token: ${{ secrets.SNAQVI_CI_TOKEN }}
-          job-name: spring-petclinic/spring-petclinic-config-server
+          job-name: spring-petclinic/job/spring-petclinic-config-server
           test-type: Junit
           test-result-location: testReport
 
