@@ -130,7 +130,7 @@ jobs:
         
       - name: Capture Commit Information
         id: commitinfo
-        uses: docker://alpine/git:latest
+        uses: cloudbees-io/publish-evidence-item@v1
         run: |
           apk add --no-cache jq
           COMMIT_ID=$(git rev-parse HEAD)
