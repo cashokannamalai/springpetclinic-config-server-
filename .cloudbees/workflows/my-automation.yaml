@@ -130,11 +130,14 @@ jobs:
       - name: Checkout
         uses: cloudbees-io/checkout@v1
         
-      - name: Get Commit Information
+      - name: Capture Commit Information
+        id: commitinfo
         uses: docker://alpine/git:latest
         run: |
-           echo "Commit ID: $(git rev-parse HEAD)" > /cloudbees/workspace/commit-info.txt
-           echo "Commit Message: $(git log -1 --pretty=format:%s)" >> /cloudbees/workspace/commit-info.txt
+           COMMIT_ID=$(git rev-parse HEAD)
+           COMMIT_MSG=$(git log -1 --pretty=format:%s)
+           echo "COMMIT_ID=$COMMIT_ID" >> $GITHUB_ENV
+           echo "COMMIT_MSG=$COMMIT_MSG" >> $GITHUB_ENV
 
       - name: Publish test results
         uses: cloudbees-io/publish-test-results@v1
@@ -148,4 +151,5 @@ jobs:
           content: |-
             # Sample Evidence output
             - Workflow ID: ${{ cloudbees.run_id }}
-           
+            - Commit ID: ${{ env.COMMIT_ID }}
+            - Commit Message: ${{ env.COMMIT_MSG }}
