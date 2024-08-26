@@ -21,18 +21,16 @@ jobs:
       - name: Checkout
         uses: cloudbees-io/checkout@v1
         
-      - name: Get Commit Information
-        uses: docker://alpine/git:latest
-        run: |
-           echo "Commit ID: $(git rev-parse HEAD)" > /cloudbees/workspace/commit-info.txt
-           echo "Commit Message: $(git log -1 --pretty=format:%s)" >> /cloudbees/workspace/commit-info.txt
-
-      - name: Build
-        uses: docker://maven:3-eclipse-temurin-17
-        run: |
-          mvn clean install 
-          ls -lR /cloudbees/workspace
-          cat commit-info.txt
+      - uses: cloudbees-io/cbci-run-job@v2
+        name: Build
+        kind: build
+        with:
+          url: https://sda.preview.cb-demos.io/ashok-petclinic/
+          username:  c_aannamalai
+          token: ${{ secrets.SNAQVI_CI_TOKEN }}
+          job-name: spring-petclinic/spring-petclinic-config-server
+          test-type: Junit
+          test-result-location: testReport
 
   UnitTest:
     needs: Build
