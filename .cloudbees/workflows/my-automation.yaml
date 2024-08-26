@@ -44,24 +44,6 @@ jobs:
           test-type: JUnit
           folder-name: target/surefire-reports
 
-      - name: Process Test Results
-        uses: docker://alpine:latest
-       
-        run: |
-          apk add --no-cache xmlstarlet
-          xmlstarlet sel -t -m "//testcase" -v "concat(@classname, ':', @name)" -o " | " -v "concat(floor(100 * (1 - (@failures + @errors) / @tests)), '%%') | " -o " " -v "concat('PASS' if not(@failures) else 'FAIL')" -n target/surefire-reports/TEST-*.xml > /cloudbees/workspace/processed_results.txt
-
-      - name: Display Unit Test Results
-        uses: cloudbees-io/publish-evidence-item@v1
-        run: |
-          echo "| Test    | Runtime (m:s) | Result |"
-          echo "| ------- | ------------- | ------ |"
-          cat /cloudbees/workspace/processed_results.txt
-
-
-
-      
-
   StaticAnalysis:
     steps:
       - uses: cloudbees-io/sonarqube-sast-scan-code@v1
@@ -88,23 +70,7 @@ jobs:
           project-key: config-server
           token: ${{ secrets.token }}
 
-      - name: Fetch Coverage Data
-        uses: docker://alpine:latest
-        id: fetch_coverage
-        run: |
-          apk add --no-cache curl jq
-          curl -u ${{ secrets.username }}:${{ secrets.password }} \
-          "https://sonarqube.cb-demos.io/api/measures/component?componentKey=config-server&metricKeys=coverage" \
-          -o /cloudbees/workspace/coverage.json
-
-      - name: Fetch Critical Violations
-        uses: docker://alpine:latest
-        id: fetch_violations
-        run: |
-          apk add --no-cache curl jq
-          curl -u ${{ secrets.username }}:${{ secrets.password }} \
-          "https://sonarqube.cb-demos.io/api/issues/search?componentKeys=config-server&types=BUG,VULNERABILITY&severities=CRITICAL" \
-          -o /cloudbees/workspace/violations.json
+     
 
   DockerImageBuildAndPush:
     needs: UnitTest
