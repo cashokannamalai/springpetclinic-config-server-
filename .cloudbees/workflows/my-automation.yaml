@@ -141,6 +141,7 @@ jobs:
           content: |-
             # Sample Evidence output
             - Workflow ID: ${{ cloudbees.run_id }}
+            format: Table
   CommitInfoStage:
     needs: Evidence
     steps:
