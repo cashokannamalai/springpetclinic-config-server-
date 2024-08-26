@@ -132,27 +132,21 @@ jobs:
       - name: Publish test results
         uses: cloudbees-io/publish-test-results@v1
         with:
-          test-type: JUnit
-          folder-name: src/test
+         test-type: JUnit
+         folder-name: target/surefire-reports
          
       - uses: cloudbees-io/publish-evidence-item@v1
         name: Publish workflow evidence
         with:
-          content: |-
-            # Sample Evidence output
-            - Workflow ID: ${{ cloudbees.run_id }}
-            format: Table
+         content: |-
+           # Sample Evidence output
+           - Workflow ID: ${{ cloudbees.run_id }}
+           format: Table
+           
   CommitInfoStage:
     needs: Evidence
     steps:
-      - name: Download Test Results
-        uses: docker://alpine/git:latest
-       
-        run: |
-         mkdir -p /cloudbees/workspace/unit-test-results
-         cp -r /cloudbees/workspace/src/test /cloudbees/workspace/unit-test-results || true
-
-
+     
       - name: Checkout
         uses: cloudbees-io/checkout@v1
         
@@ -166,4 +160,3 @@ jobs:
            echo "BUILD_URL=$BUILD_URL"
            echo "COMMIT_ID=$COMMIT_ID" 
            echo "COMMIT_MSG=$COMMIT_MSG" 
-           echo "Test Results Path: /cloudbees/workspace/unit-test-results"
