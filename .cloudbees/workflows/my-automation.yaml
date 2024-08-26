@@ -50,9 +50,9 @@ jobs:
           apk add --no-cache xmlstarlet jq
           xmlstarlet sel -t -m "//testsuite/testcase" \
             -v "concat('Test ', @name, ': ', if(@status='') then 'PASS' else @status)" \
-            -n target/surefire-reports/*.xml > /cloudbees/workspace/test_summary.txt
+            -n target/surefire-reports/*.xml > /cloudbees/workspace/test_summary.xml
 
-          cat /cloudbees/workspace/test_summary.txt
+          cat /cloudbees/workspace/test_summary.xml
 
   StaticAnalysis:
     steps:
