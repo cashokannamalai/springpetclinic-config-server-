@@ -160,6 +160,8 @@ jobs:
            COMMIT_MSG=$(git log -1 --pretty=format:%s)
            BUILD_URL="https://sda.preview.cb-demos.io/ashok-petclinic/build/$${{ cloudbees.run_id }}"
            echo "BUILD_URL=$BUILD_URL"
+           COVERAGE=$(cat coverage.json | jq '.component.measures[0].value')
+           echo "COVERAGE=$COVERAGE"
            echo "COMMIT_ID=$COMMIT_ID" 
            echo "COMMIT_MSG=$COMMIT_MSG" 
       
