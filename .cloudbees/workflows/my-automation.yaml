@@ -46,8 +46,8 @@ jobs:
 
       - name: Process Test Results
         uses: docker://alpine:latest
-        entrypoint: ["/bin/sh", "-c"]
-        script: |
+       
+        run: |
           apk add --no-cache xmlstarlet
           xmlstarlet sel -t -m "//testcase" -v "concat(@classname, ':', @name)" -o " | " -v "concat(floor(100 * (1 - (@failures + @errors) / @tests)), '%%') | " -o " " -v "concat('PASS' if not(@failures) else 'FAIL')" -n target/surefire-reports/TEST-*.xml > /cloudbees/workspace/processed_results.txt
 
