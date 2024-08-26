@@ -148,8 +148,4 @@ jobs:
           content: |-
             # Sample Evidence output
             - Workflow ID: ${{ cloudbees.run_id }}
-            - Commit Information:
-              ```
-              $(cat /cloudbees/workspace/commit-info.txt)
-              ```
-
+           
