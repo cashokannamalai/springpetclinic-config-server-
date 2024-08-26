@@ -153,3 +153,13 @@ jobs:
            echo "BUILD_URL=$BUILD_URL"
            echo "COMMIT_ID=$COMMIT_ID" 
            echo "COMMIT_MSG=$COMMIT_MSG" 
+      - name: Echo Test Results
+        id: echo-test-results
+        uses: docker://alpine:latest
+        run: |
+          if [ -f target/surefire-reports/TEST-*.xml ]; then
+            echo "Test Results:"
+            cat target/surefire-reports/TEST-*.xml
+          else
+            echo "No test results found."
+          fi
