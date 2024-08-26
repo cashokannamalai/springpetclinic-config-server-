@@ -168,8 +168,6 @@ jobs:
             # Sample Evidence output
             - Workflow ID: ${{ cloudbees.run_id }}
             - Build URL: https://sda.preview.cb-demos.io/ashok-petclinic/build/${{ cloudbees.run_id }}
-            - Commit ID: ${{ steps.commitinfo.outputs.commit_id }}
-            - Commit Message: ${{ steps.commitinfo.outputs.commit_msg }}
             - Unit Test Results: target/surefire-reports
             - Code Coverage: $(cat /cloudbees/workspace/coverage.json | jq '.component.measures[] | select(.metric == "coverage") | .value')
             - Critical Violations: $(cat /cloudbees/workspace/violations.json | jq '.total')
