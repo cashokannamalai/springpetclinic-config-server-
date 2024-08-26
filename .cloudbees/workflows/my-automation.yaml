@@ -150,7 +150,8 @@ jobs:
        
         run: |
          mkdir -p /cloudbees/workspace/unit-test-results
-        
+         cp -r /cloudbees/workspace/src/test /cloudbees/workspace/unit-test-results || true
+
 
       - name: Checkout
         uses: cloudbees-io/checkout@v1
