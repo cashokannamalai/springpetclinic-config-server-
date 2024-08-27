@@ -149,4 +149,4 @@ jobs:
          content: |-
            - Workflow ID: ${{ cloudbees.run_id }}
            - BUILD_URL="https://sda.preview.cb-demos.io/ashok-petclinic/build/${{ cloudbees.run_id }}"
-          
+           - STEP_ID: ${{ step.id }}
