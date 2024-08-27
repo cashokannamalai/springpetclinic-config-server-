@@ -32,11 +32,12 @@ jobs:
       - name: Checkout
         uses: cloudbees-io/checkout@v1
 
-      - name: Publish test results
-        uses: cloudbees-io/publish-test-results@v1
-        with:
-          test-type: JUnit
-          folder-name: target/surefire-reports
+      - name: Unittest 
+        uses: docker://maven:3-eclipse-temurin-17
+        run: |
+          mvn test
+          echo "Unit Test Results:" >> commit-info.txt
+          cat /cloudbees/workspace/target/surefire-reports/*.txt >> commit-info.txt
 
   StaticAnalysis:
     steps:
@@ -134,8 +135,7 @@ jobs:
              # Save commit info to a file
            echo "Commit ID: $COMMIT_ID" > commit-info.txt
            echo "Commit Message: $COMMIT_MSG" >> commit-info.txt
-           echo "Unit Test Results:" >> commit-info.txt
-           cat /cloudbees/workspace/target/surefire-reports/*.txt >> commit-info.txt
+       
 
       - name: Configure git
         uses: docker://alpine/git:latest
