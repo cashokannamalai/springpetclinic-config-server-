@@ -32,11 +32,10 @@ jobs:
       - name: Checkout
         uses: cloudbees-io/checkout@v1
 
-      - name: Publish test results
-        uses: cloudbees-io/publish-test-results@v1
-        with:
-          test-type: JUnit
-          folder-name: target/surefire-reports
+      - name: Build 
+        uses: docker://maven:3-eclipse-temurin-17
+        run: |
+          mvn test
 
       - name: Build12 
         uses: docker://maven:3-eclipse-temurin-17
