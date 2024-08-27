@@ -126,15 +126,15 @@ jobs:
         id: commitinfo
         uses: docker://alpine/git:latest
         run: |
-          apk add --no-cache jq
-          COMMIT_ID=$(git rev-parse HEAD)
-          COMMIT_MSG=$(git log -1 --pretty=format:%s)
-          echo "COMMIT_ID=${COMMIT_ID}" 
-          echo "COMMIT_MSG=${COMMIT_MSG}"
+           apk add --no-cache jq
+           COMMIT_ID=$(git rev-parse HEAD)
+           COMMIT_MSG=$(git log -1 --pretty=format:%s)
+           echo "COMMIT_ID=${COMMIT_ID}" 
+           echo "COMMIT_MSG=${COMMIT_MSG}"
 
     
       - name: Publish workflow evidence item
         uses: cloudbees-io/publish-evidence-item/instrumented-action-example@v1
         with:
-          in: Some input text
-          
+           Commit ID: ${{ steps.commitinfo.outputs.COMMIT_ID }}
+           Commit Message: ${{ steps.commitinfo.outputs.COMMIT_MSG }}
