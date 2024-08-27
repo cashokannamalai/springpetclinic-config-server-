@@ -140,7 +140,12 @@ jobs:
            echo "Commit Message: $COMMIT_MSG" >> commit-info.txt
             echo "Unit Test Results:" >> commit-info.txt
            cat /cloudbees/workspace/target/surefire-reports/*.txt >> commit-info.txt
-       
+      - name: Publish Evidence as Artifact
+        uses: cloudbees-io/upload-artifact@v1
+        with:
+         name: Commit Information
+         path: commit-info.txt
+         retention-days: 7
 
       - name: Configure git
         uses: docker://alpine/git:latest
