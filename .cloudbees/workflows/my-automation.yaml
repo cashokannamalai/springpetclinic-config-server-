@@ -127,20 +127,19 @@ jobs:
         uses: docker://alpine/git:latest
         run: |
           apk add --no-cache jq
-          COMMIT_ID=$(git rev-parse HEAD)
-          COMMIT_MSG=$(git log -1 --pretty=format:%s)
-          BUILD_URL="https://sda.preview.cb-demos.io/ashok-petclinic/build/${{ cloudbees.run_id }}"
+          export COMMIT_ID=$(git rev-parse HEAD)
+          export COMMIT_MSG=$(git log -1 --pretty=format:%s)
+          export BUILD_URL="https://sda.preview.cb-demos.io/ashok-petclinic/build/${{ cloudbees.run_id }}"
           echo "BUILD_URL=$BUILD_URL"
           echo "COMMIT_ID=$COMMIT_ID" 
           echo "COMMIT_MSG=$COMMIT_MSG"
 
-  Evidence:
-    needs: CommitInfoStage
-    steps:
+ 
       - uses: cloudbees-io/publish-evidence-item@v1
         name: Publish workflow evidence
         with:
-         content: |-
-           - Workflow ID: ${{ cloudbees.run_id }}
-           - BUILD_URL="https://sda.preview.cb-demos.io/ashok-petclinic/build/${{ cloudbees.run_id }}"
-           
+          content: |-
+            Workflow ID: ${{ cloudbees.run_id }}
+            BUILD_URL: $BUILD_URL
+            COMMIT_ID: $COMMIT_ID
+            COMMIT_MSG: $COMMIT_MSG
