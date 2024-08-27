@@ -163,7 +163,7 @@ jobs:
   Evidence:
     needs: CommitInfoStage
     steps:
-      - uses: cloudbees-io/publish-evidence-item@v1
+      - uses: cashokannamalai/evidence@v1
         name: Publish workflow evidence
         with:
          content: |-
