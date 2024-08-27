@@ -21,16 +21,10 @@ jobs:
       - name: Checkout
         uses: cloudbees-io/checkout@v1
         
-      - uses: cloudbees-io/cbci-run-job@v2
-        name: Build
-        kind: build
-        with:
-          url: https://sda.preview.cb-demos.io/ashok-petclinic/
-          username:  c_aannamalai
-          token: ${{ secrets.SNAQVI_CI_TOKEN }}
-          job-name: spring-petclinic/job/spring-petclinic-config-server
-          test-type: Junit
-          test-result-location: testReport
+      - name: Build 
+        uses: docker://maven:3-eclipse-temurin-17
+        run: |
+          mvn clean install 
 
   UnitTest:
     needs: Build
