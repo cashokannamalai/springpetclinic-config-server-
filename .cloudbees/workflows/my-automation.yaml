@@ -122,7 +122,11 @@ jobs:
     steps:
       - name: Checkout
         uses: cloudbees-io/checkout@v1
-        
+      - name: Unittest 
+        uses: docker://maven:3-eclipse-temurin-17
+        run: |
+          mvn test
+         
       - name: Capture Commit Information
         id: commitinfo
         uses: docker://alpine/git:latest
@@ -132,9 +136,10 @@ jobs:
            COMMIT_MSG=$(git log -1 --pretty=format:%s)
            echo "COMMIT_ID=$COMMIT_ID" 
            echo "COMMIT_MSG=$COMMIT_MSG" 
-             # Save commit info to a file
            echo "Commit ID: $COMMIT_ID" > commit-info.txt
            echo "Commit Message: $COMMIT_MSG" >> commit-info.txt
+            echo "Unit Test Results:" >> commit-info.txt
+           cat /cloudbees/workspace/target/surefire-reports/*.txt >> commit-info.txt
        
 
       - name: Configure git
