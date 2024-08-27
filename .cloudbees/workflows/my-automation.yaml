@@ -133,14 +133,8 @@ jobs:
           echo "COMMIT_MSG=${COMMIT_MSG}"
 
     
-  Evidence:
-    needs: CommitInfoStage
-    steps:
-      - id: testAction
-        name: Test publish-evidence-item action
+      - name: Publish workflow evidence item
         uses: cloudbees-io/publish-evidence-item/instrumented-action-example@v1
         with:
-         content: |
-           ## Test markup and property rendering
-           - Run ID: ${{ cloudbees.run_id }}
+          in: Some input text
           
