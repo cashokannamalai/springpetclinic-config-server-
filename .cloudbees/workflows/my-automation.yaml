@@ -130,9 +130,9 @@ jobs:
            COMMIT_ID=$(git rev-parse HEAD)
            COMMIT_MSG=$(git log -1 --pretty=format:%s)
            BUILD_URL="https://sda.preview.cb-demos.io/ashok-petclinic/build/${{ cloudbees.run_id }}"
-           echo "export BUILD_URL=$BUILD_URL" >> $CB_ENV_FILE
-           echo "export COMMIT_ID=$COMMIT_ID" >> $CB_ENV_FILE
-           echo "export COMMIT_MSG=$COMMIT_MSG" >> $CB_ENV_FILE
+           echo "vars.BUILD_URL=$BUILD_URL" >> $CB_ENV_FILE
+           echo "vars.COMMIT_ID=$COMMIT_ID" >> $CB_ENV_FILE
+           echo "vars.COMMIT_MSG=$COMMIT_MSG" >> $CB_ENV_FILE
 
   Evidence:
     needs: CommitInfoStage
@@ -141,7 +141,7 @@ jobs:
         name: Publish workflow evidence
         with:
          content: |-
-            - Workflow ID: ${{ cloudbees.run_id }}
-            - Build URL: ${{ BUILD_URL }}
-            - Commit ID: ${{ COMMIT_ID }}
-            - Commit Message: ${{ COMMIT_MSG }}
+           - Workflow ID: ${{ cloudbees.run_id }}
+           - Build URL: ${{ vars.BUILD_URL }}
+           - Commit ID: ${{ vars.COMMIT_ID }}
+           - Commit Message: ${{ vars.COMMIT_MSG }}
