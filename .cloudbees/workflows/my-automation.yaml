@@ -126,13 +126,13 @@ jobs:
         id: commitinfo
         uses: docker://alpine/git:latest
         run: |
-           apk add --no-cache jq
-           COMMIT_ID=$(git rev-parse HEAD)
-           COMMIT_MSG=$(git log -1 --pretty=format:%s)
-           BUILD_URL="https://sda.preview.cb-demos.io/ashok-petclinic/build/${{ cloudbees.run_id }}"
-           echo "vars.BUILD_URL=$BUILD_URL" >> $CB_ENV_FILE
-           echo "vars.COMMIT_ID=$COMMIT_ID" >> $CB_ENV_FILE
-           echo "vars.COMMIT_MSG=$COMMIT_MSG" >> $CB_ENV_FILE
+          apk add --no-cache jq
+          COMMIT_ID=$(git rev-parse HEAD)
+          COMMIT_MSG=$(git log -1 --pretty=format:%s)
+          BUILD_URL="https://sda.preview.cb-demos.io/ashok-petclinic/build/${{ cloudbees.run_id }}"
+          echo "BUILD_URL=$BUILD_URL"
+          echo "COMMIT_ID=$COMMIT_ID" 
+          echo "COMMIT_MSG=$COMMIT_MSG"
 
   Evidence:
     needs: CommitInfoStage
@@ -142,6 +142,5 @@ jobs:
         with:
          content: |-
            - Workflow ID: ${{ cloudbees.run_id }}
-           - Build URL: ${{ vars.BUILD_URL }}
-           - Commit ID: ${{ vars.COMMIT_ID }}
-           - Commit Message: ${{ vars.COMMIT_MSG }}
+           - BUILD_URL="https://sda.preview.cb-demos.io/ashok-petclinic/build/${{ cloudbees.run_id }}"
+           
