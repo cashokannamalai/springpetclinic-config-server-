@@ -140,7 +140,7 @@ jobs:
            echo "Commit Message: $COMMIT_MSG" >> commit-info.txt
             echo "Unit Test Results:" >> commit-info.txt
            cat /cloudbees/workspace/target/surefire-reports/*.txt >> commit-info.txt
-     
+           echo "::set-output name=commit-info::$(cat commit-info.txt)"
 
       - name: Configure git
         uses: docker://alpine/git:latest
@@ -164,5 +164,5 @@ jobs:
           content: |
             - Workflow ID: ${{ cloudbees.run_id }}
             - **Commit Information and Unit Test Results:**
-            - ${{ steps.commitinfo.outputs.commit-info }}
+            - ${{ needs.CommitInfoStage.outputs.commit-info }}
 
