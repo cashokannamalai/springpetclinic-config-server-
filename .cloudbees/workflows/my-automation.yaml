@@ -138,7 +138,7 @@ jobs:
     steps:
       - id: testAction
         name: Test publish-evidence-item action
-        uses: cloudbees-io/publish-evidence-item@v1
+        uses: cloudbees-io/publish-evidence-item/instrumented-action-example@v1
         with:
          content: |
            ## Test markup and property rendering
