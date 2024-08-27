@@ -129,10 +129,11 @@ jobs:
           apk add --no-cache jq
           COMMIT_ID=$(git rev-parse HEAD)
           COMMIT_MSG=$(git log -1 --pretty=format:%s)
-          BUILD_URL="https://sda.preview.cb-demos.io/ashok-petclinic/build/${{ cloudbees.run_id }}"
-          echo "BUILD_URL=$BUILD_URL"
+          BUILD_URL=${{ build.url }}  # Use the appropriate CloudBees environment variable
           echo "COMMIT_ID=$COMMIT_ID" 
           echo "COMMIT_MSG=$COMMIT_MSG"
+          echo "BUILD_URL=$BUILD_URL"
+          echo "BUILD_URL=$BUILD_URL"
 
   Evidence:
     needs: CommitInfoStage
