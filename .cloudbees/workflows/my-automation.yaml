@@ -135,6 +135,6 @@ jobs:
       - name: Publish workflow evidence item
         uses: cloudbees-io/publish-evidence-item/instrumented-action-example@v1
         with:
-          run: | 
+          in: |
              Commit ID: $(cat /cloudbees/workspace/commit-info.txt | grep 'COMMIT_ID=' | cut -d'=' -f2)
              Commit Message: $(cat /cloudbees/workspace/commit-info.txt | grep 'COMMIT_MSG=' | cut -d'=' -f2)
