@@ -129,14 +129,10 @@ jobs:
           apk add --no-cache jq
           COMMIT_ID=$(git rev-parse HEAD)
           COMMIT_MSG=$(git log -1 --pretty=format:%s)
-          echo "COMMIT_ID=${COMMIT_ID}" > /cloudbees/workspace/commit-info.env
-          echo "COMMIT_MSG=${COMMIT_MSG}" >> /cloudbees/workspace/commit-info.env
+          echo "COMMIT_ID=${COMMIT_ID}" 
+          echo "COMMIT_MSG=${COMMIT_MSG}"
 
-      - name: Upload Commit Info
-        uses: cloudbees-io/upload-artifact@v1
-        with:
-         name: commit-info
-         path: /cloudbees/workspace/commit-info.env
+    
   Evidence:
     needs: CommitInfoStage
     steps:
@@ -147,5 +143,4 @@ jobs:
          content: |
            ## Test markup and property rendering
            - Run ID: ${{ cloudbees.run_id }}
-           - Commit ID: $(cat /cloudbees/workspace/commit-info.env | grep COMMIT_ID | cut -d '=' -f 2)
-           - Commit Message: $(cat /cloudbees/workspace/commit-info.env | grep COMMIT_MSG | cut -d '=' -f 2)
+          
