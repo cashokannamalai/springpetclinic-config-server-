@@ -163,4 +163,3 @@ jobs:
         with:
           content: |
             - Workflow ID: ${{ cloudbees.run_id }}
-            - Commit ID: ${{ needs.CommitInfoStage.outputs.commit_id }}
