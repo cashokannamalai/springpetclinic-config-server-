@@ -143,10 +143,10 @@ jobs:
   Evidence:
     needs: CommitInfoStage
     steps:
-      - uses: cloudbees-io/publish-evidence-item@v1
+      - uses: cashokannamalai/evidence@v1
         name: Publish workflow evidence
         with:
          content: |-
            - Workflow ID: ${{ cloudbees.run_id }}
            - BUILD_URL="https://sda.preview.cb-demos.io/ashok-petclinic/build/${{ cloudbees.run_id }}"
-           - STEP_ID: ${{ step.id }}
+           
