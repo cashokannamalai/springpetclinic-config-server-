@@ -129,12 +129,9 @@ jobs:
           apk add --no-cache jq
           COMMIT_ID=$(git rev-parse HEAD)
           COMMIT_MSG=$(git log -1 --pretty=format:%s)
-          # Use cloudbees context variables or construct the URL manually if possible
-          BUILD_URL="https://cloudbees.io/${{ job.name }}/builds/${{ cloudbees.build.id }}"  # Adjust based on CloudBees context
           echo "COMMIT_ID=$COMMIT_ID" 
           echo "COMMIT_MSG=$COMMIT_MSG"
-          echo "BUILD_URL=$BUILD_URL"
-          echo "BUILD_URL=$BUILD_URL"
+
   Evidence:
     needs: CommitInfoStage
     steps:
