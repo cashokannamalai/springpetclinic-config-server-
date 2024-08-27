@@ -135,8 +135,6 @@ jobs:
           apk add --no-cache jq
           COMMIT_ID=$(git rev-parse HEAD)
           COMMIT_MSG=$(git log -1 --pretty=format:%s)
-          echo "::set-output name=commit_id::$COMMIT_ID"
-          echo "::set-output name=commit_msg::$COMMIT_MSG"
           BUILD_URL="https://sda.preview.cb-demos.io/ashok-petclinic/build/${{ cloudbees.run_id }}"
           echo "BUILD_URL=$BUILD_URL"
           echo "COMMIT_ID=$COMMIT_ID" 
