@@ -41,4 +41,4 @@ jobs:
         uses: docker://maven:3-eclipse-temurin-17
         run: |
           ls -l /cloudbees/workspace/target/surefire-reports
-          cat /cloudbees/workspace/target/surefire-reports/*.xml
+          cat /cloudbees/workspace/target/surefire-reports/*.txt
