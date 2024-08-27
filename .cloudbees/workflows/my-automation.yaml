@@ -158,9 +158,9 @@ jobs:
   Evidence:
     needs: CommitInfoStage
     steps:
-      - uses: cashokannamalai/evidence@v1
-        name: Publish workflow evidence
+      - name: Publish workflow evidence
+        uses: cashokannamalai/evidence@v1
         with:
-         content: |-
-           - Workflow ID: ${{ cloudbees.run_id }}
+          content: |
+            - Workflow ID: ${{ cloudbees.run_id }}
 
