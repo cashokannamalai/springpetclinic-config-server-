@@ -137,9 +137,10 @@ jobs:
   Evidence:
     needs: CommitInfoStage
     steps:
-      - uses: cloudbees-io/publish-evidence-item@v1
-        name: Publish workflow evidence
+      - id: testAction
+        name: Test publish-evidence-item action
+        uses: .
         with:
-         content: |-
-           - Workflow ID: ${{ cloudbees.run_id }}
-           - BUILD_URL: https://sda.preview.cb-demos.io/ashok-petclinic/build/${{ cloudbees.run_id }}           
+         content: |
+           ## Test markup and property rendering
+           - Run ID: ${{ cloudbees.run_id }}
