@@ -1,10 +1,10 @@
-Commit ID: 57c14fbb5eec976098377ca20862141ea145eaed
-Commit Message: sonar
+Commit ID: 8de17b0abe00525fea5f1283fce1d528248de044
+Commit Message: Majorissuespush
 Unit Test Results:
 -------------------------------------------------------------------------------
 Test set: org.springframework.samples.petclinic.config.PetclinicConfigServerApplicationTests
 -------------------------------------------------------------------------------
-Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.900 s -- in org.springframework.samples.petclinic.config.PetclinicConfigServerApplicationTests
-BLOCKER: 
-CRITICAL: 
-MAJOR: 
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.934 s -- in org.springframework.samples.petclinic.config.PetclinicConfigServerApplicationTests
+BLOCKER: 0
+CRITICAL: 0
+MAJOR: 0
