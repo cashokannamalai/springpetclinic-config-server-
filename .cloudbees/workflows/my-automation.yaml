@@ -10,7 +10,6 @@ jobs:
     steps:
       - name: Checkout
         uses: cloudbees-io/checkout@v1
-
   Build:
     needs: Checkout
     steps:
@@ -24,8 +23,6 @@ jobs:
         uses: docker://maven:3-eclipse-temurin-17
         run: |
           mvn clean install 
-
-
   UnitTest:
     needs: Build
     steps:
@@ -35,7 +32,6 @@ jobs:
         uses: docker://maven:3-eclipse-temurin-17
         run: |
           mvn test 
-
   StaticAnalysis:
     steps:
       - uses: cloudbees-io/sonarqube-sast-scan-code@v1
@@ -61,8 +57,6 @@ jobs:
         with:
           project-key: config-server
           token: ${{ secrets.token }}
-
-
   DockerImageBuildAndPush:
     needs: UnitTest
     steps:
@@ -86,8 +80,6 @@ jobs:
           context: .
           destination: ${{ secrets.STAGING_DOCKER_REGISTRY }}/${{
             secrets.STAGING_DOCKER_USERNAME }}/configserver:3.2.4
-
-
   Approval:
     needs: DockerImageBuildAndPush
     type: manual-approval
@@ -97,17 +89,15 @@ jobs:
         uses: docker://maven:3-eclipse-temurin-17
         run: |
           echo "Manual approval required before proceeding to deployment."
-
   SmokeTest:
-   needs: Approval
-   steps:
+    needs: Approval
+    steps:
       - name: Checkout
         uses: cloudbees-io/checkout@v1
       - name: smoke
         uses: docker://maven:3-eclipse-temurin-17
         run: |
           mvn test 
-
   DeployInGKE:
     needs: SmokeTest
     steps:
@@ -122,47 +112,49 @@ jobs:
         shell: sh
         run: |
           kubectl apply -f /cloudbees/workspace/deployment-service.yaml
-
-
   CommitInfoStage:
     needs: DeployInGKE
     steps:
-    - name: Checkout
-      uses: cloudbees-io/checkout@v1
+      - name: Checkout
+        uses: cloudbees-io/checkout@v1
+      - name: Unittest
+        uses: docker://maven:3-eclipse-temurin-17
+        run: |
+          mvn test
+      - name: Capture Commit Information
+        id: commitinfo
+        uses: docker://alpine/git:latest
+        run: >
+          apk add --no-cache jq
 
-    - name: Unittest
-      uses: docker://maven:3-eclipse-temurin-17
-      run: |
-        mvn test
+          COMMIT_ID=$(git rev-parse HEAD)
 
-    - name: Capture Commit Information
-      id: commitinfo
-      uses: docker://alpine/git:latest
-      run: |
-        apk add --no-cache jq
-        COMMIT_ID=$(git rev-parse HEAD)
-        COMMIT_MSG=$(git log -1 --pretty=format:%s)
-        echo "Commit ID: $COMMIT_ID" > commit-info.txt
-        echo "Commit Message: $COMMIT_MSG" >> commit-info.txt
-        echo "Unit Test Results:" >> commit-info.txt
-        cat /cloudbees/workspace/target/surefire-reports/*.txt >> commit-info.txt
+          COMMIT_MSG=$(git log -1 --pretty=format:%s)
 
-    - name: Configure git
-      uses: docker://alpine/git:latest
-      run: |
-        git config --global user.email "c_aannamalai@cloudbees.com"
-        git config --global user.name "cashokannamalai"
+          echo "Commit ID: $COMMIT_ID" > commit-info.txt
 
-    - name: Commit and Push Commit Info
-      uses: docker://alpine/git:latest
-      run: |
-        git add commit-info.txt
-        git commit -m "Add commit information from workflow"
-        git push
+          echo "Commit Message: $COMMIT_MSG" >> commit-info.txt
 
-          
+          echo "Unit Test Results:" >> commit-info.txt
+
+          cat /cloudbees/workspace/target/surefire-reports/*.txt >>
+          commit-info.txt
+      - name: Configure git
+        uses: docker://alpine/git:latest
+        run: |
+          git config --global user.email "c_aannamalai@cloudbees.com"
+          git config --global user.name "cashokannamalai"
+      - name: Commit and Push Commit Info
+        uses: docker://alpine/git:latest
+        run: |+
+          git add commit-info.txt
+          git commit -m "Add commit information from workflow"
+          git push
+
+            
   Evidence:
     needs: CommitInfoStage
+    environment: ashok
     steps:
       - name: Publish evidence
         uses: cloudbees-io/publish-evidence-item@v1
@@ -170,7 +162,7 @@ jobs:
           content: |
             - Workflow ID: ${{ cloudbees.run_id }}
             - URL: ${{ cloudbees.api.url }}
-            - SCM Details: ${{ cloudbees.scm }}
+
             ## Smoketest results
             | Test    | Runtime (m:s) | Result |
             | -------- | ------- | -- |
@@ -178,3 +170,14 @@ jobs:
             | [BE2]() | 10:05 | PASS     |
             | [INT1]()    | 15:15 | **FAIL**    |
             | [INT2]()    | 20:10* |_RUNNING_    |
+  ashok123:
+    needs: Evidence
+    environment: ashok
+    steps:
+      - uses: cloudbees-io/publish-evidence-item@v1
+        name: ashok12
+        with:
+          content: |-
+            Workflow ID: ${{ cloudbees.run_id }}
+            URL: ${{ cloudbees.api.url }}
+            Commit: ${{ cloudbees.commit }}
