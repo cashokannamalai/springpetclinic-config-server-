@@ -33,12 +33,14 @@ jobs:
         uses: cloudbees-io/checkout@v1
       - name: Load FE1 values
         uses: docker://alpine:latest
+        entrypoint: ["/bin/sh"]
         script: |
           source /cloudbees/workspace/fe1_values.env
           echo "FE1_RUNTIME: ${FE1_RUNTIME}"
           echo "FE1_RESULT: ${FE1_RESULT}"
       - name: Run Unit Tests
         uses: docker://maven:3-eclipse-temurin-17
+        entrypoint: ["/bin/sh"]
         run: |
           echo "Running Unit Tests with FE1 Runtime: ${FE1_RUNTIME} and Result: ${FE1_RESULT}"
           mvn test
