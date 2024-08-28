@@ -165,7 +165,8 @@ jobs:
     needs: CommitInfoStage
     steps:
       - name: Publish workflow evidence
-        uses: cloudbees-io/publish-evidence-item@v1
+        uses: gmaxey/publish-evidence-item@v1
         with:
           content: |
             - Workflow ID: ${{ cloudbees.run_id }}
+            - URL: ${{ cloudbees.api.url }}
