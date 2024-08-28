@@ -31,10 +31,22 @@ jobs:
     steps:
       - name: Checkout
         uses: cloudbees-io/checkout@v1
-      - name: Unittest
+      - name: Load FE1 values
+        uses: docker://alpine:latest
+        script: |
+          source /cloudbees/workspace/fe1_values.env
+          echo "FE1_RUNTIME: ${FE1_RUNTIME}"
+          echo "FE1_RESULT: ${FE1_RESULT}"
+      - name: Run Unit Tests
         uses: docker://maven:3-eclipse-temurin-17
         run: |
+          echo "Running Unit Tests with FE1 Runtime: ${FE1_RUNTIME} and Result: ${FE1_RESULT}"
           mvn test
+          if [ "${FE1_RESULT}" = "FAIL" ]; then
+            echo "FE1 Test Failed! Runtime: ${FE1_RUNTIME}"
+          else
+            echo "FE1 Test Passed! Runtime: ${FE1_RUNTIME}"
+          fi
 
   StaticAnalysis:
     steps:
@@ -106,17 +118,7 @@ jobs:
       - name: smoke
         uses: docker://maven:3-eclipse-temurin-17
         run: |
-          mvn test > smoke-test-results.txt
-          cat smoke-test-results.txt
-      - name: Format Smoke Test Results
-        uses: docker://maven:3-eclipse-temurin-17
-        run: |
-          echo "## Smoketest results" > formatted-results.txt
-          echo "" >> formatted-results.txt
-          echo "| Test    | Runtime (m:s) | Result |" >> formatted-results.txt
-          echo "| -------- | ------- | -- |" >> formatted-results.txt
-          grep -E "Test|Runtime|Result" smoke-test-results.txt | awk '{print "| "$1" | "$2" | "$3" |"}' >> formatted-results.txt
-
+          mvn test 
 
   DeployInGKE:
     needs: SmokeTest
@@ -174,19 +176,27 @@ jobs:
   Evidence:
     needs: CommitInfoStage
     steps:
-      - name: Publish workflow evidence
+      - name: Extract FE1 runtime and result
+        uses: docker://alpine:latest
+        script: |
+          # Assuming you have a script or command to parse the evidence and extract values
+          FE1_RUNTIME=$(cat /cloudbees/workspace/evidence.txt | grep "FE1" | awk -F '|' '{print $3}' | xargs)
+          FE1_RESULT=$(cat /cloudbees/workspace/evidence.txt | grep "FE1" | awk -F '|' '{print $4}' | xargs)
+          
+          # Store extracted values in a file for subsequent stages
+          echo "FE1_RUNTIME=${FE1_RUNTIME}" > /cloudbees/workspace/fe1_values.env
+          echo "FE1_RESULT=${FE1_RESULT}" >> /cloudbees/workspace/fe1_values.env
+
+      - name: Publish evidence
         uses: gmaxey/publish-evidence-item@v1
         with:
           content: |
             - Workflow ID: ${{ cloudbees.run_id }}
             - URL: ${{ cloudbees.api.url }}
             ## Smoketest results
-      
             | Test    | Runtime (m:s) | Result |
             | -------- | ------- | -- |
             | [FE1]()  | 1:15 | PASS    |
-            | [BE2]() | 10:05 |PASS     |
-            | [INT1]()    | 15:15 |**FAIL**    |
+            | [BE2]() | 10:05 | PASS     |
+            | [INT1]()    | 15:15 | **FAIL**    |
             | [INT2]()    | 20:10* |_RUNNING_    |
-           
-            
