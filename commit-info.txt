@@ -1,7 +1,10 @@
-Commit ID: 3da5a6fd3244d44951a94374305ce9cedc16a020
-Commit Message: count
+Commit ID: 57c14fbb5eec976098377ca20862141ea145eaed
+Commit Message: sonar
 Unit Test Results:
 -------------------------------------------------------------------------------
 Test set: org.springframework.samples.petclinic.config.PetclinicConfigServerApplicationTests
 -------------------------------------------------------------------------------
-Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.855 s -- in org.springframework.samples.petclinic.config.PetclinicConfigServerApplicationTests
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.900 s -- in org.springframework.samples.petclinic.config.PetclinicConfigServerApplicationTests
+BLOCKER: 
+CRITICAL: 
+MAJOR: 
