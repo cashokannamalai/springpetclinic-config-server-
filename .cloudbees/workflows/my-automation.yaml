@@ -166,20 +166,28 @@ jobs:
         apk add --no-cache curl jq
         BLOCKER_COUNT=$(curl -s -u $SONAR_TOKEN: "$SONAR_URL/api/issues/search?componentKeys=$PROJECT_KEY&severities=BLOCKER&resolved=false" | jq '.total')
         MAJOR_COUNT=$(curl -s -u $SONAR_TOKEN: "$SONAR_URL/api/issues/search?componentKeys=$PROJECT_KEY&severities=MAJOR&resolved=false" | jq '.total')
+        CRITICAL_COUNT=$(curl -s -u $SONAR_TOKEN: "$SONAR_URL/api/issues/search?componentKeys=$PROJECT_KEY&severities=CRITICAL&resolved=false" | jq '.total')
+        MINOR_COUNT=$(curl -s -u $SONAR_TOKEN: "$SONAR_URL/api/issues/search?componentKeys=$PROJECT_KEY&severities=MINOR&resolved=false" | jq '.total')
         echo "BLOCKER_COUNT=$BLOCKER_COUNT"
         echo "MAJOR_COUNT=$MAJOR_COUNT"
-        export BLOCKER_COUNT
-        export MAJOR_COUNT
+        echo "CRITICAL_COUNT=$CRITICAL_COUNT"
+        echo "MINOR_COUNT=$MINOR_COUNT"
+        echo "BLOCKER_COUNT=$BLOCKER_COUNT" >> $CLOUDBEES_WORKSPACE/environment.env
+        echo "MAJOR_COUNT=$MAJOR_COUNT" >> $CLOUDBEES_WORKSPACE/environment.env
+        echo "CRITICAL_COUNT=$CRITICAL_COUNT" >> $CLOUDBEES_WORKSPACE/environment.env
+        echo "MINOR_COUNT=$MINOR_COUNT" >> $CLOUDBEES_WORKSPACE/environment.env
 
     - name: Publish evidence
-      uses: gmaxey/publish-evidence-item@v1
+      uses: cloudbees-io/publish-evidence-item@v1 
       with:
         content: |
           - Workflow ID: ${{ cloudbees.run_id }}
           - URL: ${{ cloudbees.api.url }}
           ## SonarQube Issues
-          - Blocker Issues: $BLOCKER_COUNT
-          - Major Issues: $MAJOR_COUNT
+          - Blocker Issues: $(cat $CLOUDBEES_WORKSPACE/environment.env | grep BLOCKER_COUNT | cut -d'=' -f2)
+          - Major Issues: $(cat $CLOUDBEES_WORKSPACE/environment.env | grep MAJOR_COUNT | cut -d'=' -f2)
+          - Critical Issues: $(cat $CLOUDBEES_WORKSPACE/environment.env | grep CRITICAL_COUNT | cut -d'=' -f2)
+          - Minor Issues: $(cat $CLOUDBEES_WORKSPACE/environment.env | grep MINOR_COUNT | cut -d'=' -f2)
           ## Smoketest results
           | Test    | Runtime (m:s) | Result |
           | -------- | ------- | -- |
