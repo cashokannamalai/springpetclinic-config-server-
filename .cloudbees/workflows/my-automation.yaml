@@ -145,9 +145,7 @@ jobs:
           echo "Commit ID: $COMMIT_ID" > commit-info.txt
           echo "Commit Message: $COMMIT_MSG" >> commit-info.txt
            echo "Unit Test Results:" >> commit-info.txt
-          cat /cloudbees/workspace/target/surefire-reports/*.txt >>
-          commit-info.txt
-          echo "::set-output name=commit_id::$COMMIT_ID"
+          cat /cloudbees/workspace/target/surefire-reports/*.txt >> commit-info.txt
 
       - name: Configure git
         uses: docker://alpine/git:latest
