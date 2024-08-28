@@ -99,16 +99,18 @@ jobs:
           echo "Manual approval required before proceeding to deployment."
 
   SmokeTest:
-    needs: Approval
-    steps:
-      - name: Configure git
-        uses: docker://alpine/git:latest
-      - name: Run Smoke Tests
-        uses: docker://maven:3-eclipse-temurin-17
-        entrypoint: mvn
-        run: |
-         test
-         echo "Smoke tests passed."
+   needs: Approval
+   steps:
+    - name: Configure git
+      uses: docker://alpine/git:latest
+      entrypoint: git
+      args: ["--version"]
+    - name: Run Smoke Tests
+      uses: docker://maven:3-eclipse-temurin-17
+      entrypoint: mvn
+      run: |
+        test
+        echo "Smoke tests passed."
 
 
   DeployInGKE:
