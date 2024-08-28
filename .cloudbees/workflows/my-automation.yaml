@@ -153,20 +153,37 @@ jobs:
 
             
   Evidence:
-    needs: CommitInfoStage
-    environment: ashok
-    steps:
-      - name: Publish evidence
-        uses: cloudbees-io/publish-evidence-item@v1
-        with:
-          content: |
-            - Workflow ID: ${{ cloudbees.run_id }}
-            - URL: ${{ cloudbees.api.url }}
+   needs: CommitInfoStage
+   steps:
+    - name: Fetch SonarQube Issue Counts
+      id: fetch-sonarqube-issues
+      uses: docker://alpine:latest
+      env:
+        SONAR_URL: https://sonarqube.cb-demos.io
+        PROJECT_KEY: config-server
+        SONAR_TOKEN: ${{ secrets.token }}
+      run: |
+        apk add --no-cache curl jq
+        BLOCKER_COUNT=$(curl -s -u $SONAR_TOKEN: "$SONAR_URL/api/issues/search?componentKeys=$PROJECT_KEY&severities=BLOCKER&resolved=false" | jq '.total')
+        MAJOR_COUNT=$(curl -s -u $SONAR_TOKEN: "$SONAR_URL/api/issues/search?componentKeys=$PROJECT_KEY&severities=MAJOR&resolved=false" | jq '.total')
+        echo "BLOCKER_COUNT=$BLOCKER_COUNT"
+        echo "MAJOR_COUNT=$MAJOR_COUNT"
+        export BLOCKER_COUNT
+        export MAJOR_COUNT
 
-            ## Smoketest results
-            | Test    | Runtime (m:s) | Result |
-            | -------- | ------- | -- |
-            | [FE1]()  | 1:15 | PASS    |
-            | [BE2]() | 10:05 | PASS     |
-            | [INT1]()    | 15:15 | **FAIL**    |
-            | [INT2]()    | 20:10* |_RUNNING_    |
+    - name: Publish evidence
+      uses: gmaxey/publish-evidence-item@v1
+      with:
+        content: |
+          - Workflow ID: ${{ cloudbees.run_id }}
+          - URL: ${{ cloudbees.api.url }}
+          ## SonarQube Issues
+          - Blocker Issues: $BLOCKER_COUNT
+          - Major Issues: $MAJOR_COUNT
+          ## Smoketest results
+          | Test    | Runtime (m:s) | Result |
+          | -------- | ------- | -- |
+          | [FE1]()  | 1:15 | PASS    |
+          | [BE2]() | 10:05 | PASS     |
+          | [INT1]()    | 15:15 | **FAIL**    |
+          | [INT2]()    | 20:10* |_RUNNING_    |
