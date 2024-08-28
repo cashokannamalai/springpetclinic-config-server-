@@ -170,5 +170,5 @@ jobs:
           content: |
             - Workflow ID: ${{ cloudbees.run_id }}
             - URL: ${{ cloudbees.api.url }}
-            - FORMAT: ${{ inputs.format }}
+           
             
