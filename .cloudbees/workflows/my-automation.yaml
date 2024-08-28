@@ -170,3 +170,4 @@ jobs:
           content: |
             - Workflow ID: ${{ cloudbees.run_id }}
             - URL: ${{ cloudbees.api.url }}
+            - STEP_ID: ${{ step.id }}
