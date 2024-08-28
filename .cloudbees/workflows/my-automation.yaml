@@ -5,11 +5,15 @@ on:
   push:
     branches:
       - main
+
+
 jobs:
   Checkout:
     steps:
       - name: Checkout
         uses: cloudbees-io/checkout@v1
+
+
   Build:
     needs: Checkout
     steps:
@@ -23,6 +27,8 @@ jobs:
         uses: docker://maven:3-eclipse-temurin-17
         run: |
           mvn clean install 
+
+
   UnitTest:
     needs: Build
     steps:
@@ -32,6 +38,8 @@ jobs:
         uses: docker://maven:3-eclipse-temurin-17
         run: |
           mvn test 
+
+
   StaticAnalysis:
     steps:
       - uses: cloudbees-io/sonarqube-sast-scan-code@v1
@@ -57,6 +65,8 @@ jobs:
         with:
           project-key: config-server
           token: ${{ secrets.token }}
+
+
   DockerImageBuildAndPush:
     needs: UnitTest
     steps:
@@ -80,6 +90,8 @@ jobs:
           context: .
           destination: ${{ secrets.STAGING_DOCKER_REGISTRY }}/${{
             secrets.STAGING_DOCKER_USERNAME }}/configserver:3.2.4
+
+
   Approval:
     needs: DockerImageBuildAndPush
     type: manual-approval
@@ -89,6 +101,8 @@ jobs:
         uses: docker://maven:3-eclipse-temurin-17
         run: |
           echo "Manual approval required before proceeding to deployment."
+
+
   SmokeTest:
     needs: Approval
     steps:
@@ -98,6 +112,8 @@ jobs:
         uses: docker://maven:3-eclipse-temurin-17
         run: |
           mvn test 
+
+
   DeployInGKE:
     needs: SmokeTest
     steps:
@@ -112,19 +128,25 @@ jobs:
         shell: sh
         run: |
           kubectl apply -f /cloudbees/workspace/deployment-service.yaml
+
+
   CommitInfoStage:
     needs: DeployInGKE
     steps:
       - name: Checkout
         uses: cloudbees-io/checkout@v1
+
       - name: Unittest
         uses: docker://maven:3-eclipse-temurin-17
         run: |
           mvn test
-      - name: Fetch SonarQube Metrics
-        id: sonar-metrics
-        uses: docker://alpine:latest
-        run: |
+
+      
+          
+      - name: Capture Commit Information
+        id: commitinfo
+        uses: docker://alpine/git:latest
+        run: >
           apk add --no-cache curl jq
           curl -u ${{ secrets.username }}:${{ secrets.password }} "https://sonarqube.cb-demos.io/api/issues/search?componentKeys=config-server&severities=BLOCKER,CRITICAL,MAJOR" > issues.json
           BLOCKER_COUNT=$(jq '.total' issues.json | jq 'select(. > 0) | . as $total | $total')
@@ -133,25 +155,15 @@ jobs:
           echo "BLOCKER: $BLOCKER_COUNT" > sonar-metrics.txt
           echo "CRITICAL: $CRITICAL_COUNT" >> sonar-metrics.txt
           echo "MAJOR: $MAJOR_COUNT" >> sonar-metrics.txt
-          
-      - name: Capture Commit Information
-        id: commitinfo
-        uses: docker://alpine/git:latest
-        run: >
           apk add --no-cache jq
-
           COMMIT_ID=$(git rev-parse HEAD)
-
           COMMIT_MSG=$(git log -1 --pretty=format:%s)
-
           echo "Commit ID: $COMMIT_ID" > commit-info.txt
-
           echo "Commit Message: $COMMIT_MSG" >> commit-info.txt
-
           echo "Unit Test Results:" >> commit-info.txt
-
           cat /cloudbees/workspace/target/surefire-reports/*.txt >> commit-info.txt
           cat sonar-metrics.txt >> commit-info.txt
+
       - name: Configure git
         uses: docker://alpine/git:latest
         run: |
