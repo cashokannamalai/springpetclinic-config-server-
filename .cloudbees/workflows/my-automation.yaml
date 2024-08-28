@@ -178,6 +178,6 @@ jobs:
         name: ashok12
         with:
           content: |-
-            Workflow ID: ${{ cloudbees.run_id }}
-            URL: ${{ cloudbees.api.url }}
-            Commit: ${{ cloudbees.commit }}
+           - Workflow ID: ${{ cloudbees.run_id }}
+           - URL: ${{ cloudbees.api.url }}
+           - Commit: ${{ cloudbees.commit }}
