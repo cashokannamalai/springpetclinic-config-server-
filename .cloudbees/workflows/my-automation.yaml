@@ -180,7 +180,13 @@ jobs:
           content: |
             - Workflow ID: ${{ cloudbees.run_id }}
             - URL: ${{ cloudbees.api.url }}
-            - Smoke Test Results:
-            $(cat formatted-results.txt)
+            ## Smoketest results
+      
+            | Test    | Runtime (m:s) | Result |
+            | -------- | ------- | -- |
+            | [FE1]()  | 1:15 | PASS    |
+            | [BE2]() | 10:05 |PASS     |
+            | [INT1]()    | 15:15 |**FAIL**    |
+            | [INT2]()    | 20:10* |_RUNNING_    |
            
             
