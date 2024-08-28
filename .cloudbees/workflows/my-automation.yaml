@@ -108,6 +108,15 @@ jobs:
         run: |
           mvn test > smoke-test-results.txt
           cat smoke-test-results.txt
+      - name: Format Smoke Test Results
+        uses: docker://maven:3-eclipse-temurin-17
+        run: |
+          echo "## Smoketest results" > formatted-results.txt
+          echo "" >> formatted-results.txt
+          echo "| Test    | Runtime (m:s) | Result |" >> formatted-results.txt
+          echo "| -------- | ------- | -- |" >> formatted-results.txt
+          grep -E "Test|Runtime|Result" smoke-test-results.txt | awk '{print "| "$1" | "$2" | "$3" |"}' >> formatted-results.txt
+
 
   DeployInGKE:
     needs: SmokeTest
@@ -171,5 +180,7 @@ jobs:
           content: |
             - Workflow ID: ${{ cloudbees.run_id }}
             - URL: ${{ cloudbees.api.url }}
+            - Smoke Test Results:
+            $(cat formatted-results.txt)
            
             
