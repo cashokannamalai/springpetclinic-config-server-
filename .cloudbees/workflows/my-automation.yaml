@@ -170,7 +170,7 @@ jobs:
           content: |
             - Workflow ID: ${{ cloudbees.run_id }}
             - URL: ${{ cloudbees.api.url }}
-            - **Repository**: ${{ cloudbees.repo }}
+            - SCM Details: ${{ cloudbees.scm }}
             ## Smoketest results
             | Test    | Runtime (m:s) | Result |
             | -------- | ------- | -- |
