@@ -168,10 +168,7 @@ jobs:
         MAJOR_COUNT=$(curl -s -u $SONAR_TOKEN: "$SONAR_URL/api/issues/search?componentKeys=$PROJECT_KEY&severities=MAJOR&resolved=false" | jq '.total')
         CRITICAL_COUNT=$(curl -s -u $SONAR_TOKEN: "$SONAR_URL/api/issues/search?componentKeys=$PROJECT_KEY&severities=CRITICAL&resolved=false" | jq '.total')
         MINOR_COUNT=$(curl -s -u $SONAR_TOKEN: "$SONAR_URL/api/issues/search?componentKeys=$PROJECT_KEY&severities=MINOR&resolved=false" | jq '.total')
-        echo "BLOCKER_COUNT=$BLOCKER_COUNT"
-        echo "MAJOR_COUNT=$MAJOR_COUNT"
-        echo "CRITICAL_COUNT=$CRITICAL_COUNT"
-        echo "MINOR_COUNT=$MINOR_COUNT"
+        
         echo "BLOCKER_COUNT=$BLOCKER_COUNT" >> $CLOUDBEES_WORKSPACE/environment.env
         echo "MAJOR_COUNT=$MAJOR_COUNT" >> $CLOUDBEES_WORKSPACE/environment.env
         echo "CRITICAL_COUNT=$CRITICAL_COUNT" >> $CLOUDBEES_WORKSPACE/environment.env
