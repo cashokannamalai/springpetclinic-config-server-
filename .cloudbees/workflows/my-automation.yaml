@@ -105,9 +105,10 @@ jobs:
         uses: docker://alpine/git:latest
       - name: Run Smoke Tests
         uses: docker://maven:3-eclipse-temurin-17
+        entrypoint: mvn
         run: |
-          mvn test
-          echo "Smoke tests passed."
+         test
+         echo "Smoke tests passed."
 
 
   DeployInGKE:
