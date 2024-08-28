@@ -144,10 +144,10 @@ jobs:
         uses: docker://alpine:latest
         run: |
           apk add --no-cache curl jq
-          curl -u ${{ secrets.username }}:${{ secrets.password }} "https://sonarqube.cb-demos.io/api/issues/search?componentKeys=config-server&severities=BLOCKER,CRITICAL,MAJOR" > issues.json
-          BLOCKER_COUNT=$(jq '.total' issues.json | jq 'select(. > 0) | . as $total | $total')
-          CRITICAL_COUNT=$(jq '.total' issues.json | jq 'select(. > 0) | . as $total | $total')
-          MAJOR_COUNT=$(jq '.total' issues.json | jq 'select(. > 0) | . as $total | $total')
+          curl -u ${{ secrets.username }}:${{ secrets.password }} "https://sonarqube.cb-demos.io/api/issues/search?componentKeys=config-server&severities=BLOCKER,CRITICAL,MAJOR" -o issues.json
+          BLOCKER_COUNT=$(jq '.total' issues.json)
+          CRITICAL_COUNT=$(jq '.total' issues.json)
+          MAJOR_COUNT=$(jq '.total' issues.json)
           echo "BLOCKER: $BLOCKER_COUNT" > sonar-metrics.txt
           echo "CRITICAL: $CRITICAL_COUNT" >> sonar-metrics.txt
           echo "MAJOR: $MAJOR_COUNT" >> sonar-metrics.txt
