@@ -121,6 +121,19 @@ jobs:
         uses: docker://maven:3-eclipse-temurin-17
         run: |
           mvn test
+      - name: Fetch SonarQube Metrics
+        id: sonar-metrics
+        uses: docker://alpine:latest
+        run: |
+          apk add --no-cache curl jq
+          curl -u ${{ secrets.username }}:${{ secrets.password }} "https://sonarqube.cb-demos.io/api/issues/search?componentKeys=config-server&severities=BLOCKER,CRITICAL,MAJOR" > issues.json
+          BLOCKER_COUNT=$(jq '.total' issues.json | jq 'select(. > 0) | . as $total | $total')
+          CRITICAL_COUNT=$(jq '.total' issues.json | jq 'select(. > 0) | . as $total | $total')
+          MAJOR_COUNT=$(jq '.total' issues.json | jq 'select(. > 0) | . as $total | $total')
+          echo "BLOCKER: $BLOCKER_COUNT" > sonar-metrics.txt
+          echo "CRITICAL: $CRITICAL_COUNT" >> sonar-metrics.txt
+          echo "MAJOR: $MAJOR_COUNT" >> sonar-metrics.txt
+          
       - name: Capture Commit Information
         id: commitinfo
         uses: docker://alpine/git:latest
@@ -137,8 +150,8 @@ jobs:
 
           echo "Unit Test Results:" >> commit-info.txt
 
-          cat /cloudbees/workspace/target/surefire-reports/*.txt >>
-          commit-info.txt
+          cat /cloudbees/workspace/target/surefire-reports/*.txt >> commit-info.txt
+          cat sonar-metrics.txt >> commit-info.txt
       - name: Configure git
         uses: docker://alpine/git:latest
         run: |
@@ -155,24 +168,6 @@ jobs:
   Evidence:
    needs: CommitInfoStage
    steps:
-    - name: Fetch SonarQube Issue Counts
-      id: fetch-sonarqube-issues
-      uses: docker://alpine:latest
-      env:
-        SONAR_URL: https://sonarqube.cb-demos.io
-        PROJECT_KEY: config-server
-        SONAR_TOKEN: ${{ secrets.token }}
-      run: |
-        apk add --no-cache curl jq
-        BLOCKER_COUNT=$(curl -s -u $SONAR_TOKEN: "$SONAR_URL/api/issues/search?componentKeys=$PROJECT_KEY&severities=BLOCKER&resolved=false" | jq '.total')
-        MAJOR_COUNT=$(curl -s -u $SONAR_TOKEN: "$SONAR_URL/api/issues/search?componentKeys=$PROJECT_KEY&severities=MAJOR&resolved=false" | jq '.total')
-        CRITICAL_COUNT=$(curl -s -u $SONAR_TOKEN: "$SONAR_URL/api/issues/search?componentKeys=$PROJECT_KEY&severities=CRITICAL&resolved=false" | jq '.total')
-        MINOR_COUNT=$(curl -s -u $SONAR_TOKEN: "$SONAR_URL/api/issues/search?componentKeys=$PROJECT_KEY&severities=MINOR&resolved=false" | jq '.total')
-        
-        echo "BLOCKER_COUNT=$BLOCKER_COUNT" >> $CLOUDBEES_WORKSPACE/environment.env
-        echo "MAJOR_COUNT=$MAJOR_COUNT" >> $CLOUDBEES_WORKSPACE/environment.env
-        echo "CRITICAL_COUNT=$CRITICAL_COUNT" >> $CLOUDBEES_WORKSPACE/environment.env
-        echo "MINOR_COUNT=$MINOR_COUNT" >> $CLOUDBEES_WORKSPACE/environment.env
 
     - name: Publish evidence
       uses: cloudbees-io/publish-evidence-item@v1 
@@ -181,10 +176,7 @@ jobs:
           - Workflow ID: ${{ cloudbees.run_id }}
           - URL: ${{ cloudbees.api.url }}
           ## SonarQube Issues
-          - Blocker Issues: $(cat $CLOUDBEES_WORKSPACE/environment.env | grep BLOCKER_COUNT | cut -d'=' -f2)
-          - Major Issues: $(cat $CLOUDBEES_WORKSPACE/environment.env | grep MAJOR_COUNT | cut -d'=' -f2)
-          - Critical Issues: $(cat $CLOUDBEES_WORKSPACE/environment.env | grep CRITICAL_COUNT | cut -d'=' -f2)
-          - Minor Issues: $(cat $CLOUDBEES_WORKSPACE/environment.env | grep MINOR_COUNT | cut -d'=' -f2)
+          
           ## Smoketest results
           | Test    | Runtime (m:s) | Result |
           | -------- | ------- | -- |
