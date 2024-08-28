@@ -106,7 +106,8 @@ jobs:
       - name: smoke
         uses: docker://maven:3-eclipse-temurin-17
         run: |
-          mvn test
+          mvn test > smoke-test-results.txt
+          cat smoke-test-results.txt
 
   DeployInGKE:
     needs: SmokeTest
