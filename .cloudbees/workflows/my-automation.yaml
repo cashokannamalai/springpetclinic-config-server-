@@ -169,6 +169,8 @@ jobs:
           echo "Unit Test Results:" >> commit-info.txt
 
           cat /cloudbees/workspace/target/surefire-reports/*.txt >> commit-info.txt
+
+          echo "SonarQube Results:" >> commit-info.txt
           
           cat /cloudbees/workspace/sonar-metrics.txt >> commit-info.txt
           
