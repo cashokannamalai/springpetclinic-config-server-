@@ -200,7 +200,12 @@ jobs:
           - Workflow ID: ${{ cloudbees.run_id }}
           - URL: ${{ cloudbees.api.url }}
           ## SonarQube Issues
-          
+          | Severity | Count |
+            | -------- | ----- |
+            | Blocker  | ${{ steps.sonar-metrics.outputs.BLOCKER_COUNT }} |
+            | Critical | ${{ steps.sonar-metrics.outputs.CRITICAL_COUNT }} |
+            | Major    | ${{ steps.sonar-metrics.outputs.MAJOR_COUNT }} |
+            | Minor    | ${{ steps.sonar-metrics.outputs.MINOR_COUNT }} |
           ## Smoketest results
           | Test    | Runtime (m:s) | Result |
           | -------- | ------- | -- |
