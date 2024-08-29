@@ -213,7 +213,7 @@ jobs:
           ## SonarQube Metrics
             | Severity  | Count |
             | --------- | ----- |
-            | Blocker   | ${{ secrets.Sonarvalue }} |
-            | Critical  | 0 |
+            | Blocker   | ${{ Property.sample }} |
+            | Critical  | ${{ Property.sample }} |
             | Major     | 0 |
             | Minor     | 0 |
