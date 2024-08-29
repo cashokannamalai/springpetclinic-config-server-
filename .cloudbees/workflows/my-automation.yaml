@@ -136,7 +136,6 @@ jobs:
         uses: docker://maven:3-eclipse-temurin-17
         run: |
           mvn test
-
       - name: Fetch SonarQube Metrics
         id: sonar-metrics
         uses: docker://alpine:latest
@@ -149,12 +148,12 @@ jobs:
           CRITICAL_COUNT=$(jq '.total' issues.json)
           MAJOR_COUNT=$(jq '.total' issues.json)
           MINOR_COUNT=$(jq '.total' issues.json)
-          echo "BLOCKER: $BLOCKER_COUNT" >> /cloudbees/workspace/sonar-metrics.txt
-          echo "CRITICAL: $CRITICAL_COUNT" >> /cloudbees/workspace/sonar-metrics.txt
+          echo "BLOCKER: $BLOCKER_COUNT" >
+          /cloudbees/workspace/sonar-metrics.txt
+          echo "CRITICAL: $CRITICAL_COUNT" >>
+          /cloudbees/workspace/sonar-metrics.txt
           echo "MAJOR: $MAJOR_COUNT" >> /cloudbees/workspace/sonar-metrics.txt
           echo "MINOR: $MINOR_COUNT" >> /cloudbees/workspace/sonar-metrics.txt
-
-      
       - name: Capture Commit Information
         id: commitinfo
         uses: docker://alpine/git:latest
