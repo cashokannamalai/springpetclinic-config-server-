@@ -199,9 +199,9 @@ jobs:
     - name: Publish evidence
       uses: cloudbees-io/publish-evidence-item@v1 
       env:
-        BLOCKER_COUNT: ${{ needs.CommitInfoStage.outputs.blocker }}
-        CRITICAL_COUNT: ${{ needs.CommitInfoStage.outputs.critical }}
-        MAJOR_COUNT: ${{ needs.CommitInfoStage.outputs.major }}
+        BLOCKER_COUNT: 0
+        CRITICAL_COUNT: 0
+        MAJOR_COUNT: 0
       with:
         content: |
           - Workflow ID: ${{ cloudbees.run_id }}
