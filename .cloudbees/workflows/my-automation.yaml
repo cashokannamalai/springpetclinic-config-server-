@@ -155,13 +155,7 @@ jobs:
           echo "MAJOR: $MAJOR_COUNT" >> /cloudbees/workspace/sonar-metrics.txt
           echo "MINOR: $MINOR_COUNT" >> /cloudbees/workspace/sonar-metrics.txt
 
-      - name: Set CloudBees Properties
-        uses: cloudbees-io/set-properties@v1
-        properties:
-           Blocker: ${{ BLOCKER_COUNT }}
-           Critical: ${{ CRITICAL_COUNT }}
-           Major: ${{ MAJOR_COUNT }}
-           Minor: ${{ MINOR_COUNT }}
+      
       - name: Capture Commit Information
         id: commitinfo
         uses: docker://alpine/git:latest
@@ -206,7 +200,7 @@ jobs:
             ## SonarQube Metrics
               | Severity  | Count |
               | --------- | ----- |
-              | Blocker   | ${{ secrets.Blocker }}  |
+              | Blocker   | ${{ properties.sample }}  |
               | Critical  | ${{ secrets.Critical }} |
               | Major     | ${{ secrets.Major }} |
               | Minor     | ${{ secrets.Minor }} |
