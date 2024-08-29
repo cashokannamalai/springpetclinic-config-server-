@@ -197,4 +197,4 @@ jobs:
               | Critical  | ${{ secrets.Critical }} |
               | Major     | ${{ secrets.Major }} |
               | Minor     | ${{ secrets.Minor }} |
-              
+            
