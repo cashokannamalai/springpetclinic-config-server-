@@ -150,6 +150,9 @@ jobs:
           echo "BLOCKER: $BLOCKER_COUNT" > sonar-metrics.txt
           echo "CRITICAL: $CRITICAL_COUNT" >> sonar-metrics.txt
           echo "MAJOR: $MAJOR_COUNT" >> sonar-metrics.txt
+          echo "::set-output name=blocker::$BLOCKER_COUNT"
+          echo "::set-output name=critical::$CRITICAL_COUNT"
+          echo "::set-output name=major::$MAJOR_COUNT"
 
       - name: Capture Commit Information
         id: commitinfo
@@ -211,6 +214,6 @@ jobs:
            ## SonarQube Results
           | Severity   | Count |
           | ---------- | ----- |
-          | Blocker    | `cat /cloudbees/workspace/sonar-metrics.txt | grep 'BLOCKER' | cut -d' ' -f2` |
-          | Critical   | `cat /cloudbees/workspace/sonar-metrics.txt | grep 'CRITICAL' | cut -d' ' -f2` |
-          | Major      | `cat /cloudbees/workspace/sonar-metrics.txt | grep 'MAJOR' | cut -d' ' -f2` |
+          | Blocker    | ${{ needs.CommitInfoStage.outputs.blocker }} |
+          | Critical   | ${{ needs.CommitInfoStage.outputs.critical }} |
+          | Major      | ${{ needs.CommitInfoStage.outputs.major }} |
