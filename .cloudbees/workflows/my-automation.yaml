@@ -223,15 +223,5 @@ jobs:
           | Critical   | 0 |
           | Major      | 0 |
 
-  evi:
-   needs: CommitInfoStage
-   steps:
-      - id: collectAndPublishMetrics
-        name: Collect SonarQube Metrics and Publish Evidence
-        uses: cashokannamalai/evidence@v1
-        with:
-         sonarUrl: ${{ secrets.SONARQUBE_URL }}
-         projectKey: ${{ secrets.SONARQUBE_PROJECT_KEY }}
-         content: "Additional evidence or notes related to SonarQube metrics."
-         format: "MARKDOWN"
+
        
