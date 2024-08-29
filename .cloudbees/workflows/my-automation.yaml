@@ -67,7 +67,7 @@ jobs:
           token: ${{ secrets.token }}
 
   DockerImageBuildAndPush:
-    needs: ArtifactPublish
+    needs: UnitTest
     steps:
       - name: Checkout
         uses: cloudbees-io/checkout@v1
