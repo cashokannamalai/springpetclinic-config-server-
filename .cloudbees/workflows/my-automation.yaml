@@ -135,15 +135,12 @@ jobs:
         run: |
           apk add --no-cache curl jq
           curl -u ${{ secrets.username }}:${{ secrets.password }} "https://sonarqube.cb-demos.io/api/issues/search?componentKeys=config-server&severities=BLOCKER,CRITICAL,MAJOR" -o issues.json
-          BLOCKER_COUNT=$(jq '.issues[] | select(.severity == "BLOCKER") | length' issues.json)
-          CRITICAL_COUNT=$(jq '.issues[] | select(.severity == "CRITICAL") | length' issues.json)
-          MAJOR_COUNT=$(jq '.issues[] | select(.severity == "MAJOR") | length' issues.json)
-          echo "BLOCKER: $BLOCKER_COUNT" > sonar-metrics.txt
-          echo "CRITICAL: $CRITICAL_COUNT" >> sonar-metrics.txt
-          echo "MAJOR: $MAJOR_COUNT" >> sonar-metrics.txt
-          echo "::set-output name=blocker::$BLOCKER_COUNT"
-          echo "::set-output name=critical::$CRITICAL_COUNT"
-          echo "::set-output name=major::$MAJOR_COUNT"
+          BLOCKER_COUNT=$(jq '.total' issues.json)
+          CRITICAL_COUNT=$(jq '.total' issues.json)
+          MAJOR_COUNT=$(jq '.total' issues.json)
+          echo "BLOCKER_COUNT=$BLOCKER_COUNT" >> $GITHUB_ENV
+          echo "CRITICAL_COUNT=$CRITICAL_COUNT" >> $GITHUB_ENV
+          echo "MAJOR_COUNT=$MAJOR_COUNT" >> $GITHUB_ENV
       - name: Capture Commit Information
         id: commitinfo
         uses: docker://alpine/git:latest
@@ -164,7 +161,7 @@ jobs:
           git config --global user.name "cashokannamalai"
       - name: Commit and Push Commit Info
         uses: docker://alpine/git:latest
-        run: |
+        run: |+
           git add commit-info.txt
           git add sonar-metrics.txt
           git commit -m "Add commit information and SonarQube metrics from workflow"
@@ -175,26 +172,22 @@ jobs:
     steps:
       - name: Publish evidence
         uses: cloudbees-io/publish-evidence-item@v1 
-        env:
-          BLOCKER_COUNT: ${{ steps.sonar-metrics.outputs.blocker }}
-          CRITICAL_COUNT: ${{ steps.sonar-metrics.outputs.critical }}
-          MAJOR_COUNT: ${{ steps.sonar-metrics.outputs.major }}
         with:
           content: |
             - Workflow ID: ${{ cloudbees.run_id }}
             - URL: ${{ cloudbees.api.url }}
-            
+
             ## Smoketest results
             | Test    | Runtime (m:s) | Result |
-            | -------- | ------------- | ------ |
-            | [FE1]()  | 1:15           | PASS   |
-            | [BE2]()  | 10:05          | PASS   |
-            | [INT1]() | 15:15          | **FAIL** |
-            | [INT2]() | 20:10*         | _RUNNING_ |
-            
+            |---------|---------------|--------|
+            | FE1     | 1:15          | PASS   |
+            | BE2     | 10:05         | PASS   |
+            | INT1    | 15:15         | **FAIL** |
+            | INT2    | 20:10*        | _RUNNING_ |
+
             ## SonarQube Results
-            | Severity   | Count |
-            | ---------- | ----- |
-            | Blocker    | ${{ env.BLOCKER_COUNT }} |
-            | Critical   | ${{ env.CRITICAL_COUNT }} |
-            | Major      | ${{ env.MAJOR_COUNT }} |
+            | Severity | Count |
+            |----------|-------|
+            | Blocker  | ${{ env.BLOCKER_COUNT }} |
+            | Critical | ${{ env.CRITICAL_COUNT }} |
+            | Major    | ${{ env.MAJOR_COUNT }} |
