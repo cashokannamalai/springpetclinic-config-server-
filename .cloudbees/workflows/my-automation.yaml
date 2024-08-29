@@ -5,15 +5,11 @@ on:
   push:
     branches:
       - main
-
-
 jobs:
   Checkout:
     steps:
       - name: Checkout
         uses: cloudbees-io/checkout@v1
-
-
   Build:
     needs: Checkout
     steps:
@@ -27,8 +23,6 @@ jobs:
         uses: docker://maven:3-eclipse-temurin-17
         run: |
           mvn clean install 
-
-
   UnitTest:
     needs: Build
     steps:
@@ -38,8 +32,6 @@ jobs:
         uses: docker://maven:3-eclipse-temurin-17
         run: |
           mvn test 
-
-
   StaticAnalysis:
     steps:
       - uses: cloudbees-io/sonarqube-sast-scan-code@v1
@@ -65,7 +57,6 @@ jobs:
         with:
           project-key: config-server
           token: ${{ secrets.token }}
-
   DockerImageBuildAndPush:
     needs: UnitTest
     steps:
@@ -89,8 +80,6 @@ jobs:
           context: .
           destination: ${{ secrets.STAGING_DOCKER_REGISTRY }}/${{
             secrets.STAGING_DOCKER_USERNAME }}/configserver:3.2.4
-
-
   Approval:
     needs: DockerImageBuildAndPush
     type: manual-approval
@@ -100,8 +89,6 @@ jobs:
         uses: docker://maven:3-eclipse-temurin-17
         run: |
           echo "Manual approval required before proceeding to deployment."
-
-
   SmokeTest:
     needs: Approval
     steps:
@@ -111,8 +98,6 @@ jobs:
         uses: docker://maven:3-eclipse-temurin-17
         run: |
           mvn test 
-
-
   DeployInGKE:
     needs: SmokeTest
     steps:
@@ -127,8 +112,6 @@ jobs:
         shell: sh
         run: |
           kubectl apply -f /cloudbees/workspace/deployment-service.yaml
-
-
   CommitInfoStage:
     needs: DeployInGKE
     steps:
@@ -141,40 +124,60 @@ jobs:
       - name: Fetch SonarQube Metrics
         id: sonar-metrics
         uses: docker://alpine:latest
-        run: |
+        run: >
           apk add --no-cache curl jq
-          curl -u ${{ secrets.username }}:${{ secrets.password }} "https://sonarqube.cb-demos.io/api/issues/search?componentKeys=config-server&severities=BLOCKER,CRITICAL,MAJOR,MINOR" -o issues.json
-          BLOCKER_COUNT=$(jq '.total' issues.json)
-          CRITICAL_COUNT=$(jq '.total' issues.json)
-          MAJOR_COUNT=$(jq '.total' issues.json)
-          MINOR_COUNT=$(jq '.total' issues.json)
-          echo "BLOCKER: $BLOCKER_COUNT" > /cloudbees/workspace/sonar-metrics.txt
-          echo "CRITICAL: $CRITICAL_COUNT" >> /cloudbees/workspace/sonar-metrics.txt
-          echo "MAJOR: $MAJOR_COUNT" >> /cloudbees/workspace/sonar-metrics.txt
-          echo "MINOR: $MINOR_COUNT" >> /cloudbees/workspace/sonar-metrics.txt
 
+          curl -u ${{ secrets.username }}:${{ secrets.password }}
+          "https://sonarqube.cb-demos.io/api/issues/search?componentKeys=config-server&severities=BLOCKER,CRITICAL,MAJOR,MINOR"
+          -o issues.json
+
+          BLOCKER_COUNT=$(jq '.total' issues.json)
+
+          CRITICAL_COUNT=$(jq '.total' issues.json)
+
+          MAJOR_COUNT=$(jq '.total' issues.json)
+
+          MINOR_COUNT=$(jq '.total' issues.json)
+
+          echo "BLOCKER: $BLOCKER_COUNT" >
+          /cloudbees/workspace/sonar-metrics.txt
+
+          echo "CRITICAL: $CRITICAL_COUNT" >>
+          /cloudbees/workspace/sonar-metrics.txt
+
+          echo "MAJOR: $MAJOR_COUNT" >> /cloudbees/workspace/sonar-metrics.txt
+
+          echo "MINOR: $MINOR_COUNT" >> /cloudbees/workspace/sonar-metrics.txt
       - name: Capture Commit Information
         id: commitinfo
         uses: docker://alpine/git:latest
-        run: |
+        run: >
           apk add --no-cache jq
+
 
           COMMIT_ID=$(git rev-parse HEAD)
 
+
           COMMIT_MSG=$(git log -1 --pretty=format:%s)
+
 
           echo "Commit ID: $COMMIT_ID" > commit-info.txt
 
+
           echo "Commit Message: $COMMIT_MSG" >> commit-info.txt
+
 
           echo "Unit Test Results:" >> commit-info.txt
 
-          cat /cloudbees/workspace/target/surefire-reports/*.txt >> commit-info.txt
+
+          cat /cloudbees/workspace/target/surefire-reports/*.txt >>
+          commit-info.txt
+
 
           echo "SonarQube Results:" >> commit-info.txt
-          
+
+
           cat /cloudbees/workspace/sonar-metrics.txt >> commit-info.txt
-          
       - name: Configure git
         uses: docker://alpine/git:latest
         run: |
@@ -182,39 +185,42 @@ jobs:
           git config --global user.name "cashokannamalai"
       - name: Commit and Push Commit Info
         uses: docker://alpine/git:latest
-        run: |+
+        run: >+
           git add commit-info.txt
+
           git add sonar-metrics.txt
-          git commit -m "Add commit information and SonarQube metrics from workflow"
+
+          git commit -m "Add commit information and SonarQube metrics from
+          workflow"
+
           git push
 
 
             
   Evidence:
-   needs: CommitInfoStage
-   steps:
+    needs: CommitInfoStage
+    steps:
+      - name: Publish evidence
+        uses: cloudbees-io/publish-evidence-item@v1
+        with:
+          content: |+
+            - Workflow ID: ${{ cloudbees.run_id }}
+            - URL: ${{ cloudbees.api.url }}
 
-    - name: Publish evidence
-      uses: cloudbees-io/publish-evidence-item@v1 
-      with:
-        content: |
-          - Workflow ID: ${{ cloudbees.run_id }}
-          - URL: ${{ cloudbees.api.url }}
 
-          
-          ## Smoketest results
-          | Test    | Runtime (m:s) | Result |
-          | -------- | ------- | -- |
-          | [FE1]()  | 1:15 | PASS    |
-          | [BE2]() | 10:05 | PASS     |
-          | [INT1]()    | 15:15 | **FAIL**    |
-          | [INT2]()    | 20:10* |_RUNNING_    |
+            ## Smoketest results
+            | Test    | Runtime (m:s) | Result |
+            | -------- | ------- | -- |
+            | [FE1]()  | 1:15 | PASS    |
+            | [BE2]() | 10:05 | PASS     |
+            | [INT1]()    | 15:15 | **FAIL**    |
+            | [INT2]()    | 20:10* |_RUNNING_    |
 
-          ## SonarQube Metrics
-            | Severity  | Count |
-            | --------- | ----- |
-            | Blocker   | ${env.sample} |
-            | Critical  | 0 |
-            | Major     | 0 |
-            | Minor     | 0 |
-            
+            ## SonarQube Metrics
+              | Severity  | Count |
+              | --------- | ----- |
+              | Blocker   | ${{ secrets.Blocker }}  |
+              | Critical  | ${{ secrets.Critical }} |
+              | Major     | ${{ secrets.Major }} |
+              | Minor     | ${{ secrets.Minor }} |
+              
