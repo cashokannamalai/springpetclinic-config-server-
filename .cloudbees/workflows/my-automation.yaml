@@ -83,7 +83,7 @@ jobs:
           NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
 
         run: |
-          mvn deploy:deploy-file \
+          mvn clean install \
             -DgroupId=org.springframework.samples.petclinic.config \
             -DartifactId=spring-petclinic-config-server \
             -Dversion=3.2.4 \
