@@ -188,15 +188,6 @@ jobs:
           git commit -m "Add commit information and SonarQube metrics from workflow"
           git push
 
-      - name: Set up environment variables for SonarQube metrics
-        uses: docker://alpine:latest
-        run: |
-         export BLOCKER=$(grep 'BLOCKER:' /cloudbees/workspace/sonar-metrics.txt | awk '{print $2}')
-         export CRITICAL=$(grep 'CRITICAL:' /cloudbees/workspace/sonar-metrics.txt | awk '{print $2}')
-         export MAJOR=$(grep 'MAJOR:' /cloudbees/workspace/sonar-metrics.txt | awk '{print $2}')
-         export MINOR=$(grep 'MINOR:' /cloudbees/workspace/sonar-metrics.txt | awk '{print $2}')
-         shell: bash
-
 
             
   Evidence:
