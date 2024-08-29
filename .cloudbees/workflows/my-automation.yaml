@@ -6,11 +6,13 @@ on:
     branches:
       - main
 
+
 jobs:
   Checkout:
     steps:
       - name: Checkout
         uses: cloudbees-io/checkout@v1
+
 
   Build:
     needs: Checkout
@@ -26,6 +28,7 @@ jobs:
         run: |
           mvn clean install 
 
+
   UnitTest:
     needs: Build
     steps:
@@ -35,6 +38,7 @@ jobs:
         uses: docker://maven:3-eclipse-temurin-17
         run: |
           mvn test 
+
 
   StaticAnalysis:
     steps:
@@ -83,7 +87,9 @@ jobs:
         with:
           dockerfile: Dockerfile
           context: .
-          destination: ${{ secrets.STAGING_DOCKER_REGISTRY }}/${{ secrets.STAGING_DOCKER_USERNAME }}/configserver:3.2.4
+          destination: ${{ secrets.STAGING_DOCKER_REGISTRY }}/${{
+            secrets.STAGING_DOCKER_USERNAME }}/configserver:3.2.4
+
 
   Approval:
     needs: DockerImageBuildAndPush
@@ -95,6 +101,7 @@ jobs:
         run: |
           echo "Manual approval required before proceeding to deployment."
 
+
   SmokeTest:
     needs: Approval
     steps:
@@ -104,6 +111,7 @@ jobs:
         uses: docker://maven:3-eclipse-temurin-17
         run: |
           mvn test 
+
 
   DeployInGKE:
     needs: SmokeTest
@@ -120,6 +128,7 @@ jobs:
         run: |
           kubectl apply -f /cloudbees/workspace/deployment-service.yaml
 
+
   CommitInfoStage:
     needs: DeployInGKE
     steps:
@@ -133,29 +142,37 @@ jobs:
         id: sonar-metrics
         uses: docker://alpine:latest
         run: |
-           apk add --no-cache curl jq
-           curl -u ${{ secrets.username }}:${{ secrets.password }} "https://sonarqube.cb-demos.io/api/issues/search?componentKeys=config-server&severities=BLOCKER,CRITICAL,MAJOR,MINOR" -o issues.json
-           BLOCKER_COUNT=$(jq '.total' issues.json | jq 'select(.severity == "BLOCKER")')
-           CRITICAL_COUNT=$(jq '.total' issues.json | jq 'select(.severity == "CRITICAL")')
-           MAJOR_COUNT=$(jq '.total' issues.json | jq 'select(.severity == "MAJOR")')
-           MINOR_COUNT=$(jq '.total' issues.json | jq 'select(.severity == "MINOR")')
-           echo "BLOCKER: $BLOCKER_COUNT" > sonar-metrics.txt
-           echo "CRITICAL: $CRITICAL_COUNT" >> sonar-metrics.txt
-           echo "MAJOR: $MAJOR_COUNT" >> sonar-metrics.txt
-           echo "MINOR: $MINOR_COUNT" >> sonar-metrics.txt
+          apk add --no-cache curl jq
+          curl -u ${{ secrets.username }}:${{ secrets.password }} "https://sonarqube.cb-demos.io/api/issues/search?componentKeys=config-server&severities=BLOCKER,CRITICAL,MAJOR" -o issues.json
+          BLOCKER_COUNT=$(jq '.total' issues.json)
+          CRITICAL_COUNT=$(jq '.total' issues.json)
+          MAJOR_COUNT=$(jq '.total' issues.json)
+          echo "BLOCKER: $BLOCKER_COUNT" > sonar-metrics.txt
+          echo "CRITICAL: $CRITICAL_COUNT" >> sonar-metrics.txt
+          echo "MAJOR: $MAJOR_COUNT" >> sonar-metrics.txt
+
       - name: Capture Commit Information
         id: commitinfo
         uses: docker://alpine/git:latest
         run: |
           apk add --no-cache jq
+
           COMMIT_ID=$(git rev-parse HEAD)
+
           COMMIT_MSG=$(git log -1 --pretty=format:%s)
+
           echo "Commit ID: $COMMIT_ID" > commit-info.txt
+
           echo "Commit Message: $COMMIT_MSG" >> commit-info.txt
+
           echo "Unit Test Results:" >> commit-info.txt
+
           cat /cloudbees/workspace/target/surefire-reports/*.txt >> commit-info.txt
+
           echo "SonarQube Results:" >> commit-info.txt
+          
           cat /cloudbees/workspace/sonar-metrics.txt >> commit-info.txt
+          
       - name: Configure git
         uses: docker://alpine/git:latest
         run: |
@@ -169,27 +186,24 @@ jobs:
           git commit -m "Add commit information and SonarQube metrics from workflow"
           git push
 
+
+            
   Evidence:
-    needs: CommitInfoStage
-    steps:
-      - name: Publish evidence
-        uses: cloudbees-io/publish-evidence-item@v1 
-        with:
-          content: |
-            - Workflow ID: ${{ cloudbees.run_id }}
-            - URL: ${{ cloudbees.api.url }}
+   needs: CommitInfoStage
+   steps:
 
-            ## Smoketest results
-            | Test    | Runtime (m:s) | Result |
-            |---------|---------------|--------|
-            | FE1     | 1:15          | PASS   |
-            | BE2     | 10:05         | PASS   |
-            | INT1    | 15:15         | **FAIL** |
-            | INT2    | 20:10*        | _RUNNING_ |
+    - name: Publish evidence
+      uses: cloudbees-io/publish-evidence-item@v1 
+      with:
+        content: |
+          - Workflow ID: ${{ cloudbees.run_id }}
+          - URL: ${{ cloudbees.api.url }}
 
-            ## SonarQube Results
-            | Severity | Count |
-            |----------|-------|
-            | Blocker  | ${{ env.BLOCKER_COUNT }} |
-            | Critical | ${{ env.CRITICAL_COUNT }} |
-            | Major    | ${{ env.MAJOR_COUNT }} |
+          
+          ## Smoketest results
+          | Test    | Runtime (m:s) | Result |
+          | -------- | ------- | -- |
+          | [FE1]()  | 1:15 | PASS    |
+          | [BE2]() | 10:05 | PASS     |
+          | [INT1]()    | 15:15 | **FAIL**    |
+          | [INT2]()    | 20:10* |_RUNNING_    |
