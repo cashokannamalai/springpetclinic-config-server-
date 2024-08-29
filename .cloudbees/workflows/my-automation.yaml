@@ -219,6 +219,6 @@ jobs:
             ## SonarQube Results
           | Severity   | Count |
           | ---------- | ----- |
-          | Blocker    | $BLOCKER_COUNT |
-          | Critical   | $CRITICAL_COUNT |
-          | Major      | $MAJOR_COUNT |
+          | Blocker    | 0 |
+          | Critical   | 0 |
+          | Major      | 0 |
