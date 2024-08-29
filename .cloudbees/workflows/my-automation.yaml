@@ -216,7 +216,7 @@ jobs:
         content: |
           - Workflow ID: ${{ cloudbees.run_id }}
           - URL: ${{ cloudbees.api.url }}
-          ## SonarQube Issues
+           ## SonarQube Issues
           | Severity | Count |
             | -------- | ----- |
             | Blocker  | ${{ steps.sonar-metrics.outputs.BLOCKER_COUNT }} |
