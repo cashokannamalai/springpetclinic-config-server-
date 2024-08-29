@@ -69,6 +69,9 @@ jobs:
   ArtifactPublish:
     needs: [UnitTest]
     steps:
+      - uses: docker://alpine/git:latest
+        run: |
+          git config --global --add safe.directory /cloudbees/workspace
       - name: checkout
         uses: cloudbees-io/checkout@v1
 
@@ -79,7 +82,7 @@ jobs:
           NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
 
         run: |
-          mvn deploy  \
+          mvn clean install   \
             -DaltDeploymentRepository=nexus::default::https://${NEXUS_USERNAME}:${NEXUS_PASSWORD}@nexus.cb-demos.io/repository/Petclinic/
 
 
