@@ -69,28 +69,20 @@ jobs:
   ArtifactPublish:
     needs: [UnitTest]
     steps:
-      - name: Configure git
-        uses: docker://alpine/git:latest
+      - uses: docker://alpine/git:latest
         run: |
           git config --global --add safe.directory /cloudbees/workspace
-      - name: Checkout
+          echo "Listing directory contents before Build:"
+      - name: checkout
         uses: cloudbees-io/checkout@v1
-
       - name: Publish to Nexus
         uses: docker://maven:3-eclipse-temurin-17
         env:
           NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
           NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
-
         run: |
-          mvn clean install \
-            -DgroupId=org.springframework.samples.petclinic.config \
-            -DartifactId=spring-petclinic-config-server \
-            -Dversion=3.2.4 \
-            -Dpackaging=jar \
-            -Dfile=target/spring-petclinic-config-server-3.2.4.jar \
-            -DrepositoryId=nexus \
-            -Durl=https://${NEXUS_USERNAME}:${NEXUS_PASSWORD}@nexus.cb-demos.io/repository/Petclinic/
+          mvn deploy -DskipTests \
+            -DaltDeploymentRepository=nexus::default::https://${NEXUS_USERNAME}:${NEXUS_PASSWORD}@nexus.cb-demos.io/repository/Petclinic/
 
 
   DockerImageBuildAndPush:
