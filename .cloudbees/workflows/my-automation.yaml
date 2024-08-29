@@ -133,14 +133,16 @@ jobs:
         id: sonar-metrics
         uses: docker://alpine:latest
         run: |
-          apk add --no-cache curl jq
-          curl -u ${{ secrets.username }}:${{ secrets.password }} "https://sonarqube.cb-demos.io/api/issues/search?componentKeys=config-server&severities=BLOCKER,CRITICAL,MAJOR" -o issues.json
-          BLOCKER_COUNT=$(jq '.total' issues.json)
-          CRITICAL_COUNT=$(jq '.total' issues.json)
-          MAJOR_COUNT=$(jq '.total' issues.json)
-          echo "BLOCKER_COUNT=$BLOCKER_COUNT" >> $GITHUB_ENV
-          echo "CRITICAL_COUNT=$CRITICAL_COUNT" >> $GITHUB_ENV
-          echo "MAJOR_COUNT=$MAJOR_COUNT" >> $GITHUB_ENV
+           apk add --no-cache curl jq
+           curl -u ${{ secrets.username }}:${{ secrets.password }} "https://sonarqube.cb-demos.io/api/issues/search?componentKeys=config-server&severities=BLOCKER,CRITICAL,MAJOR,MINOR" -o issues.json
+           BLOCKER_COUNT=$(jq '.total' issues.json | jq 'select(.severity == "BLOCKER")')
+           CRITICAL_COUNT=$(jq '.total' issues.json | jq 'select(.severity == "CRITICAL")')
+           MAJOR_COUNT=$(jq '.total' issues.json | jq 'select(.severity == "MAJOR")')
+           MINOR_COUNT=$(jq '.total' issues.json | jq 'select(.severity == "MINOR")')
+           echo "BLOCKER: $BLOCKER_COUNT" > sonar-metrics.txt
+           echo "CRITICAL: $CRITICAL_COUNT" >> sonar-metrics.txt
+           echo "MAJOR: $MAJOR_COUNT" >> sonar-metrics.txt
+           echo "MINOR: $MINOR_COUNT" >> sonar-metrics.txt
       - name: Capture Commit Information
         id: commitinfo
         uses: docker://alpine/git:latest
