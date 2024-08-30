@@ -25,15 +25,7 @@ jobs:
         run: |
           mvn clean install
 
-  UnitTest:
-    needs: Build
-    steps:
-      - name: Checkout
-        uses: cloudbees-io/checkout@v1
-      - name: unittest
-        uses: docker://maven:3-eclipse-temurin-17
-        run: |
-          mvn test
+
 
   StaticAnalysis:
     steps:
@@ -85,6 +77,13 @@ jobs:
   Evidence:
     needs: StaticAnalysis
     steps:
+      - name: Print environment variables
+        uses: docker://alpine/git:latest
+        run: |
+          echo "BLOCKER_COUNT=${{ env.BLOCKER_COUNT }}"
+          echo "CRITICAL_COUNT=${{ env.CRITICAL_COUNT }}"
+          echo "MAJOR_COUNT=${{ env.MAJOR_COUNT }}"
+
       - name: Publish evidence
         uses: cloudbees-io/publish-evidence-item@v1
         with:
