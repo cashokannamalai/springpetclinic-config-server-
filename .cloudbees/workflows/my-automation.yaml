@@ -10,7 +10,6 @@ jobs:
     steps:
       - name: Checkout
         uses: cloudbees-io/checkout@v1
-
   Build:
     needs: Checkout
     steps:
@@ -24,7 +23,6 @@ jobs:
         uses: docker://maven:3-eclipse-temurin-17
         run: |
           mvn clean install
-
   UnitTest:
     needs: Build
     steps:
@@ -34,7 +32,6 @@ jobs:
         uses: docker://maven:3-eclipse-temurin-17
         run: |
           mvn test
-
   StaticAnalysis:
     needs: UnitTest
     steps:
@@ -45,40 +42,51 @@ jobs:
           username: ${{ secrets.username }}
           password: ${{ secrets.password }}
           language: Java
-
       - name: SonarQube Bundled SAST Scan
         uses: cloudbees-io/sonarqube-bundled-sast-scan-code@v2
         with:
           language: JAVA
-
       - name: Find Security Bugs Scan
         uses: cloudbees-io/findsecbugs-sast-scan-code@v1
         with:
           language: LANGUAGE_JAVA
-
       - name: SonarQube CBA Scan
         uses: sbatchelder-cba/sonarqube-cba@v0.0.3
         with:
           project-key: config-server
           token: ${{ secrets.token }}
-
       - name: Fetch SonarQube Issues
         id: sonar-metrics
         uses: docker://alpine:latest
-        run: |
+        run: >
           apk add --no-cache curl jq
-          curl -u ${{ secrets.username }}:${{ secrets.password }} \
-          "https://sonarqube.cb-demos.io/api/issues/search?componentKeys=config-server&severities=BLOCKER,CRITICAL,MAJOR,MINOR" \
-          -o issues.json
-          BLOCKER_COUNT=$(jq '[.issues[] | select(.severity=="BLOCKER")] | length' issues.json)
-          CRITICAL_COUNT=$(jq '[.issues[] | select(.severity=="CRITICAL")] | length' issues.json)
-          MAJOR_COUNT=$(jq '[.issues[] | select(.severity=="MAJOR")] | length' issues.json)
-          MINOR_COUNT=$(jq '[.issues[] | select(.severity=="MINOR")] | length' issues.json)
-          echo "::set-output name=blocker::$BLOCKER_COUNT"
-          echo "::set-output name=critical::$CRITICAL_COUNT"
-          echo "::set-output name=major::$MAJOR_COUNT"
-          echo "::set-output name=minor::$MINOR_COUNT"
 
+          curl -u ${{ secrets.username }}:${{ secrets.password }} \
+
+          "https://sonarqube.cb-demos.io/api/issues/search?componentKeys=config-server&severities=BLOCKER,CRITICAL,MAJOR,MINOR"
+          \
+
+          -o issues.json
+
+          BLOCKER_COUNT=$(jq '[.issues[] | select(.severity=="BLOCKER")] |
+          length' issues.json)
+
+          CRITICAL_COUNT=$(jq '[.issues[] | select(.severity=="CRITICAL")] |
+          length' issues.json)
+
+          MAJOR_COUNT=$(jq '[.issues[] | select(.severity=="MAJOR")] | length'
+          issues.json)
+
+          MINOR_COUNT=$(jq '[.issues[] | select(.severity=="MINOR")] | length'
+          issues.json)
+
+          echo "::set-output name=blocker::$BLOCKER_COUNT"
+
+          echo "::set-output name=critical::$CRITICAL_COUNT"
+
+          echo "::set-output name=major::$MAJOR_COUNT"
+
+          echo "::set-output name=minor::$MINOR_COUNT"
   ArtifactPublish:
     needs: StaticAnalysis
     steps:
@@ -86,19 +94,16 @@ jobs:
         uses: docker://alpine/git:latest
         run: |
           git config --global --add safe.directory /cloudbees/workspace
-
       - name: Checkout
         uses: cloudbees-io/checkout@v1
-
       - name: Publish to Nexus
         uses: docker://maven:3-eclipse-temurin-17
         env:
           NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
           NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
-        run: |
+        run: >
           mvn deploy  \
             -DaltDeploymentRepository=nexus::default::https://${NEXUS_USERNAME}:${NEXUS_PASSWORD}@nexus.cb-demos.io/repository/Petclinic/
-
   DockerImageBuildAndPush:
     needs: ArtifactPublish
     steps:
@@ -115,14 +120,13 @@ jobs:
           registry: ${{ secrets.STAGING_DOCKER_REGISTRY }}
           username: ${{ secrets.STAGING_DOCKER_USERNAME }}
           password: ${{ secrets.STAGING_DOCKER_PASSWORD }}
-
       - name: Push image to OCI registry
         uses: cloudbees-io/kaniko@v1
         with:
           dockerfile: Dockerfile
           context: .
-          destination: ${{ secrets.STAGING_DOCKER_REGISTRY }}/${{ secrets.STAGING_DOCKER_USERNAME }}/configserver:3.2.4
-
+          destination: ${{ secrets.STAGING_DOCKER_REGISTRY }}/${{
+            secrets.STAGING_DOCKER_USERNAME }}/configserver:3.2.4
   Approval:
     needs: DockerImageBuildAndPush
     type: manual-approval
@@ -132,7 +136,6 @@ jobs:
         uses: docker://maven:3-eclipse-temurin-17
         run: |
           echo "Manual approval required before proceeding to deployment."
-
   SmokeTest:
     needs: Approval
     steps:
@@ -142,7 +145,6 @@ jobs:
         uses: docker://maven:3-eclipse-temurin-17
         run: |
           mvn test
-
   DeployInGKE:
     needs: SmokeTest
     steps:
@@ -157,7 +159,6 @@ jobs:
         shell: sh
         run: |
           kubectl apply -f /cloudbees/workspace/deployment-service.yaml
-
   CommitInfoStage:
     needs: DeployInGKE
     steps:
@@ -166,33 +167,63 @@ jobs:
       - name: Fetch SonarQube Metrics
         id: sonar-metrics
         uses: docker://alpine:latest
-        run: |
+        run: >
           apk add --no-cache curl jq
+
           curl -u ${{ secrets.username }}:${{ secrets.password }} \
-          "https://sonarqube.cb-demos.io/api/issues/search?componentKeys=config-server&severities=BLOCKER,CRITICAL,MAJOR,MINOR" \
+
+          "https://sonarqube.cb-demos.io/api/issues/search?componentKeys=config-server&severities=BLOCKER,CRITICAL,MAJOR,MINOR"
+          \
+
           -o issues.json
-          BLOCKER_COUNT=$(jq '[.issues[] | select(.severity=="BLOCKER")] | length' issues.json)
-          CRITICAL_COUNT=$(jq '[.issues[] | select(.severity=="CRITICAL")] | length' issues.json)
-          MAJOR_COUNT=$(jq '[.issues[] | select(.severity=="MAJOR")] | length' issues.json)
-          MINOR_COUNT=$(jq '[.issues[] | select(.severity=="MINOR")] | length' issues.json)
+
+          BLOCKER_COUNT=$(jq '[.issues[] | select(.severity=="BLOCKER")] |
+          length' issues.json)
+
+          CRITICAL_COUNT=$(jq '[.issues[] | select(.severity=="CRITICAL")] |
+          length' issues.json)
+
+          MAJOR_COUNT=$(jq '[.issues[] | select(.severity=="MAJOR")] | length'
+          issues.json)
+
+          MINOR_COUNT=$(jq '[.issues[] | select(.severity=="MINOR")] | length'
+          issues.json)
+
           echo "::set-output name=blocker::$BLOCKER_COUNT"
+
           echo "::set-output name=critical::$CRITICAL_COUNT"
+
           echo "::set-output name=major::$MAJOR_COUNT"
+
           echo "::set-output name=minor::$MINOR_COUNT"
       - name: Capture Commit Information
         id: commitinfo
         uses: docker://alpine/git:latest
-        run: |
+        run: >
           COMMIT_ID=$(git rev-parse HEAD)
+
           COMMIT_MSG=$(git log -1 --pretty=format:%s)
+
           echo "commit_id=$COMMIT_ID" >> $GITHUB_ENV
+
           echo "commit_msg=$COMMIT_MSG" >> $GITHUB_ENV
+
           echo "SonarQube Results:" >> commit-info.txt
-          echo "BLOCKER: ${{ steps.sonar-metrics.outputs.blocker }}" >> commit-info.txt
-          echo "CRITICAL: ${{ steps.sonar-metrics.outputs.critical }}" >> commit-info.txt
-          echo "MAJOR: ${{ steps.sonar-metrics.outputs.major }}" >> commit-info.txt
-          echo "MINOR: ${{ steps.sonar-metrics.outputs.minor }}" >> commit-info.txt
+
+          echo "BLOCKER: ${{ steps.sonar-metrics.outputs.blocker }}" >>
+          commit-info.txt
+
+          echo "CRITICAL: ${{ steps.sonar-metrics.outputs.critical }}" >>
+          commit-info.txt
+
+          echo "MAJOR: ${{ steps.sonar-metrics.outputs.major }}" >>
+          commit-info.txt
+
+          echo "MINOR: ${{ steps.sonar-metrics.outputs.minor }}" >>
+          commit-info.txt
+
           echo "Commit ID: $COMMIT_ID" >> commit-info.txt
+
           echo "Commit Message: $COMMIT_MSG" >> commit-info.txt
       - name: Configure git
         uses: docker://alpine/git:latest
@@ -201,45 +232,40 @@ jobs:
           git config --global user.name "cashokannamalai"
       - name: Commit and Push Commit Info
         uses: docker://alpine/git:latest
-        run: |
+        run: >
           git add commit-info.txt
-          git commit -m "Add commit information and SonarQube metrics from workflow"
-          git push
 
+          git commit -m "Add commit information and SonarQube metrics from
+          workflow"
+
+          git push
   Evidence:
     needs: CommitInfoStage
     steps:
       - name: Publish Evidence
         uses: cloudbees-io/publish-evidence-item@v1
         with:
-          content: |+
+          content: >
             ## Workflow Details
+
             - **Workflow ID:** ${{ cloudbees.run_id }}
+
             - **URL:** ${{ cloudbees.api.url }}
 
+
             ## Unit Test Results
+
             | Test   | Results |
+
             |--------|---------|
+
             | Test 1 | PASS    |
+
             | Test 2 | PASS    |
 
-            ## SonarQube Metrics
-            | Severity  | Count |
-            | --------- | ----- |
-            | Blocker   | ${{ steps.sonar-metrics.outputs.blocker }}  |
-            | Critical  | ${{ steps.sonar-metrics.outputs.critical }} |
-            | Major     | ${{ steps.sonar-metrics.outputs.major }} |
-            | Minor     | ${{ steps.sonar-metrics.outputs.minor }} |
 
-            ## Commit Information
-            - **Commit ID:** ${{ steps.commitinfo.outputs.commit_id }}
-            - **Commit Message:** ${{ steps.commitinfo.outputs.commit_msg }}
+            - **Commit ID:** ${{ Commit ID }}
 
-            ## Code Coverage
-            - Coverage numbers (add if available from SonarQube)
 
-            ## Critical Violations
-            - Critical violations (add if available from SonarQube)
-
-            ## Additional Details
-            - Link to CI Build: ${{ cloudbees.api.url }}/builds/${{ cloudbees.run_id }}
+env:
+  Commit ID: ${{ steps.commitinfo.outputs.commit_id }}
