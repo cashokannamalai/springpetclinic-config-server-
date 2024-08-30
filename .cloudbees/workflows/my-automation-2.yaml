@@ -153,7 +153,7 @@ jobs:
           echo "Storing Commit Info in CloudBees Secrets Store..."
           # Command to store secrets - replace with actual CloudBees CLI command or API call
           # Example placeholder command:
-          cloudbees secrets create --name "COMMIT_INFO" --value "$(cat commit-info.base64)"
+          # cloudbees secrets create --name "COMMIT_INFO" --value "$(cat commit-info.base64)"
 
       - name: Publish Evidence
         uses: cloudbees-io/publish-evidence-item@v1
