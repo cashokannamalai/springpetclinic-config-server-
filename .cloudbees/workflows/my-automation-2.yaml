@@ -170,5 +170,5 @@ jobs:
            - Workflow ID: ${{ cloudbees.run_id }}
            - URL: ${{ cloudbees.api.url }}
            - Commit Information:
-             ${{ env.COMMIT_INFO }}
+            ${{ secrets.COMMIT_INFO }}
           format: markdown
