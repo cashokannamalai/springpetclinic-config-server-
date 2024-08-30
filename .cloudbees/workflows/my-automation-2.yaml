@@ -25,8 +25,6 @@ jobs:
         run: |
           mvn clean install
 
-
-
   StaticAnalysis:
     needs: Build
     steps:
@@ -58,6 +56,7 @@ jobs:
           token: ${{ secrets.token }}
 
       - name: Fetch SonarQube Issues
+        id: fetch_issues
         uses: docker://alpine/git:latest
         run: |
           apk add --no-cache curl jq
@@ -69,12 +68,14 @@ jobs:
           CRITICAL_COUNT=$(jq '[.issues[] | select(.severity=="CRITICAL")] | length' sonar-issues.json)
           MAJOR_COUNT=$(jq '[.issues[] | select(.severity=="MAJOR")] | length' sonar-issues.json)
 
-          # Output the table to a file
-          echo "| Severity | Count |" > issue-summary.md
-          echo "|----------|-------|" >> issue-summary.md
-          echo "| Blocker  | $BLOCKER_COUNT |" >> issue-summary.md
-          echo "| Critical | $CRITICAL_COUNT |" >> issue-summary.md
-          echo "| Major    | $MAJOR_COUNT |" >> issue-summary.md
+          echo "BLOCKER_COUNT=$BLOCKER_COUNT" >> $GITHUB_ENV
+          echo "CRITICAL_COUNT=$CRITICAL_COUNT" >> $GITHUB_ENV
+          echo "MAJOR_COUNT=$MAJOR_COUNT" >> $GITHUB_ENV
+
+          # Set outputs
+          echo "::set-output name=blocker_count::$BLOCKER_COUNT"
+          echo "::set-output name=critical_count::$CRITICAL_COUNT"
+          echo "::set-output name=major_count::$MAJOR_COUNT"
 
   Evidence:
     needs: StaticAnalysis
@@ -88,6 +89,6 @@ jobs:
             - Issue Summary:
               | Severity | Count |
               |----------|-------|
-              | Blocker  | $BLOCKER_COUNT |
-              | Critical | $CRITICAL_COUNT |
-              | Major    | $MAJOR_COUNT |
+              | Blocker  | ${{ steps.fetch_issues.outputs.blocker_count }} |
+              | Critical | ${{ steps.fetch_issues.outputs.critical_count }} |
+              | Major    | ${{ steps.fetch_issues.outputs.major_count }} |
