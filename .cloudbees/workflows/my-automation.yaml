@@ -264,7 +264,7 @@ jobs:
             | Test 2 | PASS    |
 
 
-            - **Commit ID:** ${{ Commit ID }}
+            - **Commit ID:** ${{ env.COMMIT_ID }}
 
 
 env:
