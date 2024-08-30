@@ -77,53 +77,76 @@ jobs:
   CommitInfoStage:
     needs: Build
     steps:
-      - name: Checkout
-        uses: cloudbees-io/checkout@v1
+    - name: Checkout
+      uses: cloudbees-io/checkout@v1
 
-      - name: Fetch SonarQube Metrics
-        id: sonar-metrics
-        uses: docker://alpine:latest
-        run: |
-          apk add --no-cache curl jq
-          curl -u ${{ secrets.username }}:${{ secrets.password }} \
-          "https://sonarqube.cb-demos.io/api/issues/search?componentKeys=config-server&severities=BLOCKER,CRITICAL,MAJOR,MINOR" \
-          -o issues.json
-          echo "BLOCKER: $(jq '.total' issues.json)" > sonar-metrics.md
-          echo "CRITICAL: $(jq '.total' issues.json)" >> sonar-metrics.md
-          echo "MAJOR: $(jq '.total' issues.json)" >> sonar-metrics.md
-          echo "MINOR: $(jq '.total' issues.json)" >> sonar-metrics.md
+    - name: Fetch SonarQube Metrics
+      id: sonar-metrics
+      uses: docker://alpine:latest
+      run: |
+        apk add --no-cache curl jq
+        curl -u ${{ secrets.username }}:${{ secrets.password }} \
+        "https://sonarqube.cb-demos.io/api/issues/search?componentKeys=config-server&severities=BLOCKER,CRITICAL,MAJOR,MINOR" \
+        -o issues.json
+        BLOCKER_COUNT=$(jq '[.issues[] | select(.severity=="BLOCKER")] | length' issues.json)
+        CRITICAL_COUNT=$(jq '[.issues[] | select(.severity=="CRITICAL")] | length' issues.json)
+        MAJOR_COUNT=$(jq '[.issues[] | select(.severity=="MAJOR")] | length' issues.json)
+        MINOR_COUNT=$(jq '[.issues[] | select(.severity=="MINOR")] | length' issues.json)
 
-      - name: Capture Commit Information
-        id: commitinfo
-        uses: docker://alpine/git:latest
-        run: |
-          COMMIT_ID=$(git rev-parse HEAD)
-          COMMIT_MSG=$(git log -1 --pretty=format:%s)
-          echo "Commit ID: $COMMIT_ID" > commit-info.md
-          echo "Commit Message: $COMMIT_MSG" >> commit-info.md
+        echo "| Severity | Count |" > sonar-metrics.md
+        echo "|----------|-------|" >> sonar-metrics.md
+        echo "| Blocker  | $BLOCKER_COUNT |" >> sonar-metrics.md
+        echo "| Critical | $CRITICAL_COUNT |" >> sonar-metrics.md
+        echo "| Major    | $MAJOR_COUNT |" >> sonar-metrics.md
+        echo "| Minor    | $MINOR_COUNT |" >> sonar-metrics.md
 
-      - name: Read Commit Info and Sonar Metrics
-        id: readfiles
-        uses: docker://alpine:latest
-        run: |
-          COMMIT_INFO=$(cat commit-info.md)
-          SONAR_METRICS=$(cat sonar-metrics.md)
-          echo "::set-output name=commit_info::$COMMIT_INFO"
-          echo "::set-output name=sonar_metrics::$SONAR_METRICS"
+    - name: Capture Commit Information
+      id: commitinfo
+      uses: docker://alpine/git:latest
+      run: |
+        COMMIT_ID=$(git rev-parse HEAD)
+        COMMIT_MSG=$(git log -1 --pretty=format:%s)
+        echo "## Commit Information" > commit-info.md
+        echo "- Commit ID: $COMMIT_ID" >> commit-info.md
+        echo "- Commit Message: $COMMIT_MSG" >> commit-info.md
+        echo "## SonarQube Metrics" >> commit-info.md
+        cat sonar-metrics.md >> commit-info.md
+
+    - name: Configure Git
+      uses: docker://alpine/git:latest
+      run: |
+        git config --global user.email "c_aannamalai@cloudbees.com"
+        git config --global user.name "cashokannamalai"
+
+    - name: Commit and Push Commit Info
+      uses: docker://alpine/git:latest
+      run: |
+        git add commit-info.md sonar-metrics.md
+        git commit -m "Add commit information and SonarQube metrics from workflow"
+        git push
+
 
   Evidence:
-    needs: CommitInfoStage
-    steps:
-      - name: Publish evidence
-        uses: cloudbees-io/publish-evidence-item@v1
-        with:
-          content: |+
-            ## Workflow Information
-            - Workflow ID: 37ff0f24-6f41-4336-babb-278243893bb8
-            - URL: https://api.cloudbees.io
+   needs: CommitInfoStage
+   steps:
+       - name: Capture Commit Information
+         id: commitinfo
+         uses: docker://alpine/git:latest
+         run: |
+          COMMIT_ID=$(git rev-parse HEAD)
+          COMMIT_MSG=$(git log -1 --pretty=format:%s)
+          echo "## Commit Information" > commit-info.md
+          echo "- Commit ID: $COMMIT_ID" >> commit-info.md
+          echo "- Commit Message: $COMMIT_MSG" >> commit-info.md
+          echo "## SonarQube Metrics" >> commit-info.md
+          cat sonar-metrics.md >> commit-info.md
 
-            ## Commit Information
-            ${{ steps.readfiles.outputs.commit_info }}
-
-            ## SonarQube Metrics
-            ${{ steps.readfiles.outputs.sonar_metrics }}
+    
+          
+       - name: Publish Evidence
+         uses: cloudbees-io/publish-evidence-item@v1
+         with:
+          content: |
+            - Workflow ID: ${{ cloudbees.run_id }}
+            - URL: ${{ cloudbees.api.url }}
+          file: commit-info.md 
