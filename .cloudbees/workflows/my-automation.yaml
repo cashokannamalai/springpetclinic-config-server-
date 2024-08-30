@@ -68,6 +68,7 @@ jobs:
       - name: Capture SonarQube Results
         uses: docker://alpine/git:latest
         run: |
+          apk add --no-cache curl jq
           curl -u ${{ secrets.username }}:${{ secrets.password }} \
           "https://sonarqube.cb-demos.io/api/issues/search?componentKeys=config-server" \
           -o sonar-results.json
