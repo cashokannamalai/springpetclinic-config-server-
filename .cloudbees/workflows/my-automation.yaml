@@ -206,10 +206,10 @@ jobs:
 
   Evidence:
     needs: CommitInfoStage
-    runs-on: ubuntu-latest
+ 
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
+      - name: Checkout
+        uses: cloudbees-io/checkout@v1
 
       - name: Read Commit Information
         id: commitinfo
