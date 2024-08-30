@@ -1,0 +1,129 @@
+apiVersion: automation.cloudbees.io/v1alpha1
+kind: workflow
+name: My automation
+on:
+  push:
+    branches:
+      - main
+jobs:
+  Checkout:
+    steps:
+      - name: Checkout
+        uses: cloudbees-io/checkout@v1
+
+  Build:
+    needs: Checkout
+    steps:
+      - name: Configure git
+        uses: docker://alpine/git:latest
+        run: |
+          git config --global --add safe.directory /cloudbees/workspace
+      - name: Checkout
+        uses: cloudbees-io/checkout@v1
+      - name: Build
+        uses: docker://maven:3-eclipse-temurin-17
+        run: |
+          mvn clean install
+
+
+
+  StaticAnalysis:
+    steps:
+      - uses: cloudbees-io/sonarqube-sast-scan-code@v1
+        name: Scan
+        kind: scan
+        with:
+          server-url: https://sonarqube.cb-demos.io
+          username: ${{ secrets.username }}
+          password: ${{ secrets.password }}
+          language: Java
+
+      - uses: cloudbees-io/sonarqube-bundled-sast-scan-code@v2
+        name: Scan with Java
+        kind: scan
+        with:
+          language: JAVA
+
+      - uses: cloudbees-io/findsecbugs-sast-scan-code@v1
+        name: Scan with Find Security Bugs
+        kind: scan
+        with:
+          language: LANGUAGE_JAVA
+
+      - uses: sbatchelder-cba/sonarqube-cba@v0.0.3
+        name: Scan GP
+        with:
+          project-key: config-server
+          token: ${{ secrets.token }}
+
+      - name: Fetch SonarQube Issues
+        uses: docker://alpine/git:latest
+        run: |
+          apk add --no-cache curl jq
+          curl -u ${{ secrets.username }}:${{ secrets.password }} \
+          "https://sonarqube.cb-demos.io/api/issues/search?componentKeys=config-server&severities=BLOCKER,CRITICAL,MAJOR" \
+          -o sonar-issues.json
+
+          BLOCKER_COUNT=$(jq '[.issues[] | select(.severity=="BLOCKER")] | length' sonar-issues.json)
+          CRITICAL_COUNT=$(jq '[.issues[] | select(.severity=="CRITICAL")] | length' sonar-issues.json)
+          MAJOR_COUNT=$(jq '[.issues[] | select(.severity=="MAJOR")] | length' sonar-issues.json)
+
+          echo "| Severity | Count |"
+          echo "|----------|-------|" 
+          echo "| Blocker  | $BLOCKER_COUNT |" 
+          echo "| Critical | $CRITICAL_COUNT |" 
+          echo "| Major    | $MAJOR_COUNT |"
+
+  CommitInfoStage:
+    needs: Build
+    steps:
+      - name: Checkout
+        uses: cloudbees-io/checkout@v1
+
+      - name: Fetch SonarQube Metrics
+        id: sonar-metrics
+        uses: docker://alpine:latest
+        run: |
+          apk add --no-cache curl jq
+          curl -u ${{ secrets.username }}:${{ secrets.password }} \
+          "https://sonarqube.cb-demos.io/api/issues/search?componentKeys=config-server&severities=BLOCKER,CRITICAL,MAJOR,MINOR" \
+          -o issues.json
+          echo "BLOCKER: $(jq '.total' issues.json)" > sonar-metrics.md
+          echo "CRITICAL: $(jq '.total' issues.json)" >> sonar-metrics.md
+          echo "MAJOR: $(jq '.total' issues.json)" >> sonar-metrics.md
+          echo "MINOR: $(jq '.total' issues.json)" >> sonar-metrics.md
+
+      - name: Capture Commit Information
+        id: commitinfo
+        uses: docker://alpine/git:latest
+        run: |
+          COMMIT_ID=$(git rev-parse HEAD)
+          COMMIT_MSG=$(git log -1 --pretty=format:%s)
+          echo "Commit ID: $COMMIT_ID" > commit-info.md
+          echo "Commit Message: $COMMIT_MSG" >> commit-info.md
+
+      - name: Read Commit Info and Sonar Metrics
+        id: readfiles
+        uses: docker://alpine:latest
+        run: |
+          COMMIT_INFO=$(cat commit-info.md)
+          SONAR_METRICS=$(cat sonar-metrics.md)
+          echo "::set-output name=commit_info::$COMMIT_INFO"
+          echo "::set-output name=sonar_metrics::$SONAR_METRICS"
+
+  Evidence:
+    needs: CommitInfoStage
+    steps:
+      - name: Publish evidence
+        uses: cloudbees-io/publish-evidence-item@v1
+        with:
+          content: |+
+            ## Workflow Information
+            - Workflow ID: 37ff0f24-6f41-4336-babb-278243893bb8
+            - URL: https://api.cloudbees.io
+
+            ## Commit Information
+            ${{ steps.readfiles.outputs.commit_info }}
+
+            ## SonarQube Metrics
+            ${{ steps.readfiles.outputs.sonar_metrics }}
