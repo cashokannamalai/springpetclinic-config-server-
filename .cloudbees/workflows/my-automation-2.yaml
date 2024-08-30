@@ -80,6 +80,8 @@ jobs:
   Evidence:
    needs: CommitInfoStage
    steps:
+       - name: Checkout
+         uses: cloudbees-io/checkout@v1
        - name: Capture Commit Information
          id: commitinfo
          uses: docker://alpine/git:latest
