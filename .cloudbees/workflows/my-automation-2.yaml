@@ -157,12 +157,18 @@ jobs:
          uses: docker://alpine/git:latest
          run: cat /cloudbees/workspace/commit-info.md
 
+       - name: Read Commit Info
+         id: read_commit_info
+         uses: docker://alpine/git:latest
+         run: |
+          echo "COMMIT_INFO=$(cat /cloudbees/workspace/commit-info.md)" >> $GITHUB_ENV
+
        - name: Publish Evidence
          uses: cloudbees-io/publish-evidence-item@v1
          with:
           content: |
-            - Workflow ID: ${{ cloudbees.run_id }}
-            - URL: ${{ cloudbees.api.url }}
-            - Commit Information:
-              $(cat /cloudbees/workspace/commit-info.md)
+           - Workflow ID: ${{ github.run_id }}
+           - URL: ${{ github.server_url }}
+           - Commit Information:
+             ${{ env.COMMIT_INFO }}
           format: markdown
