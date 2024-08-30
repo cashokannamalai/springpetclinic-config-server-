@@ -161,7 +161,7 @@ jobs:
          id: read_commit_info
          uses: docker://alpine/git:latest
          run: |
-          echo "COMMIT_INFO=$(cat /cloudbees/workspace/commit-info.md)" >> $GITHUB_ENV
+          echo "COMMIT_INFO=$(cat /cloudbees/workspace/commit-info.md)" >> ${{ secrets.COMMIT_INFO }}
 
        - name: Publish Evidence
          uses: cloudbees-io/publish-evidence-item@v1
