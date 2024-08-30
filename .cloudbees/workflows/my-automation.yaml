@@ -160,75 +160,67 @@ jobs:
   CommitInfoStage:
     needs: DeployInGKE
     steps:
-      - name: Checkout
-        uses: cloudbees-io/checkout@v1
+    - name: Checkout
+      uses: cloudbees-io/checkout@v1
 
-      - name: Fetch SonarQube Metrics
-        id: sonar-metrics
-        uses: docker://alpine:latest
-        run: |
-          apk add --no-cache curl jq
-          curl -u ${{ secrets.username }}:${{ secrets.password }} \
-          "https://sonarqube.cb-demos.io/api/issues/search?componentKeys=config-server&severities=BLOCKER,CRITICAL,MAJOR,MINOR" \
-          -o issues.json
-          BLOCKER_COUNT=$(jq '.total' issues.json)
-          CRITICAL_COUNT=$(jq '.total' issues.json)
-          MAJOR_COUNT=$(jq '.total' issues.json)
-          MINOR_COUNT=$(jq '.total' issues.json)
-          echo "BLOCKER: $BLOCKER_COUNT" > /cloudbees/workspace/sonar-metrics.txt
-          echo "CRITICAL: $CRITICAL_COUNT" >> /cloudbees/workspace/sonar-metrics.txt
-          echo "MAJOR: $MAJOR_COUNT" >> /cloudbees/workspace/sonar-metrics.txt
-          echo "MINOR: $MINOR_COUNT" >> /cloudbees/workspace/sonar-metrics.txt
+    - name: Fetch SonarQube Metrics
+      id: sonar-metrics
+      uses: docker://alpine:latest
+      run: |
+        apk add --no-cache curl jq
+        curl -u ${{ secrets.username }}:${{ secrets.password }} \
+        "https://sonarqube.cb-demos.io/api/issues/search?componentKeys=config-server&severities=BLOCKER,CRITICAL,MAJOR,MINOR" \
+        -o issues.json
+        BLOCKER_COUNT=$(jq '[.issues[] | select(.severity=="BLOCKER")] | length' issues.json)
+        CRITICAL_COUNT=$(jq '[.issues[] | select(.severity=="CRITICAL")] | length' issues.json)
+        MAJOR_COUNT=$(jq '[.issues[] | select(.severity=="MAJOR")] | length' issues.json)
+        MINOR_COUNT=$(jq '[.issues[] | select(.severity=="MINOR")] | length' issues.json)
 
-      - name: Capture Commit Information
-        id: commitinfo
-        uses: docker://alpine/git:latest
-        run: |
-          COMMIT_ID=$(git rev-parse HEAD)
-          COMMIT_MSG=$(git log -1 --pretty=format:%s)
-          echo "Commit ID: $COMMIT_ID" > commit-info.txt
-          echo "Commit Message: $COMMIT_MSG" >> commit-info.txt
-          echo "SonarQube Results:" >> commit-info.txt
-          cat /cloudbees/workspace/sonar-metrics.txt >> commit-info.txt
+        echo "| Severity | Count |" > sonar-metrics.md
+        echo "|----------|-------|" >> sonar-metrics.md
+        echo "| Blocker  | $BLOCKER_COUNT |" >> sonar-metrics.md
+        echo "| Critical | $CRITICAL_COUNT |" >> sonar-metrics.md
+        echo "| Major    | $MAJOR_COUNT |" >> sonar-metrics.md
+        echo "| Minor    | $MINOR_COUNT |" >> sonar-metrics.md
 
-      - name: Configure Git
-        uses: docker://alpine/git:latest
-        run: |
-          git config --global user.email "c_aannamalai@cloudbees.com"
-          git config --global user.name "cashokannamalai"
+    - name: Capture Commit Information
+      id: commitinfo
+      uses: docker://alpine/git:latest
+      run: |
+        COMMIT_ID=$(git rev-parse HEAD)
+        COMMIT_MSG=$(git log -1 --pretty=format:%s)
+        echo "## Commit Information" > commit-info.md
+        echo "- Commit ID: $COMMIT_ID" >> commit-info.md
+        echo "- Commit Message: $COMMIT_MSG" >> commit-info.md
+        echo "## SonarQube Metrics" >> commit-info.md
+        cat sonar-metrics.md >> commit-info.md
 
-      - name: Commit and Push Commit Info
-        uses: docker://alpine/git:latest
-        run: |
-          git add commit-info.txt sonar-metrics.txt
-          git commit -m "Add commit information and SonarQube metrics from workflow"
-          git push
+    - name: Configure Git
+      uses: docker://alpine/git:latest
+      run: |
+        git config --global user.email "c_aannamalai@cloudbees.com"
+        git config --global user.name "cashokannamalai"
+
+    - name: Commit and Push Commit Info
+      uses: docker://alpine/git:latest
+      run: |
+        git add commit-info.md sonar-metrics.md
+        git commit -m "Add commit information and SonarQube metrics from workflow"
+        git push
+
 
   Evidence:
-    needs: CommitInfoStage
- 
-    steps:
-      - name: Checkout
-        uses: cloudbees-io/checkout@v1
+   needs: CommitInfoStage
+   steps:
+    - name: Publish evidence
+      uses: cloudbees-io/publish-evidence-item@v1
+      with:
+        content: |
+          - Workflow ID: ${{ cloudbees.run_id }}
+          - URL: ${{ cloudbees.api.url }}
+          
+          ## Commit Information
+          $(cat commit-info.md)
 
-      - name: Read Commit Information
-        id: commitinfo
-        uses: docker://alpine/git:latest
-        run: |
-         if [ -f commit-info.txt ]; then
-         cat commit-info.txt
-         COMMIT_INFO=$(cat commit-info.txt)
-         echo "::set-output name=commitinfo::$COMMIT_INFO"
-         else
-         echo "commit-info.txt not found!"
-         exit 1
-         fi
-
-      - name: Publish Evidence
-        uses: cloudbees-io/publish-evidence-item@v1
-        with:
-          content: |+
-            - Workflow ID: ${{ cloudbees.run_id }}
-            - URL: ${{ cloudbees.api.url }}
-            - Commit Information:
-              ${{ steps.commitinfo.outputs.commitinfo }}
+          ## SonarQube Metrics
+          $(cat sonar-metrics.md)
