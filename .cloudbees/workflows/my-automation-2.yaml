@@ -167,8 +167,8 @@ jobs:
          uses: cloudbees-io/publish-evidence-item@v1
          with:
           content: |
-           - Workflow ID: ${{ github.run_id }}
-           - URL: ${{ github.server_url }}
+           - Workflow ID: ${{ cloudbees.run_id }}
+           - URL: ${{ cloudbees.api.url }}
            - Commit Information:
              ${{ env.COMMIT_INFO }}
           format: markdown
