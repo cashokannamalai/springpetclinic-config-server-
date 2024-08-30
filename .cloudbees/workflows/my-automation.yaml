@@ -215,8 +215,14 @@ jobs:
         id: commitinfo
         uses: docker://alpine/git:latest
         run: |
-          COMMIT_INFO=$(cat commit-info.txt)
-          echo "::set-output name=commitinfo::$COMMIT_INFO"
+         if [ -f commit-info.txt ]; then
+         cat commit-info.txt
+         COMMIT_INFO=$(cat commit-info.txt)
+         echo "::set-output name=commitinfo::$COMMIT_INFO"
+         else
+         echo "commit-info.txt not found!"
+         exit 1
+         fi
 
       - name: Publish Evidence
         uses: cloudbees-io/publish-evidence-item@v1
