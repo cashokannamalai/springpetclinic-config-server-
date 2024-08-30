@@ -165,19 +165,22 @@ jobs:
     steps:
       - name: Checkout
         uses: cloudbees-io/checkout@v1
-
+      - name: Ensure Directory Exists
+        uses: docker://alpine:latest
+        run: |
+          mkdir -p /cloudbees/workspace
       - name: Capture Commit Information
         id: commitinfo
         uses: docker://alpine/git:latest
         run: |
           COMMIT_ID=$(git rev-parse HEAD)
           COMMIT_MSG=$(git log -1 --pretty=format:%s)
-          echo "commit_id=$COMMIT_ID" >> $GITHUB_ENV
-          echo "commit_msg=$COMMIT_MSG" >> $GITHUB_ENV
-          echo "Commit ID: $COMMIT_ID" > commit-info.txt
-          echo "Commit Message: $COMMIT_MSG" >> commit-info.txt
-          echo "SonarQube Results:" >> commit-info.txt
-          cat /cloudbees/workspace/sonar-metrics.txt >> commit-info.txt
+          echo "commit_id=$COMMIT_ID" >> /cloudbees/workspace/$GITHUB_ENV
+          echo "commit_msg=$COMMIT_MSG" >> /cloudbees/workspace/$GITHUB_ENV
+          echo "Commit ID: $COMMIT_ID" > /cloudbees/workspace/commit-info.txt
+          echo "Commit Message: $COMMIT_MSG" >> /cloudbees/workspace/commit-info.txt
+          echo "SonarQube Results:" >> /cloudbees/workspace/commit-info.txt
+          cat /cloudbees/workspace/sonar-metrics.txt >> /cloudbees/workspace/commit-info.txt
     
 
       - name: Configure git
@@ -189,8 +192,7 @@ jobs:
       - name: Commit and Push Commit Info
         uses: docker://alpine/git:latest
         run: |
-          git add commit-info.txt sonar-metrics.txt
-          git commit -m "Add commit information and SonarQube metrics from workflow"
+          git add /cloudbees/workspace/commit-info.txt /cloudbees/workspace/sonar-metrics.txt          git commit -m "Add commit information and SonarQube metrics from workflow"
           git push
 
 
