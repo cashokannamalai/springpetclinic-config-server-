@@ -46,21 +46,43 @@ jobs:
           username: ${{ secrets.username }}
           password: ${{ secrets.password }}
           language: Java
+
       - uses: cloudbees-io/sonarqube-bundled-sast-scan-code@v2
         name: Scan with Java
         kind: scan
         with:
           language: JAVA
+
       - uses: cloudbees-io/findsecbugs-sast-scan-code@v1
         name: Scan with Find Security Bugs
         kind: scan
         with:
           language: LANGUAGE_JAVA
+
       - uses: sbatchelder-cba/sonarqube-cba@v0.0.3
         name: Scan GP
         with:
           project-key: config-server
           token: ${{ secrets.token }}
+
+      - name: Capture SonarQube Results
+        uses: docker://alpine/git:latest
+        run: |
+          curl -u ${{ secrets.username }}:${{ secrets.password }} \
+          "https://sonarqube.cb-demos.io/api/issues/search?componentKeys=config-server" \
+          -o sonar-results.json
+
+      - name: Publish SonarQube Results as Evidence
+        uses: cloudbees-io/publish-evidence-item@v1
+        with:
+          content: |
+            ```json
+            $(cat sonar-results.json)
+            ```
+          format: MARKDOWN
+          type: "SonarQube Analysis"
+          title: "SonarQube Analysis for Config Server"
+
 
   ArtifactPublish:
     needs: [UnitTest]
