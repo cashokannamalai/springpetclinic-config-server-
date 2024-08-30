@@ -151,7 +151,7 @@ jobs:
       id: read-commit-info
       uses: docker://alpine:latest
       run: |
-        apk add --no-cache cat
+        apk add --no-cache coreutils
         cat commit-info.md
       # Outputs the content for later usage
       outputs:
