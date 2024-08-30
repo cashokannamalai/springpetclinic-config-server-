@@ -67,6 +67,7 @@ jobs:
           echo "BLOCKER_COUNT=$BLOCKER_COUNT" >> $GITHUB_ENV
           echo "CRITICAL_COUNT=$CRITICAL_COUNT" >> $GITHUB_ENV
           echo "MAJOR_COUNT=$MAJOR_COUNT" >> $GITHUB_ENV
+          ls -l /cloudbees/workspace
 
   Evidence:
     needs: StaticAnalysis
