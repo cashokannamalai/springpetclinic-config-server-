@@ -159,60 +159,71 @@ jobs:
 
   CommitInfoStage:
     needs: DeployInGKE
-   
+    runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: cloudbees-io/checkout@v1
-      - name: Unittest
-        uses: docker://maven:3-eclipse-temurin-17
-        run: |
-          mvn test
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
       - name: Fetch SonarQube Metrics
         id: sonar-metrics
         uses: docker://alpine:latest
         run: |
-         apk add --no-cache curl jq
-         curl -u ${{ secrets.username }}:${{ secrets.password }} \
-         "https://sonarqube.cb-demos.io/api/issues/search?componentKeys=config-server&severities=BLOCKER,CRITICAL,MAJOR,MINOR" \
-         -o issues.json
-         BLOCKER_COUNT=$(jq '.total' issues.json)
-         CRITICAL_COUNT=$(jq '.total' issues.json)
-         MAJOR_COUNT=$(jq '.total' issues.json)
-         MINOR_COUNT=$(jq '.total' issues.json)
-         echo "BLOCKER: $BLOCKER_COUNT" > /cloudbees/workspace/sonar-metrics.txt
-         echo "CRITICAL: $CRITICAL_COUNT" >> /cloudbees/workspace/sonar-metrics.txt
-         echo "MAJOR: $MAJOR_COUNT" >> /cloudbees/workspace/sonar-metrics.txt
-         echo "MINOR: $MINOR_COUNT" >> /cloudbees/workspace/sonar-metrics.txt
+          apk add --no-cache curl jq
+          curl -u ${{ secrets.username }}:${{ secrets.password }} \
+          "https://sonarqube.cb-demos.io/api/issues/search?componentKeys=config-server&severities=BLOCKER,CRITICAL,MAJOR,MINOR" \
+          -o issues.json
+          BLOCKER_COUNT=$(jq '.total' issues.json)
+          CRITICAL_COUNT=$(jq '.total' issues.json)
+          MAJOR_COUNT=$(jq '.total' issues.json)
+          MINOR_COUNT=$(jq '.total' issues.json)
+          echo "BLOCKER: $BLOCKER_COUNT" > /cloudbees/workspace/sonar-metrics.txt
+          echo "CRITICAL: $CRITICAL_COUNT" >> /cloudbees/workspace/sonar-metrics.txt
+          echo "MAJOR: $MAJOR_COUNT" >> /cloudbees/workspace/sonar-metrics.txt
+          echo "MINOR: $MINOR_COUNT" >> /cloudbees/workspace/sonar-metrics.txt
+
       - name: Capture Commit Information
         id: commitinfo
         uses: docker://alpine/git:latest
         run: |
-         COMMIT_ID=$(git rev-parse HEAD)
-         COMMIT_MSG=$(git log -1 --pretty=format:%s)
-         echo "Commit ID: $COMMIT_ID" > commit-info.txt
-         echo "Commit Message: $COMMIT_MSG" >> commit-info.txt
-         echo "SonarQube Results:" >> commit-info.txt
-         cat /cloudbees/workspace/sonar-metrics.txt >> commit-info.txt
-      - name: Configure git
+          COMMIT_ID=$(git rev-parse HEAD)
+          COMMIT_MSG=$(git log -1 --pretty=format:%s)
+          echo "Commit ID: $COMMIT_ID" > commit-info.txt
+          echo "Commit Message: $COMMIT_MSG" >> commit-info.txt
+          echo "SonarQube Results:" >> commit-info.txt
+          cat /cloudbees/workspace/sonar-metrics.txt >> commit-info.txt
+
+      - name: Configure Git
         uses: docker://alpine/git:latest
         run: |
-         git config --global user.email "c_aannamalai@cloudbees.com"
-         git config --global user.name "cashokannamalai"
+          git config --global user.email "c_aannamalai@cloudbees.com"
+          git config --global user.name "cashokannamalai"
+
       - name: Commit and Push Commit Info
         uses: docker://alpine/git:latest
         run: |
-         git add commit-info.txt sonar-metrics.txt
-         git commit -m "Add commit information and SonarQube metrics from workflow"
-         git push
-
+          git add commit-info.txt sonar-metrics.txt
+          git commit -m "Add commit information and SonarQube metrics from workflow"
+          git push
 
   Evidence:
     needs: CommitInfoStage
+    runs-on: ubuntu-latest
     steps:
-      - name: Publish evidence
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Read Commit Information
+        id: commitinfo
+        uses: docker://alpine/git:latest
+        run: |
+          COMMIT_INFO=$(cat commit-info.txt)
+          echo "::set-output name=commitinfo::$COMMIT_INFO"
+
+      - name: Publish Evidence
         uses: cloudbees-io/publish-evidence-item@v1
         with:
           content: |+
             - Workflow ID: ${{ cloudbees.run_id }}
             - URL: ${{ cloudbees.api.url }}
-           
+            - Commit Information:
+              ${{ steps.commitinfo.outputs.commitinfo }}
