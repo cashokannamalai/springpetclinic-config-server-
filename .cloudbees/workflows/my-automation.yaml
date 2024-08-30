@@ -159,9 +159,7 @@ jobs:
 
   CommitInfoStage:
     needs: DeployInGKE
-    outputs:
-         COMMIT_ID: ${{ steps.CommitInfoStage.outputs.commit_id }}
-         COMMIT_MSG: ${{ steps.CommitInfoStage.outputs.commit_msg }}
+   
     steps:
       - name: Checkout
         uses: cloudbees-io/checkout@v1
@@ -217,5 +215,4 @@ jobs:
           content: |+
             - Workflow ID: ${{ cloudbees.run_id }}
             - URL: ${{ cloudbees.api.url }}
-            - Commit ID: ${{ needs.CommitInfoStage.outputs.COMMIT_ID }}
-            - Commit Message: ${{ needs.CommitInfoStage.outputs.COMMIT_MSG }}
+           
