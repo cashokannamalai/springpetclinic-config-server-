@@ -159,7 +159,6 @@ jobs:
 
   CommitInfoStage:
     needs: DeployInGKE
-    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: cloudbees-io/checkout@v1
