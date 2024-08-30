@@ -150,5 +150,5 @@ jobs:
             - Workflow ID: ${{ cloudbees.run_id }}
             - URL: ${{ cloudbees.api.url }}
             - Commit Information:
-            $(cat commit-info.md)
+              $(cat /cloudbees/workspace/commit-info.md)
           format: markdown
