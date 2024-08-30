@@ -1,6 +1,6 @@
 ## Commit Information
-- Commit ID: 5a0b537a857e5591406f2f3866e88cd4daa33aaa
-- Commit Message: Format
+- Commit ID: fcc3c06271992f8f62dfd3ab8b99bdfb83f3c056
+- Commit Message: Add commit information and SonarQube metrics from workflow
 ## SonarQube Metrics
 | Severity | Count |
 |----------|-------|
