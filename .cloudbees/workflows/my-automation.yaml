@@ -11,7 +11,6 @@ jobs:
       - name: Checkout
         uses: cloudbees-io/checkout@v1
 
-
   Build:
     needs: Checkout
     steps:
@@ -24,17 +23,17 @@ jobs:
       - name: Build
         uses: docker://maven:3-eclipse-temurin-17
         run: |
-          mvn clean install 
+          mvn clean install
 
   UnitTest:
     needs: Build
     steps:
       - name: Checkout
         uses: cloudbees-io/checkout@v1
-      - name: unittest
+      - name: Unit Test
         uses: docker://maven:3-eclipse-temurin-17
         run: |
-          mvn test 
+          mvn test
 
   StaticAnalysis:
     steps:
@@ -81,25 +80,23 @@ jobs:
           echo "|----------|-------|" 
           echo "| Blocker  | $BLOCKER_COUNT |" 
           echo "| Critical | $CRITICAL_COUNT |" 
-          echo "| Major    | $MAJOR_COUNT |" 
+          echo "| Major    | $MAJOR_COUNT |"
 
   ArtifactPublish:
-    needs: [UnitTest]
+    needs: UnitTest
     steps:
       - uses: docker://alpine/git:latest
         run: |
           git config --global --add safe.directory /cloudbees/workspace
-          
-      - name: checkout
+      - name: Checkout
         uses: cloudbees-io/checkout@v1
-
       - name: Publish to Nexus
         uses: docker://maven:3-eclipse-temurin-17
         env:
           NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
           NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
         run: |
-          mvn deploy  \
+          mvn deploy \
             -DaltDeploymentRepository=nexus::default::https://${NEXUS_USERNAME}:${NEXUS_PASSWORD}@nexus.cb-demos.io/repository/Petclinic/
 
   DockerImageBuildAndPush:
@@ -118,7 +115,6 @@ jobs:
           registry: ${{ secrets.STAGING_DOCKER_REGISTRY }}
           username: ${{ secrets.STAGING_DOCKER_USERNAME }}
           password: ${{ secrets.STAGING_DOCKER_PASSWORD }}
-
       - name: Push image to OCI registry
         uses: cloudbees-io/kaniko@v1
         with:
@@ -141,10 +137,10 @@ jobs:
     steps:
       - name: Checkout
         uses: cloudbees-io/checkout@v1
-      - name: smoke
+      - name: Smoke Test
         uses: docker://maven:3-eclipse-temurin-17
         run: |
-          mvn test 
+          mvn test
 
   DeployInGKE:
     needs: SmokeTest
@@ -174,10 +170,11 @@ jobs:
         id: commitinfo
         uses: docker://alpine/git:latest
         run: |
+          set -x  
           COMMIT_ID=$(git rev-parse HEAD)
           COMMIT_MSG=$(git log -1 --pretty=format:%s)
-          echo "::set-output name=commit_id::$COMMIT_ID"
-          echo "::set-output name=commit_msg::$COMMIT_MSG"
+          echo "commit_id=$COMMIT_ID" >> $GITHUB_ENV
+          echo "commit_msg=$COMMIT_MSG" >> $GITHUB_ENV
           echo "Commit ID: $COMMIT_ID" > commit-info.txt
           echo "Commit Message: $COMMIT_MSG" >> commit-info.txt
           echo "SonarQube Results:" >> commit-info.txt
@@ -195,6 +192,7 @@ jobs:
           git add commit-info.txt sonar-metrics.txt
           git commit -m "Add commit information and SonarQube metrics from workflow"
           git push
+
 
   Evidence:
     needs: CommitInfoStage
