@@ -153,8 +153,10 @@ jobs:
           echo "## SonarQube Metrics" >> commit-info.md
           cat sonar-metrics.md >> commit-info.md
 
-    
-          
+       - name: Check Commit Info File
+         uses: docker://alpine/git:latest
+         run: cat /cloudbees/workspace/commit-info.md
+
        - name: Publish Evidence
          uses: cloudbees-io/publish-evidence-item@v1
          with:
