@@ -241,6 +241,10 @@ jobs:
           git push
   Evidence:
     needs: CommitInfoStage
+    env:
+     Commit ID: ${{ steps.commitinfo.outputs.commit_id }}
+
+    
     steps:
       - name: Publish Evidence
         uses: cloudbees-io/publish-evidence-item@v1
@@ -267,5 +271,3 @@ jobs:
             - **Commit ID:** ${{ env.COMMIT_ID }}
 
 
-env:
-  Commit ID: ${{ steps.commitinfo.outputs.commit_id }}
