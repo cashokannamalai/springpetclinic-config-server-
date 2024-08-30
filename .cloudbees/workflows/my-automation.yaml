@@ -36,6 +36,7 @@ jobs:
           mvn test
 
   StaticAnalysis:
+    needs: UnitTest
     steps:
       - name: SonarQube SAST Scan
         uses: cloudbees-io/sonarqube-sast-scan-code@v1
@@ -62,25 +63,24 @@ jobs:
           token: ${{ secrets.token }}
 
       - name: Fetch SonarQube Issues
-        uses: docker://alpine/git:latest
+        id: sonar-metrics
+        uses: docker://alpine:latest
         run: |
           apk add --no-cache curl jq
           curl -u ${{ secrets.username }}:${{ secrets.password }} \
-          "https://sonarqube.cb-demos.io/api/issues/search?componentKeys=config-server&severities=BLOCKER,CRITICAL,MAJOR" \
-          -o sonar-issues.json
-
-          BLOCKER_COUNT=$(jq '[.issues[] | select(.severity=="BLOCKER")] | length' sonar-issues.json)
-          CRITICAL_COUNT=$(jq '[.issues[] | select(.severity=="CRITICAL")] | length' sonar-issues.json)
-          MAJOR_COUNT=$(jq '[.issues[] | select(.severity=="MAJOR")] | length' sonar-issues.json)
-
-          echo "| Severity | Count |"
-          echo "|----------|-------|" 
-          echo "| Blocker  | $BLOCKER_COUNT |" 
-          echo "| Critical | $CRITICAL_COUNT |" 
-          echo "| Major    | $MAJOR_COUNT |" 
+          "https://sonarqube.cb-demos.io/api/issues/search?componentKeys=config-server&severities=BLOCKER,CRITICAL,MAJOR,MINOR" \
+          -o issues.json
+          BLOCKER_COUNT=$(jq '[.issues[] | select(.severity=="BLOCKER")] | length' issues.json)
+          CRITICAL_COUNT=$(jq '[.issues[] | select(.severity=="CRITICAL")] | length' issues.json)
+          MAJOR_COUNT=$(jq '[.issues[] | select(.severity=="MAJOR")] | length' issues.json)
+          MINOR_COUNT=$(jq '[.issues[] | select(.severity=="MINOR")] | length' issues.json)
+          echo "::set-output name=blocker::$BLOCKER_COUNT"
+          echo "::set-output name=critical::$CRITICAL_COUNT"
+          echo "::set-output name=major::$MAJOR_COUNT"
+          echo "::set-output name=minor::$MINOR_COUNT"
 
   ArtifactPublish:
-    needs: [UnitTest]
+    needs: StaticAnalysis
     steps:
       - name: Configure git
         uses: docker://alpine/git:latest
@@ -185,13 +185,15 @@ jobs:
         run: |
           COMMIT_ID=$(git rev-parse HEAD)
           COMMIT_MSG=$(git log -1 --pretty=format:%s)
-          echo "Commit ID: $COMMIT_ID" > commit-info.txt
-          echo "Commit Message: $COMMIT_MSG" >> commit-info.txt
+          echo "commit_id=$COMMIT_ID" >> $GITHUB_ENV
+          echo "commit_msg=$COMMIT_MSG" >> $GITHUB_ENV
           echo "SonarQube Results:" >> commit-info.txt
           echo "BLOCKER: ${{ steps.sonar-metrics.outputs.blocker }}" >> commit-info.txt
           echo "CRITICAL: ${{ steps.sonar-metrics.outputs.critical }}" >> commit-info.txt
           echo "MAJOR: ${{ steps.sonar-metrics.outputs.major }}" >> commit-info.txt
           echo "MINOR: ${{ steps.sonar-metrics.outputs.minor }}" >> commit-info.txt
+          echo "Commit ID: $COMMIT_ID" >> commit-info.txt
+          echo "Commit Message: $COMMIT_MSG" >> commit-info.txt
       - name: Configure git
         uses: docker://alpine/git:latest
         run: |
@@ -207,7 +209,7 @@ jobs:
   Evidence:
     needs: CommitInfoStage
     steps:
-      - name: Publish evidence
+      - name: Publish Evidence
         uses: cloudbees-io/publish-evidence-item@v1
         with:
           content: |+
