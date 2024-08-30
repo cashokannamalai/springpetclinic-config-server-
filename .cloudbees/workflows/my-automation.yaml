@@ -160,8 +160,8 @@ jobs:
   CommitInfoStage:
     needs: DeployInGKE
     outputs:
-      COMMIT_ID: ${{ steps.commitinfo.outputs.commit_id }}
-      COMMIT_MSG: ${{ steps.commitinfo.outputs.commit_msg }}
+         COMMIT_ID: ${{ steps.CommitInfoStage.outputs.commit_id }}
+         COMMIT_MSG: ${{ steps.CommitInfoStage.outputs.commit_msg }}
     steps:
       - name: Checkout
         uses: cloudbees-io/checkout@v1
@@ -170,7 +170,6 @@ jobs:
         id: commitinfo
         uses: docker://alpine/git:latest
         run: |
-          set -x  
           COMMIT_ID=$(git rev-parse HEAD)
           COMMIT_MSG=$(git log -1 --pretty=format:%s)
           echo "commit_id=$COMMIT_ID" >> $GITHUB_ENV
@@ -179,6 +178,7 @@ jobs:
           echo "Commit Message: $COMMIT_MSG" >> commit-info.txt
           echo "SonarQube Results:" >> commit-info.txt
           cat /cloudbees/workspace/sonar-metrics.txt >> commit-info.txt
+    
 
       - name: Configure git
         uses: docker://alpine/git:latest
