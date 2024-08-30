@@ -64,9 +64,9 @@ jobs:
           CRITICAL_COUNT=$(jq '[.issues[] | select(.severity=="CRITICAL")] | length' sonar-issues.json)
           MAJOR_COUNT=$(jq '[.issues[] | select(.severity=="MAJOR")] | length' sonar-issues.json)
 
-          echo "::set-output name=blocker_count::$BLOCKER_COUNT"
-          echo "::set-output name=critical_count::$CRITICAL_COUNT"
-          echo "::set-output name=major_count::$MAJOR_COUNT"
+          echo "BLOCKER_COUNT=$BLOCKER_COUNT" >> $GITHUB_ENV
+          echo "CRITICAL_COUNT=$CRITICAL_COUNT" >> $GITHUB_ENV
+          echo "MAJOR_COUNT=$MAJOR_COUNT" >> $GITHUB_ENV
 
   Evidence:
     needs: StaticAnalysis
@@ -74,9 +74,9 @@ jobs:
       - name: Print issue counts
         uses: docker://alpine/git:latest
         run: |
-          echo "BLOCKER_COUNT=${{ needs.StaticAnalysis.outputs.blocker_count }}"
-          echo "CRITICAL_COUNT=${{ needs.StaticAnalysis.outputs.critical_count }}"
-          echo "MAJOR_COUNT=${{ needs.StaticAnalysis.outputs.major_count }}"
+          echo "BLOCKER_COUNT=${{ env.BLOCKER_COUNT }}"
+          echo "CRITICAL_COUNT=${{ env.CRITICAL_COUNT }}"
+          echo "MAJOR_COUNT=${{ env.MAJOR_COUNT }}"
 
       - name: Publish evidence
         uses: cloudbees-io/publish-evidence-item@v1
@@ -87,6 +87,6 @@ jobs:
             - Issue Summary:
               | Severity | Count |
               |----------|-------|
-              | Blocker  | ${{ needs.StaticAnalysis.outputs.blocker_count }} |
-              | Critical | ${{ needs.StaticAnalysis.outputs.critical_count }} |
-              | Major    | ${{ needs.StaticAnalysis.outputs.major_count }} |
+              | Blocker  | ${{ env.BLOCKER_COUNT }} |
+              | Critical | ${{ env.CRITICAL_COUNT }} |
+              | Major    | ${{ env.MAJOR_COUNT }} |
