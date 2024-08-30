@@ -134,32 +134,34 @@ jobs:
           git push
 
   Evidence:
-    needs: CommitInfoStage
-    steps:
-      - name: Checkout
-        uses: cloudbees-io/checkout@v1
+   needs: CommitInfoStage
+   steps:
+    - name: Checkout
+      uses: cloudbees-io/checkout@v1
 
-      - name: Read Commit Info
-        id: read_commit_info
-        uses: docker://alpine/git:latest
-        run: |
-          echo "COMMIT_INFO=$(cat /cloudbees/workspace/commit-info.md)" > commit-info.txt
-          echo "COMMIT_INFO=$(cat /cloudbees/workspace/commit-info.md)" | base64 > commit-info.base64
-          echo "::set-output name=commit_info::$(cat commit-info.base64)"
+    - name: Fetch Commit Info
+      id: fetch-commit-info
+      uses: docker://alpine:latest
+      run: |
+        apk add --no-cache curl
+        curl -o commit-info.md \
+          https://github.com/cashokannamalai/spring-petclinic-config-server/raw/main/commit-info.md
 
-      - name: Store Commit Info as Secret
-        uses: docker://alpine:latest
-        run: |
-          echo "Storing Commit Info in CloudBees Secrets Store..."
-          # Command to store secrets - replace with actual CloudBees CLI command or API call
-          # Example placeholder command:
-          # cloudbees secrets create --name "COMMIT_INFO" --value "$(cat commit-info.base64)"
+    - name: Read Commit Info Content
+      id: read-commit-info
+      uses: docker://alpine:latest
+      run: |
+        apk add --no-cache cat
+        cat commit-info.md
+      # Outputs the content for later usage
+      outputs:
+        commit-info: ${{ steps.read-commit-info.outputs.content }}
 
-      - name: Publish Evidence
-        uses: cloudbees-io/publish-evidence-item@v1
-        with:
-          content: |
-            - Workflow ID: ${{ cloudbees.run_id }}
-            - URL: ${{ cloudbees.api.url }}
-            - Commit Information: ${{ secrets.COMMIT_INFO }}
-          format: markdown
+    - name: Publish Evidence
+      uses: cloudbees-io/publish-evidence-item@v1
+      with:
+        content: |
+          - Workflow ID: ${{ cloudbees.run_id }}
+          - URL: ${{ cloudbees.api.url }}
+          - Commit Info Content: |
+              $(cat commit-info.md)
