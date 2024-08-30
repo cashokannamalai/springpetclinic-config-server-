@@ -25,8 +25,17 @@ jobs:
         run: |
           mvn clean install
 
-  StaticAnalysis:
+  UnitTest:
     needs: Build
+    steps:
+      - name: Checkout
+        uses: cloudbees-io/checkout@v1
+      - name: unittest
+        uses: docker://maven:3-eclipse-temurin-17
+        run: |
+          mvn test
+
+  StaticAnalysis:
     steps:
       - uses: cloudbees-io/sonarqube-sast-scan-code@v1
         name: Scan
@@ -68,14 +77,10 @@ jobs:
           CRITICAL_COUNT=$(jq '[.issues[] | select(.severity=="CRITICAL")] | length' sonar-issues.json)
           MAJOR_COUNT=$(jq '[.issues[] | select(.severity=="MAJOR")] | length' sonar-issues.json)
 
+          # Set environment variables
           echo "BLOCKER_COUNT=$BLOCKER_COUNT" >> $GITHUB_ENV
           echo "CRITICAL_COUNT=$CRITICAL_COUNT" >> $GITHUB_ENV
           echo "MAJOR_COUNT=$MAJOR_COUNT" >> $GITHUB_ENV
-
-          # Set outputs
-          echo "::set-output name=blocker_count::$BLOCKER_COUNT"
-          echo "::set-output name=critical_count::$CRITICAL_COUNT"
-          echo "::set-output name=major_count::$MAJOR_COUNT"
 
   Evidence:
     needs: StaticAnalysis
@@ -89,6 +94,6 @@ jobs:
             - Issue Summary:
               | Severity | Count |
               |----------|-------|
-              | Blocker  | ${{ steps.fetch_issues.outputs.blocker_count }} |
-              | Critical | ${{ steps.fetch_issues.outputs.critical_count }} |
-              | Major    | ${{ steps.fetch_issues.outputs.major_count }} |
+              | Blocker  | ${{ env.BLOCKER_COUNT }} |
+              | Critical | ${{ env.CRITICAL_COUNT }} |
+              | Major    | ${{ env.MAJOR_COUNT }} |
