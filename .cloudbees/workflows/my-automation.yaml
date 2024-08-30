@@ -80,8 +80,7 @@ jobs:
             $(cat sonar-results.json)
             ```
           format: MARKDOWN
-          type: "SonarQube Analysis"
-          title: "SonarQube Analysis for Config Server"
+          
 
 
   ArtifactPublish:
