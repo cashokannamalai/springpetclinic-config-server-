@@ -254,5 +254,5 @@ jobs:
             - **Workflow ID:** ${{ cloudbees.run_id }}
 
             - **URL:** ${{ cloudbees.api.url }}
-          - **Commit ID:** ${{ env.COMMIT_ID }}
+            - **Commit ID:** ${{ steps.commitinfo.outputs.commit_id }}
 
