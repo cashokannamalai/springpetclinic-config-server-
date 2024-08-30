@@ -165,22 +165,26 @@ jobs:
     steps:
       - name: Checkout
         uses: cloudbees-io/checkout@v1
-      - name: Ensure Directory Exists
-        uses: docker://alpine:latest
-        run: |
-          mkdir -p /cloudbees/workspace
+     
       - name: Capture Commit Information
         id: commitinfo
         uses: docker://alpine/git:latest
         run: |
           COMMIT_ID=$(git rev-parse HEAD)
           COMMIT_MSG=$(git log -1 --pretty=format:%s)
-          echo "commit_id=$COMMIT_ID" >> /cloudbees/workspace/$GITHUB_ENV
-          echo "commit_msg=$COMMIT_MSG" >> /cloudbees/workspace/$GITHUB_ENV
+          echo "commit_id=$COMMIT_ID" >> $GITHUB_ENV
+          echo "commit_msg=$COMMIT_MSG" >> $GITHUB_ENV
           echo "Commit ID: $COMMIT_ID" > /cloudbees/workspace/commit-info.txt
           echo "Commit Message: $COMMIT_MSG" >> /cloudbees/workspace/commit-info.txt
           echo "SonarQube Results:" >> /cloudbees/workspace/commit-info.txt
           cat /cloudbees/workspace/sonar-metrics.txt >> /cloudbees/workspace/commit-info.txt
+
+          if [ -f /cloudbees/workspace/sonar-metrics.txt ]; then
+            cat /cloudbees/workspace/sonar-metrics.txt >> /github/workspace/commit-info.txt
+          else
+            echo "No SonarQube metrics file found." >> /github/workspace/commit-info.txt
+          fi
+
     
 
       - name: Configure git
