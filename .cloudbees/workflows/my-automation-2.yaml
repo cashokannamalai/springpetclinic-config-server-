@@ -210,30 +210,15 @@ jobs:
 
    
 
-Evidence:
-  needs: CommitInfoStage
-  steps:
-   
-    - name: Checkout
-      uses: cloudbees-io/checkout@v1
+  Evidence:
+    needs: CommitInfoStage
+    steps:
+      - name: Publish evidence
+        uses: cloudbees-io/publish-evidence-item@v1
+        with:
+          content: |
+            - Workflow ID: ${{ cloudbees.run_id }}
+            - URL: ${{ cloudbees.api.url }}
 
-    - name: Read commit-info.md and sonar-metrics.md
-      id: read-files
-      run: |
-        COMMIT_INFO=$(cat /cloudbees/workspace/commit-info.md)
-       
-        echo "::set-output name=commit_info::$COMMIT_INFO"
-       
-
-    - name: Publish evidence
-      uses: cloudbees-io/publish-evidence-item@v1
-      with:
-        content: |
-          ## Workflow Information
-          - Workflow ID: ${{ cloudbees.run_id }}
-          - URL: ${{ cloudbees.api.url }}
-
-          ## Commit Information
-          ${{ steps.read-files.outputs.commit_info }}
-
-      
+            ## Evidence Files
+            - [Commit Information]https://github.com/cashokannamalai/spring-petclinic-config-server/blob/main/commit-info.md
