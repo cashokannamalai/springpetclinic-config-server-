@@ -20,6 +20,14 @@ jobs:
           content=$(cat commit-info.md)
           echo "$content" > content_output.txt
 
+      - name: Read file content into environment variable
+        id: read_content
+        uses: docker://alpine:latest
+        shell: sh
+        run: |
+          content=$(cat content_output.txt)
+          echo "content_output=$content" >> $GITHUB_ENV
+
       - name: Publish evidence
         uses: cloudbees-io/publish-evidence-item@v1
         with:
@@ -27,4 +35,4 @@ jobs:
             - Workflow ID: ${{ cloudbees.run_id }}
             - URL: https://github.com/cashokannamalai/spring-petclinic-config-server/blob/main/commit-info.md
             - File Content: |
-              $(cat content_output.txt)
+              ${{ env.content_output }}
