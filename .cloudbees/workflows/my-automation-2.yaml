@@ -19,14 +19,13 @@ jobs:
           curl -s https://raw.githubusercontent.com/cashokannamalai/spring-petclinic-config-server/main/commit-info.md -o commit-info.md
           content=$(cat commit-info.md)
           echo "$content" > content_output.txt
-          echo "content_output=$content" > temp_env.sh
 
-      - name: Load environment variable
+      - name: Set environment variable
         uses: docker://alpine:latest
         shell: sh
         run: |
-          source temp_env.sh
-          echo "Content: $content_output"
+          content=$(cat content_output.txt)
+          echo "export CONTENT_OUTPUT=\"$content\"" > .env
 
       - name: Publish evidence
         uses: cloudbees-io/publish-evidence-item@v1
@@ -35,4 +34,4 @@ jobs:
             - Workflow ID: ${{ cloudbees.run_id }}
             - URL: https://github.com/cashokannamalai/spring-petclinic-config-server/blob/main/commit-info.md
             - File Content: |
-              $content_output
+              ${CONTENT_OUTPUT}
