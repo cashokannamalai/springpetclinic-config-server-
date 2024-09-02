@@ -14,6 +14,7 @@ jobs:
       - name: Fetch commit-info.md content
         uses: docker://alpine:latest
         run: |
+          apk add --no-cache curl jq
           curl -s https://raw.githubusercontent.com/cashokannamalai/spring-petclinic-config-server/main/commit-info.md > commit-info.md
 
       - name: Publish workflow evidence item
