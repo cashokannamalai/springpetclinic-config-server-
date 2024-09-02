@@ -12,23 +12,26 @@ jobs:
         uses: cloudbees-io/checkout@v1
 
       - name: Fetch commit-info.md content
-        uses: docker://alpine:latest
+        uses: docker://alpine/git:latest
+        id: fetch_content
         run: |
-          apk add --no-cache curl jq
-           curl -s https://raw.githubusercontent.com/cashokannamalai/spring-petclinic-config-server/main/commit-info.md > commit-info.md || { echo "Failed to fetch commit-info.md"; exit 1; }
+          apk add --no-cache curl
+          content=$(curl -s https://raw.githubusercontent.com/cashokannamalai/spring-petclinic-config-server/main/commit-info.md)
+          echo "COMMIT_INFO_CONTENT<<EOF" >> $GITHUB_ENV
+          echo "$content" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
 
       - name: Publish workflow evidence item
         uses: cloudbees-io/publish-evidence-item@v1
         with:
-         content: |-
-          ## Test markup and property rendering
-          - Run ID: ${{ cloudbees.run_id }}
-          - [backend.tar](https://ourcompany.com/repo/backend.tar)
+          content: |-
+              ## Test markup and property rendering
+              - Run ID: ${{ cloudbees.run_id }}
+              - [backend.tar](https://ourcompany.com/repo/backend.tar)
       
-           ## Commit Info
-            ```markdown
-            $(cat commit-info.md)
-           ```
-           format: MARKDOWN
-            ```
-           format: MARKDOWN
+              ## Commit Info
+                ```markdown
+                    ${{ env.COMMIT_INFO_CONTENT }}
+                 ```
+          format: MARKDOWN
+
