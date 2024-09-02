@@ -158,8 +158,8 @@ jobs:
           kubectl apply -f /cloudbees/workspace/deployment-service.yaml
 
   CommitInfoStage:
-    needs: DeployInGKE
-    steps:
+   needs: DeployInGKE
+   steps:
     - name: Checkout
       uses: cloudbees-io/checkout@v1
 
@@ -208,26 +208,32 @@ jobs:
         git commit -m "Add commit information and SonarQube metrics from workflow"
         git push
 
+   
 
-  Evidence:
-   needs: CommitInfoStage
-   steps:
-      - name: Read commit-info.md and sonar-metrics.md
-        id: read-files
-        uses: docker://alpine/git:latest
-        run: |
-          COMMIT_INFO=$(cat commit-info.md)
-          SONAR_METRICS=$(cat sonar-metrics.md)
-        
-      - name: Publish evidence
-        uses: cloudbees-io/publish-evidence-item@v1
-        with:
-         content: |
+Evidence:
+  needs: CommitInfoStage
+  steps:
+   
+    - name: Checkout
+      uses: cloudbees-io/checkout@v1
+
+    - name: Read commit-info.md and sonar-metrics.md
+      id: read-files
+      run: |
+        COMMIT_INFO=$(cat /cloudbees/workspace/commit-info.md)
+       
+        echo "::set-output name=commit_info::$COMMIT_INFO"
+       
+
+    - name: Publish evidence
+      uses: cloudbees-io/publish-evidence-item@v1
+      with:
+        content: |
+          ## Workflow Information
           - Workflow ID: ${{ cloudbees.run_id }}
           - URL: ${{ cloudbees.api.url }}
 
           ## Commit Information
-          ${{ steps.read-files.outputs.COMMIT_INFO }}
+          ${{ steps.read-files.outputs.commit_info }}
 
-          ## SonarQube Metrics
-          ${{ steps.read-files.outputs.SONAR_METRICS }}
+      
