@@ -176,6 +176,11 @@ jobs:
           MAJOR_COUNT=$(jq '[.issues[] | select(.severity=="MAJOR")] | length' issues.json)
           MINOR_COUNT=$(jq '[.issues[] | select(.severity=="MINOR")] | length' issues.json)
 
+          echo "::set-output name=BLOCKER_COUNT::$BLOCKER_COUNT"
+          echo "::set-output name=CRITICAL_COUNT::$CRITICAL_COUNT"
+          echo "::set-output name=MAJOR_COUNT::$MAJOR_COUNT"
+          echo "::set-output name=MINOR_COUNT::$MINOR_COUNT"
+
           echo "| Severity | Count |" > sonar-metrics.md
           echo "|----------|-------|" >> sonar-metrics.md
           echo "| Blocker  | $BLOCKER_COUNT |" >> sonar-metrics.md
@@ -213,6 +218,7 @@ jobs:
           git push
 
 
+
    
 
   Evidence:
@@ -230,7 +236,7 @@ jobs:
             ## SonarQube Metrics
             | Severity | Count |
             |----------|-------|
-            | Blocker  | ${{ steps.sonar-metrics.outputs.BLOCKER_COUNT }} |
-            | Critical | ${{ steps.sonar-metrics.outputs.CRITICAL_COUNT }} |
-            | Major    | ${{ steps.sonar-metrics.outputs.MAJOR_COUNT }} |
-            | Minor    | ${{ steps.sonar-metrics.outputs.MINOR_COUNT }} |
+            | Blocker  | ${{ needs.CommitInfoStage.outputs.BLOCKER_COUNT }} |
+            | Critical | ${{ needs.CommitInfoStage.outputs.CRITICAL_COUNT }} |
+            | Major    | ${{ needs.CommitInfoStage.outputs.MAJOR_COUNT }} |
+            | Minor    | ${{ needs.CommitInfoStage.outputs.MINOR_COUNT }} |
