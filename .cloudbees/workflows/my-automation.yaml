@@ -226,4 +226,5 @@ jobs:
           - URL: ${{ cloudbees.api.url }}
           
           ## Commit Information
-          - Commit ID: ${{ secrets.COMMIT_ID }}
+          - Commit ID: ${{ needs.CommitInfoStage.outputs.commit_id }}
+          - Commit Message: ${{ needs.CommitInfoStage.outputs.commit_message }}
