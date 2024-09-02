@@ -17,13 +17,13 @@ jobs:
         run: |
           apk add --no-cache curl
           content=$(curl -s https://raw.githubusercontent.com/cashokannamalai/spring-petclinic-config-server/main/commit-info.md)
-          echo "CONTENT=$content" >> $GITHUB_ENV
+          echo "$content" > commit-info.txt
 
-      - name: Set System Property
+      - name: Print System Property
         uses: docker://alpine/git:latest
         run: |
-          echo "Setting system property..."
-          echo "var.commid=${{ env.CONTENT }}" >> $GITHUB_ENV
+          content=$(cat commit-info.txt)
+          echo "var.commid=${content}"
 
       - name: Publish workflow evidence item
         uses: cloudbees-io/publish-evidence-item@v1
@@ -31,5 +31,5 @@ jobs:
           content: |-
               ## Test markup and property rendering
               - Run ID: ${{ cloudbees.run_id }}
-              - Commit Info: ${{ env.CONTENT }}
+              - Commit Info: ${{ steps.fetch_content.outputs.content }}
               - [backend.tar](https://ourcompany.com/repo/backend.tar)
