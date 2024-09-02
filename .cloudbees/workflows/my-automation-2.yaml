@@ -171,8 +171,7 @@ jobs:
       - name: Publish evidence to CloudBees
         uses: cloudbees-io/publish-evidence-item@v1
         with:
-          evidence-type: commit
-          evidence-title: 'Commit Information'
           content: |
             Commit ID: ${{ steps.get_commit_info.outputs.commit_id }}
             Commit Message: ${{ steps.get_commit_info.outputs.commit_message }}
+          format: markdown
