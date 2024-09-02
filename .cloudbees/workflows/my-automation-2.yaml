@@ -23,5 +23,4 @@ jobs:
       id: display-commit-info
       uses: docker://alpine:latest
       run: |
-        apk add --no-cache cat
         cat commit-info.md
