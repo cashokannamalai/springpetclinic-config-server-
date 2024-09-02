@@ -23,7 +23,7 @@ jobs:
             exit 1
           fi
           content=$(cat commit-info.md)
-          echo "CONTENT_OUTPUT=$content" >> $GITHUB_ENV
+          echo "::set-output name=content::$content"
 
       - name: Publish evidence
         uses: cloudbees-io/publish-evidence-item@v1
@@ -32,4 +32,4 @@ jobs:
             - Workflow ID: ${{ cloudbees.run_id }}
             - URL: https://github.com/cashokannamalai/spring-petclinic-config-server/blob/main/commit-info.md
             - File Content: |
-              ${{ env.CONTENT_OUTPUT }}
+              ${{ steps.fetch_content.outputs.content }}
