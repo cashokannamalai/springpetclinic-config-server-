@@ -19,8 +19,5 @@ jobs:
         curl -o commit-info.md \
           https://github.com/cashokannamalai/spring-petclinic-config-server/raw/main/commit-info.md
 
-    - name: Display Commit Info
-      id: display-commit-info
-      uses: docker://alpine:latest
-      run: |
+  
         cat commit-info.md
