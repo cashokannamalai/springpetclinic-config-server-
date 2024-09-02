@@ -13,27 +13,19 @@ jobs:
 
       - name: Fetch commit-info.md content
         uses: docker://alpine:latest
-        shell: sh
-        id: fetch_content
         run: |
-          apk add --no-cache curl
-          curl -s -o commit-info.md https://raw.githubusercontent.com/cashokannamalai/spring-petclinic-config-server/main/commit-info.md
-          if [ $? -ne 0 ]; then
-            echo "Failed to fetch commit-info.md"
-            exit 1
-          fi
-          if [ ! -s commit-info.md ]; then
-            echo "Error: commit-info.md is empty or could not be fetched."
-            exit 1
-          fi
-          content=$(cat commit-info.md)
-          echo "content=${content}" >> $GITHUB_ENV
+          curl -s https://raw.githubusercontent.com/cashokannamalai/spring-petclinic-config-server/main/commit-info.md > commit-info.md
 
-      - name: Publish evidence
+      - name: Publish workflow evidence item
         uses: cloudbees-io/publish-evidence-item@v1
         with:
-          content: |
-            - Workflow ID: ${{ cloudbees.run_id }}
-            - URL: https://github.com/cashokannamalai/spring-petclinic-config-server/blob/main/commit-info.md
-            - File Content: |
-              ${{ env.content }}
+         content: |-
+           ## Test markup and property rendering
+             - Run ID: ${{ cloudbees.run_id }}
+             - [backend.tar](https://ourcompany.com/repo/backend.tar)
+      
+           ## Commit Info
+            ```markdown
+            $(cat commit-info.md)
+            ```
+           format: MARKDOWN
