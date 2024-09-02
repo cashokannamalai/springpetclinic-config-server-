@@ -173,9 +173,11 @@ jobs:
         uses: docker://alpine:latest
         run: |
           apk add --no-cache curl jq
+          echo "Fetching SonarQube metrics..."
           curl -u ${{ secrets.username }}:${{ secrets.password }} \
           "https://sonarqube.cb-demos.io/api/issues/search?componentKeys=config-server&severities=BLOCKER,CRITICAL,MAJOR,MINOR" \
-          -o issues.json
+          -o issues.json || { echo 'Failed to fetch SonarQube metrics'; exit 1; }
+          
           BLOCKER_COUNT=$(jq '[.issues[] | select(.severity=="BLOCKER")] | length' issues.json)
           CRITICAL_COUNT=$(jq '[.issues[] | select(.severity=="CRITICAL")] | length' issues.json)
           MAJOR_COUNT=$(jq '[.issues[] | select(.severity=="MAJOR")] | length' issues.json)
@@ -195,7 +197,7 @@ jobs:
 
       - name: Print SonarQube Metrics
         uses: docker://alpine:latest
-        run: cat sonar-metrics.md
+        run: cat sonar-metrics.md || { echo 'Failed to print SonarQube metrics'; exit 1; }
 
       - name: Capture Commit Information
         id: commitinfo
@@ -219,7 +221,5 @@ jobs:
         uses: docker://alpine/git:latest
         run: |
           git add commit-info.md sonar-metrics.md
-          git commit -m "Add commit information and SonarQube metrics from workflow"
+          git commit -m "Add commit information and SonarQube metrics from workflow" || { echo 'No changes to commit'; exit 0; }
           git push
-
-  
