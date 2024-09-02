@@ -17,15 +17,23 @@ jobs:
         run: |
           apk add --no-cache curl
           content=$(curl -s https://raw.githubusercontent.com/cashokannamalai/spring-petclinic-config-server/main/commit-info.md)
-          echo "$content" > commit-info.txt
-        continue-on-error: false
+          if [ -n "$content" ]; then
+            echo "$content" > commit-info.txt
+          else
+            echo "Failed to fetch content."
+            exit 1
+          fi
 
       - name: Print System Property
         uses: docker://alpine/git:latest
         run: |
-          content=$(cat commit-info.txt)
-          echo "var.commid=${content}"
-        continue-on-error: false
+          if [ -f commit-info.txt ]; then
+            content=$(cat commit-info.txt)
+            echo "var.commid=${content}"
+          else
+            echo "commit-info.txt not found."
+            exit 1
+          fi
 
       - name: Publish workflow evidence item
         uses: cloudbees-io/publish-evidence-item@v1
@@ -35,4 +43,3 @@ jobs:
               - Run ID: ${{ cloudbees.run_id }}
               - Commit Info: ${{ steps.fetch_content.outputs.content }}
               - [backend.tar](https://ourcompany.com/repo/backend.tar)
-        continue-on-error: false
