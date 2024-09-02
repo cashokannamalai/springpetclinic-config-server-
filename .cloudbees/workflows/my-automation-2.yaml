@@ -8,8 +8,8 @@ on:
 jobs:
   Checkout:
     steps:
-       - name: Checkout Code
-         uses: actions/checkout@v2
+       - name: Checkout
+         uses: cloudbees-io/checkout@v1
     
        - name: Fetch commit-info.md content
          id: fetch_content
