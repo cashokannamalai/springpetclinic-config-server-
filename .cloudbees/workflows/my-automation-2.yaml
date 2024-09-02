@@ -158,72 +158,25 @@ jobs:
           kubectl apply -f /cloudbees/workspace/deployment-service.yaml
 
   CommitInfoStage:
-    needs: DeployInGKE
-   
-    steps:
-      - name: Checkout
-        uses: cloudbees-io/checkout@v1
-
-      - name: Fetch SonarQube Metrics
-        id: sonar-metrics
-        uses: docker://alpine:latest
-        run: |
-         apk add --no-cache curl jq
-         echo "Fetching SonarQube metrics..."
-         curl -u ${{ secrets.username }}:${{ secrets.password }} \
-         "https://sonarqube.cb-demos.io/api/issues/search?componentKeys=config-server&severities=BLOCKER,CRITICAL,MAJOR,MINOR" \
-         -o issues.json || { echo 'Failed to fetch SonarQube metrics'; exit 1; }
     
-         BLOCKER_COUNT=$(jq '[.issues[] | select(.severity=="BLOCKER")] | length' issues.json)
-         CRITICAL_COUNT=$(jq '[.issues[] | select(.severity=="CRITICAL")] | length' issues.json)
-         MAJOR_COUNT=$(jq '[.issues[] | select(.severity=="MAJOR")] | length' issues.json)
-         MINOR_COUNT=$(jq '[.issues[] | select(.severity=="MINOR")] | length' issues.json)
-
-         echo "::set-output name=BLOCKER_COUNT::$BLOCKER_COUNT"
-         echo "::set-output name=CRITICAL_COUNT::$CRITICAL_COUNT"
-         echo "::set-output name=MAJOR_COUNT::$MAJOR_COUNT"
-         echo "::set-output name=MINOR_COUNT::$MINOR_COUNT"
-
-         echo "| Severity | Count |" > sonar-metrics.md
-         echo "|----------|-------|" >> sonar-metrics.md
-         echo "| Blocker  | $BLOCKER_COUNT |" >> sonar-metrics.md
-         echo "| Critical | $CRITICAL_COUNT |" >> sonar-metrics.md
-         echo "| Major    | $MAJOR_COUNT |" >> sonar-metrics.md
-         echo "| Minor    | $MINOR_COUNT |" >> sonar-metrics.md
-
-
-      - name: Print SonarQube Metrics
-        uses: docker://alpine:latest
-        run: cat sonar-metrics.md || { echo 'Failed to print SonarQube metrics'; exit 1; }
-
-      - name: Capture Commit Information
-        id: commitinfo
+    outputs:
+      COMMIT_ID: ${{ steps.get_commit_info.outputs.commit_id }}
+      COMMIT_MESSAGE: ${{ steps.get_commit_info.outputs.commit_message }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      
+      - name: Get commit information
         uses: docker://alpine/git:latest
+        id: get_commit_info
         run: |
-         COMMIT_ID=$(git rev-parse HEAD)
-         COMMIT_MSG=$(git log -1 --pretty=format:%s)
-         echo "## Commit Information" > commit-info.md
-         echo "- Commit ID: $COMMIT_ID" >> commit-info.md
-         echo "- Commit Message: $COMMIT_MSG" >> commit-info.md
-         echo "## SonarQube Metrics" >> commit-info.md
-         cat sonar-metrics.md >> commit-info.md
+          echo "::set-output name=commit_id::$(git rev-parse HEAD)"
+          echo "::set-output name=commit_message::$(git log -1 --pretty=%B)" 
 
 
 
 
-      - name: Configure Git
-        uses: docker://alpine/git:latest
-        run: |
-         git config --global user.email "c_aannamalai@cloudbees.com"
-         git config --global user.name "cashokannamalai"
-
-      - name: Commit and Push Commit Info
-        uses: docker://alpine/git:latest
-        run: |
-         git add commit-info.md sonar-metrics.md
-         git commit -m "Add commit information and SonarQube metrics from workflow" || { echo 'No changes to commit'; exit 0; }
-         git push
-
+      
   Evidence:
     needs: CommitInfoStage
     steps:
@@ -234,12 +187,7 @@ jobs:
             - Workflow ID: ${{ cloudbees.run_id }}
             - URL: ${{ cloudbees.api.url }}
 
-            ## Commit Information and SonarQube Quality
 
-            ## SonarQube Metrics
-            | Severity | Count |
-            |----------|-------|
-            | Blocker  | ${{ needs.CommitInfoStage.outputs.BLOCKER_COUNT }} |
-            | Critical | ${{ needs.CommitInfoStage.outputs.CRITICAL_COUNT }} |
-            | Major    | ${{ needs.CommitInfoStage.outputs.MAJOR_COUNT }} |
-            | Minor    | ${{ needs.CommitInfoStage.outputs.MINOR_COUNT }} |
+             ## Commit Details
+            - Commit ID: ${{ needs.CommitInfoStage.outputs.COMMIT_ID }}
+            - Commit Message: ${{ needs.CommitInfoStage.outputs.COMMIT_MESSAGE }}
