@@ -171,7 +171,9 @@ jobs:
         id: get_commit_info
         run: |
           echo "::set-output name=commit_id::$(git rev-parse HEAD)"
-          echo "::set-output name=commit_message::$(git log -1 --pretty=%B)" 
+          echo "::set-output name=commit_message::$(git log -1 --pretty=%B)"
+        continue-on-error: true
+
 
 
 
@@ -181,13 +183,12 @@ jobs:
     needs: CommitInfoStage
     steps:
       - name: Publish evidence
+        if: ${{ success() }}
         uses: cloudbees-io/publish-evidence-item@v1
         with:
           content: |
             - Workflow ID: ${{ cloudbees.run_id }}
             - URL: ${{ cloudbees.api.url }}
-
-
-             ## Commit Details
-            - Commit ID: ${{ needs.CommitInfoStage.outputs.COMMIT_ID }}
-            - Commit Message: ${{ needs.CommitInfoStage.outputs.COMMIT_MESSAGE }}
+            ## Commit Details
+            - Commit ID: ${{ steps.get_commit_info.outputs.commit_id }}
+            - Commit Message: ${{ steps.get_commit_info.outputs.commit_message }}
