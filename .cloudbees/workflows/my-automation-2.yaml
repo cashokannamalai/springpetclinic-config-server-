@@ -12,18 +12,19 @@ jobs:
          uses: cloudbees-io/checkout@v1
     
        - name: Fetch commit-info.md content
-         id: fetch_content
-         uses: docker://alpine/git:latest
+         uses: docker://alpine:latest
+         shell: bash
+          
          run: |
-          curl -s https://github.com/cashokannamalai/spring-petclinic-config-server/blob/main/commit-info.md -o commit-info.md
+          curl -s https://raw.githubusercontent.com/cashokannamalai/spring-petclinic-config-server/main/commit-info.md -o commit-info.md
           content=$(cat commit-info.md)
           echo "::set-output name=file_content::$content"
-    
+
        - name: Publish evidence
          uses: cloudbees-io/publish-evidence-item@v1
          with:
           content: |
-            - Workflow ID: ${{ github.run_id }}
-            - URL: ${{ github.event.repository.html_url }}/commit-info.md
-            - File Content: |
-              ${{ steps.fetch_content.outputs.file_content }}
+           - Workflow ID: ${{ cloudbees.run_id }}
+           - URL: https://github.com/cashokannamalai/spring-petclinic-config-server/blob/main/commit-info.md
+           - File Content: |
+               ${{ steps.fetch_content.outputs.file_content }}
