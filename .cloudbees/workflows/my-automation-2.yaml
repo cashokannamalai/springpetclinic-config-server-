@@ -163,8 +163,8 @@ jobs:
       COMMIT_ID: ${{ steps.get_commit_info.outputs.commit_id }}
       COMMIT_MESSAGE: ${{ steps.get_commit_info.outputs.commit_message }}
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+      - name: Checkout
+        uses: cloudbees-io/checkout@v1
       
       - name: Get commit information
         uses: docker://alpine/git:latest
