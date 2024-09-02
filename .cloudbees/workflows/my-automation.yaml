@@ -212,6 +212,8 @@ jobs:
   Evidence:
    needs: CommitInfoStage
    steps:
+    - name: Checkout
+      uses: cloudbees-io/checkout@v1
     - name: Publish evidence
       uses: cloudbees-io/publish-evidence-item@v1
       with:
@@ -220,7 +222,4 @@ jobs:
           - URL: ${{ cloudbees.api.url }}
           
           ## Commit Information
-          $(cat commit-info.md)
-
-          ## SonarQube Metrics
-          $(cat sonar-metrics.md)
+            $(echo "$(cat /cloudbees/workspace/commit-info.md)")
