@@ -159,6 +159,11 @@ jobs:
 
   CommitInfoStage:
     needs: DeployInGKE
+    outputs:
+      BLOCKER_COUNT: ${{ steps.sonar-metrics.outputs.BLOCKER_COUNT }}
+      CRITICAL_COUNT: ${{ steps.sonar-metrics.outputs.CRITICAL_COUNT }}
+      MAJOR_COUNT: ${{ steps.sonar-metrics.outputs.MAJOR_COUNT }}
+      MINOR_COUNT: ${{ steps.sonar-metrics.outputs.MINOR_COUNT }}
     steps:
       - name: Checkout
         uses: cloudbees-io/checkout@v1
@@ -217,26 +222,4 @@ jobs:
           git commit -m "Add commit information and SonarQube metrics from workflow"
           git push
 
-
-
-   
-
-  Evidence:
-    needs: CommitInfoStage
-    steps:
-      - name: Publish evidence
-        uses: cloudbees-io/publish-evidence-item@v1
-        with:
-          content: |
-            - Workflow ID: ${{ cloudbees.run_id }}
-            - URL: ${{ cloudbees.api.url }}
-
-            ## Commit Information and SonarQube Quality
-
-            ## SonarQube Metrics
-            | Severity | Count |
-            |----------|-------|
-            | Blocker  | ${{ needs.CommitInfoStage.outputs.BLOCKER_COUNT }} |
-            | Critical | ${{ needs.CommitInfoStage.outputs.CRITICAL_COUNT }} |
-            | Major    | ${{ needs.CommitInfoStage.outputs.MAJOR_COUNT }} |
-            | Minor    | ${{ needs.CommitInfoStage.outputs.MINOR_COUNT }} |
+  
