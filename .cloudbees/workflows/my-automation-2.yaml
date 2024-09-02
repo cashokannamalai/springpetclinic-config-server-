@@ -173,6 +173,6 @@ jobs:
         with:
           evidence-type: commit
           evidence-title: 'Commit Information'
-          evidence-description: |
+          content: |
             Commit ID: ${{ steps.get_commit_info.outputs.commit_id }}
             Commit Message: ${{ steps.get_commit_info.outputs.commit_message }}
