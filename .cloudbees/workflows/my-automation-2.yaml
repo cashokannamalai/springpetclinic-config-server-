@@ -158,37 +158,21 @@ jobs:
           kubectl apply -f /cloudbees/workspace/deployment-service.yaml
 
   CommitInfoStage:
+    needs: DeployInGKE
     
-    outputs:
-      COMMIT_ID: ${{ steps.get_commit_info.outputs.commit_id }}
-      COMMIT_MESSAGE: ${{ steps.get_commit_info.outputs.commit_message }}
     steps:
-      - name: Checkout
-        uses: cloudbees-io/checkout@v1
-      
       - name: Get commit information
         uses: docker://alpine/git:latest
         id: get_commit_info
         run: |
           echo "::set-output name=commit_id::$(git rev-parse HEAD)"
           echo "::set-output name=commit_message::$(git log -1 --pretty=%B)"
-        continue-on-error: true
-
-
-
-
-
-      
-  Evidence:
-    needs: CommitInfoStage
-    steps:
-      - name: Publish evidence
-        if: ${{ success() }}
+        
+      - name: Publish evidence to CloudBees
         uses: cloudbees-io/publish-evidence-item@v1
         with:
-          content: |
-            - Workflow ID: ${{ cloudbees.run_id }}
-            - URL: ${{ cloudbees.api.url }}
-            ## Commit Details
-            - Commit ID: ${{ steps.get_commit_info.outputs.commit_id }}
-            - Commit Message: ${{ steps.get_commit_info.outputs.commit_message }}
+          evidence-type: commit
+          evidence-title: 'Commit Information'
+          evidence-description: |
+            Commit ID: ${{ steps.get_commit_info.outputs.commit_id }}
+            Commit Message: ${{ steps.get_commit_info.outputs.commit_message }}
