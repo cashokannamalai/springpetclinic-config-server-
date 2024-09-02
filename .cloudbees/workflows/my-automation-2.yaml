@@ -8,10 +8,8 @@ on:
 jobs:
   Checkout:
     steps:
-      - name: Checkout Code
-        uses: docker://alpine:latest
-        shell: bash
-        run: git clone https://github.com/cashokannamalai/spring-petclinic-config-server.git
+      - name: Checkout
+        uses: cloudbees-io/checkout@v1
 
       - name: Fetch commit-info.md content
         uses: docker://alpine:latest
