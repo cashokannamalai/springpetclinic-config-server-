@@ -195,6 +195,10 @@ jobs:
         echo "## SonarQube Metrics" >> commit-info.md
         cat sonar-metrics.md >> commit-info.md
 
+        # Set output variables
+        echo "::set-output name=commit_id::$COMMIT_ID"
+        echo "::set-output name=commit_message::$COMMIT_MSG"
+
     - name: Configure Git
       uses: docker://alpine/git:latest
       run: |
@@ -222,4 +226,4 @@ jobs:
           - URL: ${{ cloudbees.api.url }}
           
           ## Commit Information
-            $(echo "$(cat /cloudbees/workspace/commit-info.md)")
+          - Commit ID: ${{ secrets.COMMIT_ID }}
