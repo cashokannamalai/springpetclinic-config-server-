@@ -6,10 +6,6 @@ on:
     branches:
       - main
 jobs:
-  Checkout:
-    steps:
-      - name: Checkout
-        uses: cloudbees-io/checkout@v1
   Build:
     needs: Checkout
     steps:
@@ -24,11 +20,13 @@ jobs:
         id: build
         run: |
           mvn clean install
-          echo "CommitId=$(git rev-parse HEAD)" >> $GITHUB_ENV
-
+          COMMIT_ID=$(git rev-parse HEAD)
+          echo "::set-output name=CommitId::$COMMIT_ID"
     outputs:
       CommitId: ${{ steps.build.outputs.CommitId }}
 
+
+    
    
   Evidence:
     needs: Build
