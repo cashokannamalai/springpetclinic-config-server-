@@ -28,42 +28,36 @@ jobs:
           mvn clean install
 
   Evidence:
-    needs: Build
-    steps:
-      - name: Checkout
-        uses: cloudbees-io/checkout@v1
+   needs: Build
+   steps:
+    - name: Checkout
+      uses: cloudbees-io/checkout@v1
 
-      - name: Get commit information
-        uses: docker://alpine/git:latest
-        id: get_commit_info
-        run: |
-          COMMIT_ID=$(git rev-parse HEAD)
-          echo "${COMMIT_ID}" > commit_id.txt
+    - name: Get commit information
+      uses: docker://alpine/git:latest
+      id: get_commit_info
+      run: |
+        COMMIT_ID=$(git rev-parse HEAD)
+        echo "${COMMIT_ID}" > commit_id.txt
 
-      - name: Read commit ID
-        uses: docker://alpine/git:latest
-        id: read_commit_id
-        run: |
-          COMMIT_ID=$(cat commit_id.txt)
-          echo "COMMIT_ID=${COMMIT_ID}"
-          echo "::set-output name=COMMIT_ID::${COMMIT_ID}"
-        # Save the commit ID to an output variable
-        outputs:
-          COMMIT_ID:
-            description: 'The commit ID'
-            value: ${{ steps.read_commit_id.outputs.COMMIT_ID }}
+    - name: Read commit ID
+      id: read_commit_id
+      uses: docker://alpine/git:latest
+      run: |
+        COMMIT_ID=$(cat commit_id.txt)
+        echo "COMMIT_ID=${COMMIT_ID}" >> $GITHUB_ENV
 
-      - name: Debug Variables
-        uses: docker://alpine/git:latest
-        run: |
-          echo "Run ID: ${{ cloudbees.run_id }}"
-          echo "API URL: ${{ cloudbees.api.url }}"
-          echo "Commit ID: ${{ steps.read_commit_id.outputs.COMMIT_ID }}"
+    - name: Debug Variables
+      uses: docker://alpine/git:latest
+      run: |
+        echo "Run ID: ${{ cloudbees.run_id }}"
+        echo "API URL: ${{ cloudbees.api.url }}"
+        echo "Commit ID: ${{ env.COMMIT_ID }}"
 
-      - name: Publish evidence
-        uses: cloudbees-io/publish-evidence-item@v1
-        with:
-          content: |
-            - Workflow ID: ${{ cloudbees.run_id }}
-            - URL: ${{ cloudbees.api.url }}
-            - Commit ID: ${{ steps.read_commit_id.outputs.COMMIT_ID }}
+    - name: Publish evidence
+      uses: cloudbees-io/publish-evidence-item@v1
+      with:
+        content: |
+          - Workflow ID: ${{ cloudbees.run_id }}
+          - URL: ${{ cloudbees.api.url }}
+          - Commit ID: ${{ env.COMMIT_ID }}
