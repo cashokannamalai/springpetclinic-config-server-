@@ -22,19 +22,32 @@ jobs:
       - name: Checkout
         uses: cloudbees-io/checkout@v1
 
+      - name: Capture Commit Information
+        uses: docker://alpine:latest
+        run: |
+          echo "COMMIT_ID=$(git rev-parse HEAD)" > commit_info.txt
+          echo "COMMIT_MESSAGE=$(git log -1 --pretty=%B)" >> commit_info.txt
+
       - name: Build
         uses: docker://maven:3-eclipse-temurin-17
         run: |
           mvn clean install
-        env:
-          COMMIT_ID: ${{ vars.GIT_COMMIT_ID }}
-          COMMIT_MESSAGE: ${{ vars.GIT_COMMIT_MESSAGE }}
+        # Ensure commit_info.txt is available in the workspace or artifact
+        # This depends on how CloudBees handles workspace artifacts
 
   Evidence:
     needs: Build
     steps:
       - name: Checkout
         uses: cloudbees-io/checkout@v1
+
+      - name: Read Commit Information
+        uses: docker://alpine:latest
+        run: |
+          COMMIT_ID=$(grep 'COMMIT_ID=' commit_info.txt | cut -d'=' -f2)
+          COMMIT_MESSAGE=$(grep 'COMMIT_MESSAGE=' commit_info.txt | cut -d'=' -f2)
+          echo "COMMIT_ID=$COMMIT_ID" >> $GITHUB_ENV
+          echo "COMMIT_MESSAGE=$COMMIT_MESSAGE" >> $GITHUB_ENV
 
       - name: Publish workflow evidence item
         uses: cloudbees-io/publish-evidence-item@v1
@@ -43,6 +56,6 @@ jobs:
             ## Workflow Evidence
             | Property      | Value                                         |
             |---------------|-----------------------------------------------|
-            | Commit ID     | ${vars.GIT_COMMIT_ID}                        |
-            | Commit Message| ${vars.GIT_COMMIT_MESSAGE}                   |
+            | Commit ID     | ${env.COMMIT_ID}                             |
+            | Commit Message| ${env.COMMIT_MESSAGE}                        |
           format: MARKDOWN
