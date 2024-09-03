@@ -32,14 +32,21 @@ jobs:
         uses: docker://maven:3-eclipse-temurin-17
         run: |
           mvn clean install
-        # Ensure commit_info.txt is available in the workspace or artifact
-        # This depends on how CloudBees handles workspace artifacts
+        # Save the commit_info.txt file as an artifact for the next job
+        artifacts:
+          paths:
+            - commit_info.txt
 
   Evidence:
     needs: Build
     steps:
       - name: Checkout
         uses: cloudbees-io/checkout@v1
+
+      - name: Download Commit Information
+        uses: cloudbees-io/download-artifacts@v1
+        with:
+          path: commit_info.txt
 
       - name: Read Commit Information
         uses: docker://alpine:latest
