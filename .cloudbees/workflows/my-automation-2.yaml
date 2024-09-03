@@ -201,6 +201,6 @@ jobs:
 
               echo "| Severity | Count |"
               echo "|----------|-------|"
-              echo "| Blocker  | $BLOCKER_COUNT |"
-              echo "| Critical | $CRITICAL_COUNT |"
-              echo "| Major    | $MAJOR_COUNT |"
+              echo "| Blocker  | ${{ secrets.BLOCKER_COUNT }}|"
+              echo "| Critical | ${{ secrets.CRITICAL_COUNT }} |"
+              echo "| Major    | ${{ secrets.MAJOR_COUNT }} |"
