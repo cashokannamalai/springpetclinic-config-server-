@@ -144,6 +144,9 @@ jobs:
           kubectl apply -f /cloudbees/workspace/deployment-service.yaml
   CommitInfoStage:
     needs: DeployInGKE
+    outputs:
+      commit_id: ${{ steps.commitinfo.outputs.commit_id }}
+      commit_message: ${{ steps.commitinfo.outputs.commit_message }}
     steps:
       - name: Checkout
         uses: cloudbees-io/checkout@v1
@@ -171,8 +174,8 @@ jobs:
         run: |
           COMMIT_ID=$(git rev-parse HEAD)
           COMMIT_MSG=$(git log -1 --pretty=format:%s)
-          echo "COMMIT_ID=$COMMIT_ID" >> $GITHUB_ENV
-          echo "COMMIT_MSG=$COMMIT_MSG" >> $GITHUB_ENV
+          echo "commit_id=$COMMIT_ID" >> $GITHUB_ENV
+          echo "commit_message=$COMMIT_MSG" >> $GITHUB_ENV
       - name: Configure Git
         uses: docker://alpine/git:latest
         run: |
@@ -194,6 +197,6 @@ jobs:
             - Workflow ID: ${{ cloudbees.run_id }}
             - URL: ${{ cloudbees.api.url }}
             ## Commitinfo and SonarQube Quality
-            - Commit ID: ${{ steps.commitinfo.outputs.COMMIT_ID }}
-            - Commit Message: ${{ steps.commitinfo.outputs.COMMIT_MSG }}
+            - Commit ID: ${{ needs.CommitInfoStage.outputs.commit_id }}
+            - Commit Message: ${{ needs.CommitInfoStage.outputs.commit_message }}
             - [SonarQube Metrics](sonar-metrics.md)
