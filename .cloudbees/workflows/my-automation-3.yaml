@@ -46,9 +46,12 @@ jobs:
         run: |
           COMMIT_ID=$(cat commit_id.txt)
           echo "COMMIT_ID=${COMMIT_ID}"
+          echo "::set-output name=COMMIT_ID::${COMMIT_ID}"
         # Save the commit ID to an output variable
         outputs:
-          COMMIT_ID: ${{ steps.read_commit_id.outputs.COMMIT_ID }}
+          COMMIT_ID:
+            description: 'The commit ID'
+            value: ${{ steps.read_commit_id.outputs.COMMIT_ID }}
 
       - name: Debug Variables
         uses: docker://alpine/git:latest
