@@ -49,7 +49,7 @@ jobs:
         with:
           content: |
             - Workflow ID: ${{ cloudbees.run_id }}
-            - JWT: ${{ cloudbees.api.token }}
+          
             - URL: ${{ cloudbees.api.url }}
             
 
