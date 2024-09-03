@@ -42,6 +42,6 @@ jobs:
         with:
           content: |
             - Workflow ID: ${{ cloudbees.run_id }}
-            - URL: https://cloudbees.io/orgs/se-platform-demo/components/runs?componentId=b1ba87ba-db9c-44f0-9954-4b4a11a8f168&organizationId=d6e54dd4-dbd4-4e09-6542-92b8659319ef
+            - URL: https://cloudbees.io/orgs/se-platform-demo
             - Commit ID: ${{ env.COMMIT_ID }}
             - Commit Message: ${{ env.COMMIT_MSG }}
