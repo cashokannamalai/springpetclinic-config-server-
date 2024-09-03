@@ -25,7 +25,6 @@ jobs:
       - name: Build
         uses: docker://maven:3-eclipse-temurin-17
         run: |
-       
           mvn clean install
 
   Evidence:
@@ -34,23 +33,18 @@ jobs:
       - name: Checkout
         uses: cloudbees-io/checkout@v1
 
-
-
       - name: Get commit information
         uses: docker://alpine/git:latest
         id: get_commit_info
         run: |
           COMMIT_ID=$(git rev-parse HEAD)
-          echo "COMMIT_ID=${COMMIT_ID}" 
-     
+          echo "COMMIT_ID=${COMMIT_ID}"
+          echo "::set-output name=commit_id::${COMMIT_ID}"
 
       - name: Publish evidence
         uses: cloudbees-io/publish-evidence-item@v1
         with:
           content: |
             - Workflow ID: ${{ cloudbees.run_id }}
-          
             - URL: ${{ cloudbees.api.url }}
-            
-
-            
+            - Commit ID: ${{ steps.get_commit_info.outputs.commit_id }}
