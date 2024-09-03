@@ -21,6 +21,10 @@ jobs:
           git config --global --add safe.directory /cloudbees/workspace
       - name: Checkout
         uses: cloudbees-io/checkout@v1
+      - name: Create Directory
+        uses: docker://alpine/git:latest
+        run: |
+          mkdir -p /cloudbees/workspace
       - name: Build
         uses: docker://maven:3-eclipse-temurin-17
         run: |
@@ -29,29 +33,29 @@ jobs:
           mvn clean install
 
   Evidence:
-   needs: Build
-   steps:
-    - name: Checkout
-      uses: cloudbees-io/checkout@v1
+    needs: Build
+    steps:
+      - name: Checkout
+        uses: cloudbees-io/checkout@v1
 
-    - name: Debug Info
-      uses: docker://alpine:latest
-      run: |
-        # Debugging: Check directory existence
-        ls -la /cloudbees/workspace || echo "Directory /cloudbees/workspace does not exist"
+      - name: Debug Info
+        uses: docker://alpine:latest
+        run: |
+          # Debugging: Check directory existence
+          ls -la /cloudbees/workspace || echo "Directory /cloudbees/workspace does not exist"
 
-    - name: Get commit information
-      uses: docker://alpine/git:latest
-      id: get_commit_info
-      run: |
-        COMMIT_ID=$(git rev-parse HEAD)
-        echo "COMMIT_ID=${COMMIT_ID}" >> $GITHUB_ENV
-        echo "COMMIT_ID=${COMMIT_ID}" # Debug line
+      - name: Get commit information
+        uses: docker://alpine/git:latest
+        id: get_commit_info
+        run: |
+          COMMIT_ID=$(git rev-parse HEAD)
+          echo "COMMIT_ID=${COMMIT_ID}" >> $GITHUB_ENV
+          echo "COMMIT_ID=${COMMIT_ID}" # Debug line
 
-    - name: Publish evidence
-      uses: cloudbees-io/publish-evidence-item@v1
-      with:
-        content: |
-          - Workflow ID: ${{ cloudbees.run_id }}
-          - URL: ${{ cloudbees.api.url }}
-          - Commit ID: ${{ steps.get_commit_info.outputs.COMMIT_ID }}
+      - name: Publish evidence
+        uses: cloudbees-io/publish-evidence-item@v1
+        with:
+          content: |
+            - Workflow ID: ${{ cloudbees.run_id }}
+            - URL: ${{ cloudbees.api.url }}
+            - Commit ID: ${{ steps.get_commit_info.outputs.COMMIT_ID }}
