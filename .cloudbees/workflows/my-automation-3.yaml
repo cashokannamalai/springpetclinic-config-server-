@@ -21,11 +21,14 @@ jobs:
           git config --global --add safe.directory /cloudbees/workspace
       - name: Checkout
         uses: cloudbees-io/checkout@v1
-      
+
       - name: Build
         uses: docker://maven:3-eclipse-temurin-17
         run: |
           mvn clean install
+        env:
+          COMMIT_ID: ${{ vars.GIT_COMMIT_ID }}
+          COMMIT_MESSAGE: ${{ vars.GIT_COMMIT_MESSAGE }}
 
   Evidence:
     needs: Build
@@ -40,10 +43,6 @@ jobs:
             ## Workflow Evidence
             | Property      | Value                                         |
             |---------------|-----------------------------------------------|
-            | Commit ID     | ${COMMIT_ID}                                  |
-            | Commit Message| ${COMMIT_MESSAGE}                             |
+            | Commit ID     | ${vars.GIT_COMMIT_ID}                        |
+            | Commit Message| ${vars.GIT_COMMIT_MESSAGE}                   |
           format: MARKDOWN
-        env:
-          COMMIT_ID: ${{ secrets.COMMIT_ID }}
-          COMMIT_MESSAGE: ${{ secrets.COMMIT_MESSAGE }}
-          
