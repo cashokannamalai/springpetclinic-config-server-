@@ -10,6 +10,7 @@ jobs:
     steps:
       - name: Checkout
         uses: cloudbees-io/checkout@v1
+
   Build:
     needs: Checkout
     steps:
@@ -23,14 +24,22 @@ jobs:
         uses: docker://maven:3-eclipse-temurin-17
         run: |
           mvn clean install
- 
+
   Evidence:
     needs: Build
     steps:
+      - name: Get commit information
+        uses: docker://alpine/git:latest
+        run: |
+          COMMIT_ID=$(git rev-parse HEAD)
+          COMMIT_MESSAGE=$(git log -1 --pretty=%B)
+          echo "COMMIT_ID=$COMMIT_ID" >> $GITHUB_ENV
+          echo "COMMIT_MESSAGE=$COMMIT_MESSAGE" >> $GITHUB_ENV
       - name: Publish evidence
         uses: cloudbees-io/publish-evidence-item@v1
         with:
           content: |
             - Workflow ID: ${{ cloudbees.run_id }}
             - URL: ${{ cloudbees.api.url }}
-           
+            - Commit ID: ${{ env.COMMIT_ID }}
+            - Commit Message: ${{ env.COMMIT_MESSAGE }}
