@@ -10,8 +10,11 @@ jobs:
     steps:
       - name: Checkout
         uses: cloudbees-io/checkout@v1
+
   Build:
     needs: Checkout
+    outputs:
+      CommitId: ${{ steps.build.outputs.CommitId }}
     steps:
       - name: Configure git
         uses: docker://alpine/git:latest
@@ -25,14 +28,9 @@ jobs:
         run: |
           mvn clean install
           echo "CommitId=$(git rev-parse HEAD)" > commit_id.txt
-    outputs:
-      CommitId: ${{ steps.build.outputs.CommitId }}
 
-
-    
-   
   Evidence:
- 
+    needs: Build
     steps:
       - name: Publish Evidence
         uses: cloudbees-io/publish-evidence-item@v1
@@ -41,5 +39,3 @@ jobs:
             - Workflow ID: ${{ cloudbees.run_id }}
             - URL: ${{ cloudbees.api.url }}
             - Commit ID: ${{ needs.Build.outputs.CommitId }}
-
-   
