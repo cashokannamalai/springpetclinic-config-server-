@@ -25,7 +25,7 @@ jobs:
           mvn clean install
  
   Evidence:
-    needs: CommitInfoStage
+    needs: Build
     steps:
       - name: Publish evidence
         uses: cloudbees-io/publish-evidence-item@v1
