@@ -38,6 +38,7 @@ jobs:
         run: |
           COMMIT_ID=$(git rev-parse HEAD)
           echo "COMMIT_ID=$COMMIT_ID" >> $GITHUB_ENV
+          echo "COMMIT_ID=${COMMIT_ID}" # Debug line to verify COMMIT_ID
 
       - name: Publish evidence
         uses: cloudbees-io/publish-evidence-item@v1
