@@ -6,6 +6,10 @@ on:
     branches:
       - main
 jobs:
+  Checkout:
+    steps:
+      - name: Checkout
+        uses: cloudbees-io/checkout@v1
   Build:
     needs: Checkout
     steps:
