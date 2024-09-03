@@ -28,11 +28,8 @@ jobs:
         run: |
           COMMIT_ID=$(git rev-parse HEAD)
           COMMIT_MSG=$(git log -1 --pretty=%B)
-          echo "Commit ID: ${COMMIT_ID}" > commit_id.txt
-          echo "Commit Message: ${COMMIT_MSG}" > commit_msg.txt
-          # If you need to update or use these values elsewhere:
-          # echo "::set-output name=CommitId::${COMMIT_ID}"
-          # echo "::set-output name=CommitMsg::${COMMIT_MSG}"
+          echo "COMMIT_ID=${COMMIT_ID}" >> $CLOUDBEES_RUNTIME
+          echo "COMMIT_MSG=${COMMIT_MSG}" >> $CLOUDBEES_RUNTIME
 
       - name: Build
         uses: docker://maven:3-eclipse-temurin-17
@@ -46,5 +43,5 @@ jobs:
           content: |
             - Workflow ID: ${{ cloudbees.run_id }}
             - URL: ${{ cloudbees.api.url }}
-            - Commit ID: ${{ secrets.COMMIT_ID }}
-            - Commit Message: ${{ secrets.COMMIT_MSG }}
+            - Commit ID: ${{ cloudbees_runtime.COMMIT_ID }}
+            - Commit Message: ${{ cloudbees_runtime.COMMIT_MSG }}
