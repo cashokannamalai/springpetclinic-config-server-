@@ -21,15 +21,11 @@ jobs:
           git config --global --add safe.directory /cloudbees/workspace
       - name: Checkout
         uses: cloudbees-io/checkout@v1
-      - name: Create Directory
-        uses: docker://alpine/git:latest
-        run: |
-          mkdir -p /cloudbees/workspace
+      
       - name: Build
         uses: docker://maven:3-eclipse-temurin-17
         run: |
-          # Ensure the working directory exists
-          mkdir -p /cloudbees/workspace
+       
           mvn clean install
 
   Evidence:
@@ -38,11 +34,7 @@ jobs:
       - name: Checkout
         uses: cloudbees-io/checkout@v1
 
-      - name: Debug Info
-        uses: docker://alpine:latest
-        run: |
-          # Debugging: Check directory existence
-          ls -la /cloudbees/workspace || echo "Directory /cloudbees/workspace does not exist"
+
 
       - name: Get commit information
         uses: docker://alpine/git:latest
@@ -50,7 +42,7 @@ jobs:
         run: |
           COMMIT_ID=$(git rev-parse HEAD)
           echo "COMMIT_ID=${COMMIT_ID}" >> $GITHUB_ENV
-          echo "COMMIT_ID=${COMMIT_ID}" # Debug line
+     
 
       - name: Publish evidence
         uses: cloudbees-io/publish-evidence-item@v1
