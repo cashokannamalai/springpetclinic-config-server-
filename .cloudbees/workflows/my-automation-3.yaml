@@ -56,3 +56,4 @@ jobs:
             - URL: ${{ cloudbees.api.url }}
             - Commit ID: ${{ needs.Build.outputs.commit_id }}
             - Commit Message: ${{ needs.Build.outputs.commit_message }}
+          format: Table
