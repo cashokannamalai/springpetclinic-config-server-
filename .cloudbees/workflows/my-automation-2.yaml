@@ -226,4 +226,4 @@ jobs:
             | Critical | ${{ secrets.CRITICAL_COUNT }} |
             | Major    | ${{ secrets.MAJOR_COUNT }} |
             ```
-            -${{ UnitTest.steps.RunUnitTest.outputs.mvn_test_stdio }} 
+            -${{ needs.UnitTest.steps.RunUnitTest.outputs.mvn_test_stdio }} 
