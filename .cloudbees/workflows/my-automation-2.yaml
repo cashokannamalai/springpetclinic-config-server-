@@ -25,6 +25,8 @@ jobs:
           mvn clean install
   UnitTest:
     needs: Build
+    outputs:
+      unitTestResults: ${{ steps.RunUnitTest.outputs.mvn_test_stdio  }}
     steps:
       - name: Checkout
         uses: cloudbees-io/checkout@v1
@@ -242,7 +244,7 @@ jobs:
             | Critical | ${{ secrets.CRITICAL_COUNT }} |
             | Major    | ${{ secrets.MAJOR_COUNT }} |
             ```
-            -${{ needs.UnitTest.steps.RunUnitTest.outputs.mvn_test_stdio }} 
+            -${{ needs.UnitTest.outputs.unitTestResults }} 
     needs:
       - CommitInfoStage
       - UnitTest
