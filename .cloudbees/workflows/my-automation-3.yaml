@@ -14,12 +14,11 @@ jobs:
   Build:
     needs: Checkout
     outputs:
-      CommitId: ${{ steps.build.outputs.CommitId }}
+      CommitIdFile: ${{ steps.build.outputs.CommitIdFile }}
     steps:
       - name: Configure git
         uses: docker://alpine/git:latest
         run: |
-          set -x  # Enable debugging
           git config --global --add safe.directory /cloudbees/workspace
       - name: Checkout
         uses: cloudbees-io/checkout@v1
@@ -27,18 +26,32 @@ jobs:
         uses: docker://maven:3-eclipse-temurin-17
         id: build
         run: |
-          set -x  # Enable debugging
           mvn clean install
           echo "CommitId=$(git rev-parse HEAD)" > commit_id.txt
+          echo "CommitIdFile=commit_id.txt" >> $GITHUB_ENV
+      - name: Upload CommitId File
+        uses: ./.github/actions/upload-artifact@v3
+        with:
+          name: commit-id
+          path: commit_id.txt
 
   Evidence:
     needs: Build
-    if: success()  # Ensure this job runs only if the Build job succeeds
     steps:
+      - name: Download CommitId File
+        uses: actions/download-artifact@v3
+        with:
+          name: commit-id
+      - name: Read CommitId
+        uses: docker://alpine/git:latest
+        id: read_commit_id
+        run: |
+          CommitId=$(cat commit_id.txt)
+          echo "CommitId=$CommitId" >> $GITHUB_ENV
       - name: Publish Evidence
         uses: cloudbees-io/publish-evidence-item@v1
         with:
           content: |
             - Workflow ID: ${{ cloudbees.run_id }}
             - URL: ${{ cloudbees.api.url }}
-            - Commit ID: ${{ needs.Build.outputs.CommitId }}
+            - Commit ID: ${{ env.CommitId }}
