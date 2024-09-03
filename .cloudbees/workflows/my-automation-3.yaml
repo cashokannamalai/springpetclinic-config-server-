@@ -36,7 +36,7 @@ jobs:
         id: read-json
         run: |
           # Replace 'path/to/yourfile.json' with the actual path to your JSON file
-          cat /cloudbees/workspace/commit.json > json_content.txt
+          cat commit.json > json_content.txt
 
       - name: Set JSON content as environment variable
         uses: docker://alpine/git:latest
