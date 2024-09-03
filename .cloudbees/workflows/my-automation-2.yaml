@@ -199,8 +199,10 @@ jobs:
             ## Commitinfo and SonarQube Quality
             -CommitId: ${{ secrets.Commitinfo }}
 
-              echo "| Severity | Count |"
-              echo "|----------|-------|"
-              echo "| Blocker  | ${{ secrets.BLOCKER_COUNT }}|"
-              echo "| Critical | ${{ secrets.CRITICAL_COUNT }} |"
-              echo "| Major    | ${{ secrets.MAJOR_COUNT }} |"
+               ```markdown
+            | Severity | Count |
+            |----------|-------|
+            | Blocker  | ${{ secrets.BLOCKER_COUNT }} |
+            | Critical | ${{ secrets.CRITICAL_COUNT }} |
+            | Major    | ${{ secrets.MAJOR_COUNT }} |
+            ```
