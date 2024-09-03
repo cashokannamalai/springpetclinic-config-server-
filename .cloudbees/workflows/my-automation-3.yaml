@@ -38,8 +38,16 @@ jobs:
         id: get_commit_info
         run: |
           COMMIT_ID=$(git rev-parse HEAD)
+          echo "${COMMIT_ID}" > commit_id.txt
+        # Save the commit ID to a file
+
+      - name: Read commit ID
+        uses: docker://alpine/git:latest
+        id: read_commit_id
+        run: |
+          COMMIT_ID=$(cat commit_id.txt)
           echo "COMMIT_ID=${COMMIT_ID}"
-          echo "::set-output name=commit_id::${COMMIT_ID}"
+        # Read the commit ID from the file
 
       - name: Publish evidence
         uses: cloudbees-io/publish-evidence-item@v1
@@ -47,4 +55,5 @@ jobs:
           content: |
             - Workflow ID: ${{ cloudbees.run_id }}
             - URL: ${{ cloudbees.api.url }}
-            - Commit ID: ${{ steps.get_commit_info.outputs.commit_id }}
+            - Commit ID: ${{ steps.read_commit_id.outputs.COMMIT_ID }}
+        # Use the commit ID in the evidence
