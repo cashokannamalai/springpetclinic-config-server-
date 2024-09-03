@@ -22,12 +22,7 @@ jobs:
           git config --global --add safe.directory /cloudbees/workspace
       - name: Checkout
         uses: cloudbees-io/checkout@v1
-      - name: Get Commit ID
-        id: get_commit_id
-        uses: docker://alpine/git:latest
-        run: |
-          echo "Commit ID: $(git rev-parse HEAD)" > commit_id.txt
-          echo "::set-output name=CommitIdFile::$(cat commit_id.txt)"
+      
       - name: Build
         uses: docker://maven:3-eclipse-temurin-17
         id: build
