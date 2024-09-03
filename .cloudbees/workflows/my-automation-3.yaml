@@ -21,17 +21,24 @@ jobs:
         uses: cloudbees-io/checkout@v1
       - name: Build
         uses: docker://maven:3-eclipse-temurin-17
+        id: build
         run: |
           mvn clean install
-  Envidence:
-    steps:
-      - uses: cloudbees-io/publish-evidence-item@v1
-        name: steps1
-        with:
-          content: |2-
-              - Workflow ID: ${{ cloudbees.run_id }}
-              - URL: ${{ cloudbees.api.url }}
-    needs:
-      - Build
+          echo "CommitId=$(git rev-parse HEAD)" >> $GITHUB_ENV
+
     outputs:
-      -CommitId: "0"
+      CommitId: ${{ steps.build.outputs.CommitId }}
+
+   
+  Evidence:
+    needs: Build
+    steps:
+      - name: Publish Evidence
+        uses: cloudbees-io/publish-evidence-item@v1
+        with:
+          content: |
+            - Workflow ID: ${{ cloudbees.run_id }}
+            - URL: ${{ cloudbees.api.url }}
+            - Commit ID: ${{ needs.Build.outputs.CommitId }}
+
+   
