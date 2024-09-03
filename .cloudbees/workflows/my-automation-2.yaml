@@ -34,6 +34,7 @@ jobs:
         uses: docker://maven:3-eclipse-temurin-17
         run: |
           mvn test > "$CLOUDBEES_OUTPUTS/mvn_test_stdio"
+          echo "$CLOUDBEES_OUTPUTS/mvn_test_stdio"
   StaticAnalysis:
     steps:
       - uses: cloudbees-io/sonarqube-sast-scan-code@v1
@@ -244,7 +245,7 @@ jobs:
             | Critical | ${{ secrets.CRITICAL_COUNT }} |
             | Major    | ${{ secrets.MAJOR_COUNT }} |
             ```
-            - "${{ needs.UnitTest.outputs.unitTestResults }}"
+            #- "${{ needs.UnitTest.outputs.unitTestResults }}"
     needs:
       - CommitInfoStage
       - UnitTest
