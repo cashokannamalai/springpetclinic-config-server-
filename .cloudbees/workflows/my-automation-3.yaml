@@ -18,7 +18,7 @@ jobs:
         uses: docker://alpine/git:latest
         run: |
           git config --global --add safe.directory /cloudbees/workspace
-          
+
       - name: Checkout
         uses: cloudbees-io/checkout@v1
 
@@ -30,8 +30,9 @@ jobs:
           COMMIT_MSG=$(git log -1 --pretty=%B)
           echo "Commit ID: ${COMMIT_ID}" > commit_id.txt
           echo "Commit Message: ${COMMIT_MSG}" > commit_msg.txt
-          echo "::set-output name=CommitId::${COMMIT_ID}"
-          echo "::set-output name=CommitMsg::${COMMIT_MSG}"
+          # If you need to update or use these values elsewhere:
+          # echo "::set-output name=CommitId::${COMMIT_ID}"
+          # echo "::set-output name=CommitMsg::${COMMIT_MSG}"
 
       - name: Build
         uses: docker://maven:3-eclipse-temurin-17
@@ -45,5 +46,5 @@ jobs:
           content: |
             - Workflow ID: ${{ cloudbees.run_id }}
             - URL: ${{ cloudbees.api.url }}
-            - Commit ID: ${{ steps.get_commit_info.outputs.CommitId }}
-            - Commit Message: ${{ steps.get_commit_info.outputs.CommitMsg }}
+            - Commit ID: ${{ secrets.COMMIT_ID }}
+            - Commit Message: ${{ secrets.COMMIT_MSG }}
