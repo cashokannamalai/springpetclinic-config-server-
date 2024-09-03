@@ -29,6 +29,10 @@ jobs:
   Evidence:
     needs: Build
     steps:
+      - name: Configure git
+        uses: docker://alpine/git:latest
+        run: |
+          git config --global --add safe.directory /cloudbees/workspace
       - name: Checkout
         uses: cloudbees-io/checkout@v1
 
@@ -46,4 +50,4 @@ jobs:
           content: |
             - Workflow ID: ${{ cloudbees.run_id }}
             - URL: ${{ cloudbees.api.url }}
-            - Commit ID: ${{ steps.get_commit_info.outputs.COMMIT_ID }} # Use the output directly
+            - Commit ID: ${{ steps.get_commit_info.outputs.COMMIT_ID }} 
