@@ -24,8 +24,7 @@ jobs:
         id: build
         run: |
           mvn clean install
-          COMMIT_ID=$(git rev-parse HEAD)
-          echo "::set-output name=CommitId::$COMMIT_ID"
+          echo "CommitId=$(git rev-parse HEAD)" > commit_id.txt
     outputs:
       CommitId: ${{ steps.build.outputs.CommitId }}
 
