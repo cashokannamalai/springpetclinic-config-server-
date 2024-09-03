@@ -32,7 +32,7 @@ jobs:
     
    
   Evidence:
-    needs: Build
+ 
     steps:
       - name: Publish Evidence
         uses: cloudbees-io/publish-evidence-item@v1
