@@ -37,12 +37,17 @@ jobs:
         id: get_commit_info
         run: |
           COMMIT_ID=$(git rev-parse HEAD)
-          echo "COMMIT_ID=$COMMIT_ID" >> $GITHUB_ENV
+          echo "COMMIT_ID=$COMMIT_ID" > COMMIT_ID.txt
 
       - name: Publish evidence
         uses: cloudbees-io/publish-evidence-item@v1
+        run: |
+          COMMIT_ID=$(cat COMMIT_ID.txt)
+          echo "- Workflow ID: ${{ cloudbees.run_id }}"
+          echo "- URL: ${{ cloudbees.api.url }}"
+          echo "- Commit ID: $COMMIT_ID"
         with:
           content: |
             - Workflow ID: ${{ cloudbees.run_id }}
             - URL: ${{ cloudbees.api.url }}
-            - Commit ID: ${{ env.COMMIT_ID }}
+            - Commit ID: $COMMIT_ID
