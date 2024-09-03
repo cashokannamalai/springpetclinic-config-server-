@@ -30,19 +30,14 @@ jobs:
           echo "CommitId=$(git rev-parse HEAD)" > commit_id.txt
      
 
-  Evidence:
-    needs: Build
-    steps:
-      - name: Download CommitId File
-        uses: actions/download-artifact@v3
-        with:
-          name: commit-id
+
       - name: Read CommitId
         uses: docker://alpine/git:latest
         id: read_commit_id
         run: |
           CommitId=$(cat commit_id.txt)
           echo "CommitId=$CommitId" >> $GITHUB_ENV
+
       - name: Publish Evidence
         uses: cloudbees-io/publish-evidence-item@v1
         with:
