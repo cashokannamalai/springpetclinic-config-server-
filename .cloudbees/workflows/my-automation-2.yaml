@@ -10,6 +10,8 @@ jobs:
     steps:
       - name: Checkout
         uses: cloudbees-io/checkout@v1
+
+
   Build:
     needs: Checkout
     steps:
@@ -23,6 +25,8 @@ jobs:
         uses: docker://maven:3-eclipse-temurin-17
         run: |
           mvn clean install
+
+
   UnitTest:
     needs: Build
     steps:
@@ -32,6 +36,8 @@ jobs:
         uses: docker://maven:3-eclipse-temurin-17
         run: |
           mvn test
+
+
   StaticAnalysis:
     steps:
       - uses: cloudbees-io/sonarqube-sast-scan-code@v1
@@ -72,6 +78,8 @@ jobs:
           echo "| Blocker  | $BLOCKER_COUNT |"
           echo "| Critical | $CRITICAL_COUNT |"
           echo "| Major    | $MAJOR_COUNT |"
+
+
   ArtifactPublish:
     needs: UnitTest
     steps:
@@ -88,6 +96,8 @@ jobs:
         run: |
           mvn deploy \
             -DaltDeploymentRepository=nexus::default::https://${NEXUS_USERNAME}:${NEXUS_PASSWORD}@nexus.cb-demos.io/repository/Petclinic/
+
+
   DockerImageBuildAndPush:
     needs: ArtifactPublish
     steps:
@@ -110,6 +120,8 @@ jobs:
           dockerfile: Dockerfile
           context: .
           destination: ${{ secrets.STAGING_DOCKER_REGISTRY }}/${{ secrets.STAGING_DOCKER_USERNAME }}/configserver:3.2.4
+
+
   Approval:
     needs: DockerImageBuildAndPush
     type: manual-approval
@@ -119,6 +131,8 @@ jobs:
         uses: docker://maven:3-eclipse-temurin-17
         run: |
           echo "Manual approval required before proceeding to deployment."
+
+
   SmokeTest:
     needs: Approval
     steps:
@@ -128,6 +142,8 @@ jobs:
         uses: docker://maven:3-eclipse-temurin-17
         run: |
           mvn test
+
+
   DeployInGKE:
     needs: SmokeTest
     steps:
@@ -142,6 +158,8 @@ jobs:
         shell: sh
         run: |
           kubectl apply -f /cloudbees/workspace/deployment-service.yaml
+
+
   CommitInfoStage:
    needs: DeployInGKE
    steps:
@@ -187,6 +205,8 @@ jobs:
         git add commit-info.md sonar-metrics.md
         git commit -m "Add commit information and SonarQube metrics from workflow"
         git push
+
+        
   Evidence:
     needs: CommitInfoStage
     steps:
