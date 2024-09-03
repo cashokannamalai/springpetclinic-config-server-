@@ -28,12 +28,7 @@ jobs:
         run: |
           mvn clean install
           echo "CommitId=$(git rev-parse HEAD)" > commit_id.txt
-          echo "CommitIdFile=commit_id.txt" >> $GITHUB_ENV
-      - name: Upload CommitId File
-        uses: ./.github/actions/upload-artifact@v3
-        with:
-          name: commit-id
-          path: commit_id.txt
+     
 
   Evidence:
     needs: Build
