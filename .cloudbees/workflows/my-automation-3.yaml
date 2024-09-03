@@ -1,59 +1,61 @@
 apiVersion: automation.cloudbees.io/v1alpha1
 kind: workflow
-name: My automation
-on:
-  push:
-    branches:
-      - main
+metadata:
+  name: My automation
+spec:
+  on:
+    push:
+      branches:
+        - main
 
-jobs:
-  Checkout:
-    steps:
-      - name: Checkout
-        uses: cloudbees-io/checkout@v1
+  jobs:
+    - id: Checkout
+      steps:
+        - name: Checkout
+          uses: cloudbees-io/checkout@v1
 
-  Build:
-    needs: Checkout
-    outputs:
-      commit_id:
-        value: ${{ steps.capture_commit_info.outputs.commit_id }}
-      commit_message:
-        value: ${{ steps.capture_commit_info.outputs.commit_message }}
-    steps:
-      - name: Configure git
-        uses: docker://alpine/git:latest
-        run: |
-          git config --global --add safe.directory /cloudbees/workspace
-      
-      - name: Checkout
-        uses: cloudbees-io/checkout@v1
-      
-      - name: Build
-        uses: docker://maven:3-eclipse-temurin-17
-        run: |
-          mvn clean install
-      
-      - name: Capture Commit Info
-        id: capture_commit_info
-        uses: docker://alpine/git:latest
-        run: |
-          echo "commit_id=$(git rev-parse HEAD)" >> $GITHUB_ENV
-          echo "commit_message=$(git log -1 --pretty=format:%s)" >> $GITHUB_ENV
-          echo "::set-output name=commit_id::$(git rev-parse HEAD)"
-          echo "::set-output name=commit_message::$(git log -1 --pretty=format:%s)"
+    - id: Build
+      needs: [Checkout]
+      outputs:
+        commit_id:
+          value: ${{ steps.capture_commit_info.outputs.commit_id }}
+        commit_message:
+          value: ${{ steps.capture_commit_info.outputs.commit_message }}
+      steps:
+        - name: Configure git
+          uses: docker://alpine/git:latest
+          run: |
+            git config --global --add safe.directory /cloudbees/workspace
+        
+        - name: Checkout
+          uses: cloudbees-io/checkout@v1
+        
+        - name: Build
+          uses: docker://maven:3-eclipse-temurin-17
+          run: |
+            mvn clean install
+        
+        - name: Capture Commit Info
+          id: capture_commit_info
+          uses: docker://alpine/git:latest
+          run: |
+            echo "commit_id=$(git rev-parse HEAD)" >> $GITHUB_ENV
+            echo "commit_message=$(git log -1 --pretty=format:%s)" >> $GITHUB_ENV
+            echo "::set-output name=commit_id::$(git rev-parse HEAD)"
+            echo "::set-output name=commit_message::$(git log -1 --pretty=format:%s)"
 
-  Evidence:
-    needs: Build
-    steps:
-      - name: Checkout
-        uses: cloudbees-io/checkout@v1
+    - id: Evidence
+      needs: [Build]
+      steps:
+        - name: Checkout
+          uses: cloudbees-io/checkout@v1
 
-      - name: Publish evidence
-        uses: cloudbees-io/publish-evidence-item@v1
-        with:
-          content: |
-            - Workflow ID: ${{ cloudbees.run_id }}
-            - URL: ${{ cloudbees.api.url }}
-            - Commit ID: ${{ needs.Build.outputs.commit_id }}
-            - Commit Message: ${{ needs.Build.outputs.commit_message }}
-          format: Table
+        - name: Publish evidence
+          uses: cloudbees-io/publish-evidence-item@v1
+          with:
+            content: |
+              - Workflow ID: ${{ cloudbees.run_id }}
+              - URL: ${{ cloudbees.api.url }}
+              - Commit ID: ${{ needs.Build.outputs.commit_id }}
+              - Commit Message: ${{ needs.Build.outputs.commit_message }}
+            format: Table
