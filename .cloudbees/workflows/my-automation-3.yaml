@@ -28,6 +28,8 @@ jobs:
   Evidence:
     needs: Build
     steps:
+      - name: Checkout
+        uses: cloudbees-io/checkout@v1
       - name: Get commit information
         uses: docker://alpine/git:latest
         id: get_commit_info
