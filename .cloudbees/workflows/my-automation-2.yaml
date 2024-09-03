@@ -32,7 +32,7 @@ jobs:
     steps:
       - name: Checkout
         uses: cloudbees-io/checkout@v1
-      - name: Unit Test
+      - name: RunUnitTest
         uses: docker://maven:3-eclipse-temurin-17
         run: |
           mvn test > "$CLOUDBEES_OUTPUTS/mvn_test_stdio"
@@ -226,4 +226,4 @@ jobs:
             | Critical | ${{ secrets.CRITICAL_COUNT }} |
             | Major    | ${{ secrets.MAJOR_COUNT }} |
             ```
-            -${{ stages.UnitTest.steps.Unit Test.outputs.mvn_test_stdio }} 
+            -${{ stages.UnitTest.steps.RunUnitTest.outputs.mvn_test_stdio }} 
