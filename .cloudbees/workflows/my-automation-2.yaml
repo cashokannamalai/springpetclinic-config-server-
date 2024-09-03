@@ -198,3 +198,5 @@ jobs:
             - URL: ${{ cloudbees.api.url }}
             ## Commitinfo and SonarQube Quality
             -CommitId: ${{ secrets.Commitinfo }}
+             - Commit ID: ${{ steps.commitinfo.outputs.commit_id }}
+             - Commit Message: ${{ steps.commitinfo.outputs.commit_msg }}
