@@ -39,4 +39,3 @@ jobs:
           content: |
             - Workflow ID: ${{ cloudbees.run_id }}
             - URL: ${{ cloudbees.api.url }}
-            - Commit ID: ${{ steps.get_commit_id.outputs.CommitIdFile }}
