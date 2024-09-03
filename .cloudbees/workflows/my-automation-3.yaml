@@ -10,6 +10,7 @@ jobs:
     steps:
       - name: Checkout
         uses: cloudbees-io/checkout@v1
+
   Build:
     needs: Checkout
     steps:
@@ -23,7 +24,7 @@ jobs:
         uses: docker://maven:3-eclipse-temurin-17
         run: |
           mvn clean install
- 
+
   Evidence:
     needs: Build
     steps:
@@ -54,7 +55,6 @@ jobs:
             - URL: ${{ cloudbees.api.url }}
             ## JSON File Content
             - JSON Content:
-               ```json
-               ${{ env.JSON_CONTENT }}
-               ```
-
+              ```json
+              ${{ steps.set-env.outputs.JSON_CONTENT }}
+              ```
