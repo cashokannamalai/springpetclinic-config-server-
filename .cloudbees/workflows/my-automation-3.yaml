@@ -33,7 +33,6 @@ jobs:
       - name: Checkout
         uses: cloudbees-io/checkout@v1
 
-      
       - name: Publish workflow evidence item
         uses: cloudbees-io/publish-evidence-item@v1
         with:
@@ -41,7 +40,9 @@ jobs:
             ## Workflow Evidence
             | Property      | Value                                         |
             |---------------|-----------------------------------------------|
-            | Commit ID     | ${{ github.sha }}                             |
-            | Commit Message| ${{ github.event.head_commit.message }}       |
+            | Commit ID     | ${SECRETS_COMMIT_ID}                          |
+            | Commit Message| ${SECRETS_COMMIT_MESSAGE}                     |
           format: MARKDOWN
- 
+        env:
+          SECRETS_COMMIT_ID: ${{ secrets.COMMIT_ID }}
+          SECRETS_COMMIT_MESSAGE: ${{ secrets.COMMIT_MESSAGE }}
