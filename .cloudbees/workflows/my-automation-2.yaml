@@ -35,7 +35,7 @@ jobs:
       - name: Unit Test
         uses: docker://maven:3-eclipse-temurin-17
         run: |
-          mvn test
+          mvn test > "$CLOUDBEES_OUTPUTS/mvn_test_stdio"
 
 
   StaticAnalysis:
@@ -226,3 +226,4 @@ jobs:
             | Critical | ${{ secrets.CRITICAL_COUNT }} |
             | Major    | ${{ secrets.MAJOR_COUNT }} |
             ```
+            -${{ steps.mvnteststep.outputs.mvn_test_stdio }} 
