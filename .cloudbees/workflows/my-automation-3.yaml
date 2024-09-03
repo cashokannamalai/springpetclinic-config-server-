@@ -38,7 +38,7 @@ jobs:
         run: |
           COMMIT_ID=$(git rev-parse HEAD)
           echo "COMMIT_ID=$COMMIT_ID" >> $GITHUB_ENV
-          echo "COMMIT_ID=${COMMIT_ID}" # Debug line to verify COMMIT_ID
+          echo "COMMIT_ID=${COMMIT_ID}" # Debug line
 
       - name: Publish evidence
         uses: cloudbees-io/publish-evidence-item@v1
@@ -46,4 +46,4 @@ jobs:
           content: |
             - Workflow ID: ${{ cloudbees.run_id }}
             - URL: ${{ cloudbees.api.url }}
-            - Commit ID: ${{ env.COMMIT_ID }}
+            - Commit ID: ${{ steps.get_commit_info.outputs.COMMIT_ID }} # Use the output directly
