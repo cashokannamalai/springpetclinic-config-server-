@@ -3,9 +3,9 @@ kind: workflow
 name: My automation
 on:
   workflow_dispatch:
-  pull_request:
+  push:
     branches:
-      - ashok
+      - main
 jobs:
   Checkout:
     steps:
