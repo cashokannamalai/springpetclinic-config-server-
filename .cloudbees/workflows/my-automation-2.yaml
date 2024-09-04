@@ -179,7 +179,7 @@ jobs:
           - Workflow ID: ${{ cloudbees.run_id }}
           - URL: ${{ cloudbees.api.url }}
 
-          ## CommitInfo
+           ## Commit Information
           - **Commit ID:** "${{ needs.Checkout.outputs.commit_id }}"
           - **Commit Message:** "${{ needs.Checkout.outputs.commit_msg }}"
           - **Unit Test Results:** "${{ needs.UnitTest.outputs.unitTestResults }}"
