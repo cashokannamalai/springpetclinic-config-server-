@@ -152,7 +152,7 @@ jobs:
           mvn test
 
 
-  DeployInGKE:
+  Deploy:
     needs: SmokeTest
     steps:
       - name: Checkout
