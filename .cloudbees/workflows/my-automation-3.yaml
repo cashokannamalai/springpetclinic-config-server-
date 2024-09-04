@@ -94,7 +94,7 @@ jobs:
           ## CommitInfo
           - **Commit ID:** "${{ needs.Checkout.outputs.commit_id }}"
           - **Commit Message:** "${{ needs.Checkout.outputs.commit_msg }}"
-          - Unit Test Results: "${{ needs.UnitTest.outputs.unitTestResults }}"
+          - **Unit Test Results:** "${{ needs.UnitTest.outputs.unitTestResults }}"
 
           ## SonarQube Analysis Results
 
