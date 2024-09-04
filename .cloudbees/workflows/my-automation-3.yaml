@@ -46,7 +46,7 @@ jobs:
         id: end-timer
         run: |
           END_TIME=$(date +%s)
-          START_TIME=$(cat /cloudbees/workspace/start_time)
+          START_TIME=$(cat $CLOUDBEES_OUTPUTS/start_time)
           DURATION=$((END_TIME - START_TIME))
           echo "BUILD_DURATION=${DURATION}" > $CLOUDBEES_OUTPUTS/build_duration
     
