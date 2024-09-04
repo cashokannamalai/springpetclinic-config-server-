@@ -130,7 +130,7 @@ jobs:
 
             - **Unit Test Results:** "${{ needs.UnitTest.outputs.unitTestResults
             }}"
-            - **Build Duration:** ${{ needs.Build.outputs.build_duration }} seconds
+            
             
             ## SonarQube Analysis Results
 
