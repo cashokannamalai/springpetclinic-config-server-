@@ -23,6 +23,8 @@ jobs:
       commit_id: ${{ steps.commitinfo.outputs.commit_id }}
       commit_msg: ${{ steps.commitinfo.outputs.commit_msg }}
   Build:
+    outputs:
+      build_duration: ${{ steps.end-timer.outputs.build_duration }}
     needs: Checkout
     steps:
       - name: Configure git
@@ -43,8 +45,7 @@ jobs:
           START_TIME=$(cat $CLOUDBEES_OUTPUTS/start_time)
           DURATION=$((END_TIME - START_TIME))
           echo "BUILD_DURATION=${DURATION}" >> $CLOUDBEES_OUTPUTS/build_duration
-    outputs:
-      build_duration: ${{ steps.end-timer.outputs.build_duration }}
+    
   UnitTest:
     needs: Build
     outputs:
@@ -107,6 +108,7 @@ jobs:
       - UnitTest
       - Checkout
       - StaticAnalysis
+      - Build
     steps:
       - uses: cloudbees-io/publish-evidence-item@v1
         name: Publish evidence
