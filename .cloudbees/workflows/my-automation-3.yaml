@@ -79,28 +79,28 @@ jobs:
 
 
   Evidence:
-    needs:
-      - UnitTest
-      - Checkout
-      - StaticAnalysis
-    steps:
-      - uses: cloudbees-io/publish-evidence-item@v1
-        name: Publish evidence
-        with:
-          content: |
-            - Workflow ID: ${{ cloudbees.run_id }}
-            - URL: ${{ cloudbees.api.url }}
+   needs:
+    - UnitTest
+    - Checkout
+    - StaticAnalysis
+   steps:
+    - uses: cloudbees-io/publish-evidence-item@v1
+      name: Publish evidence
+      with:
+        content: |
+          - Workflow ID: ${{ cloudbees.run_id }}
+          - URL: ${{ cloudbees.api.url }}
 
-             ## CommitInfo
-            - **Commit ID:** "${{ needs.Checkout.outputs.commit_id }}"
-            - **Commit Message:** "${{ needs.Checkout.outputs.commit_msg }}"
-            - Unit Test Results: "${{ needs.UnitTest.outputs.unitTestResults }}"
+          ## CommitInfo
+          - **Commit ID:** "${{ needs.Checkout.outputs.commit_id }}"
+          - **Commit Message:** "${{ needs.Checkout.outputs.commit_msg }}"
+          - Unit Test Results: "${{ needs.UnitTest.outputs.unitTestResults }}"
 
-             ## SonarQube Analysis Results
+          ## SonarQube Analysis Results
 
-             | Severity  | Issue Count |
-             |-----------|-------------|
-             | BLOCKER   | ${{ needs.StaticAnalysis.outputs.BLOCKER_COUNT }} |
-             | CRITICAL  | ${{ needs.StaticAnalysis.outputs.CRITICAL_COUNT }} |
-             | MAJOR     | ${{ needs.StaticAnalysis.outputs.MAJOR_COUNT }} |
-             | MINOR     | ${{ needs.StaticAnalysis.outputs.MINOR_COUNT }} |
+          | Severity  | Issue Count |
+          |-----------|-------------|
+          | BLOCKER   | ${{ needs.StaticAnalysis.outputs.BLOCKER_COUNT }} |
+          | CRITICAL  | ${{ needs.StaticAnalysis.outputs.CRITICAL_COUNT }} |
+          | MAJOR     | ${{ needs.StaticAnalysis.outputs.MAJOR_COUNT }} |
+          | MINOR     | ${{ needs.StaticAnalysis.outputs.MINOR_COUNT }} |
