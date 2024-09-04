@@ -94,6 +94,7 @@ jobs:
     needs:
       - UnitTest
       - Checkout
+      - StaticAnalysis
     steps:
       - uses: cloudbees-io/publish-evidence-item@v1
         name: Publish evidence
@@ -104,4 +105,8 @@ jobs:
             - Commit ID: "${{ needs.Checkout.outputs.commit_id }}"
             - Commit Message: "${{ needs.Checkout.outputs.commit_msg }}"
             - Unit Test Results: "${{ needs.UnitTest.outputs.unitTestResults }}"
-           
+
+            - SonarQube Analysis:
+            - BLOCKER Issues: "${{ needs.StaticAnalysis.outputs.BLOCKER_COUNT }}"
+            - CRITICAL Issues: "${{ needs.StaticAnalysis.outputs.CRITICAL_COUNT }}"
+            - MAJOR Issues: "${{ needs.StaticAnalysis.outputs.MAJOR_COUNT }}"
