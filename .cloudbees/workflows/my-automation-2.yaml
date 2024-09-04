@@ -21,8 +21,12 @@ jobs:
     outputs:
       commit_id: ${{ steps.commitinfo.outputs.commit_id }}
       commit_msg: ${{ steps.commitinfo.outputs.commit_msg }}
+
+
   Build:
     needs: Checkout
+    outputs:
+      unitTestResults: ${{ steps.RunUnitTest.outputs.mvn_test_stdio1 }}
     steps:
       - name: Configure git
         uses: docker://alpine/git:latest
@@ -34,19 +38,30 @@ jobs:
         uses: docker://maven:3-eclipse-temurin-17
         run: |
           mvn clean install
-  UnitTest:
-    needs: Build
-    outputs:
-      unitTestResults: ${{ steps.RunUnitTest.outputs.mvn_test_stdio1 }}
-    steps:
-      - name: Checkout
-        uses: cloudbees-io/checkout@v1
+
       - name: RunUnitTest
         id: RunUnitTest
         uses: docker://maven:3-eclipse-temurin-17
         run: |
           mvn test > "$CLOUDBEES_OUTPUTS/mvn_test_stdio"
           cat "$CLOUDBEES_OUTPUTS/mvn_test_stdio" | grep "Tests run:" | tail -1 > "$CLOUDBEES_OUTPUTS/mvn_test_stdio1"
+
+      - name: Configure container registry credentials
+        id: dockerconfig
+        uses: cloudbees-io/configure-oci-credentials@v1
+        with:
+          registry: ${{ secrets.STAGING_DOCKER_REGISTRY }}
+          username: ${{ secrets.STAGING_DOCKER_USERNAME }}
+          password: ${{ secrets.STAGING_DOCKER_PASSWORD }}
+
+      - name: Push image to OCI registry
+        uses: cloudbees-io/kaniko@v1
+        with:
+          dockerfile: Dockerfile
+          context: .
+          destination: ${{ secrets.STAGING_DOCKER_REGISTRY }}/${{ secrets.STAGING_DOCKER_USERNAME }}/configserver:3.2.4
+
+
   StaticAnalysis:
     outputs:
      BLOCKER_COUNT: ${{ steps.FetchSonarQubeIssues.outputs.BLOCKER_COUNT }}
@@ -95,8 +110,10 @@ jobs:
          echo "MAJOR_COUNT=${MAJOR_COUNT}" >> $CLOUDBEES_OUTPUTS/MAJOR_COUNT
          echo "MINOR_COUNT=${MINOR_COUNT}" >> $CLOUDBEES_OUTPUTS/MINOR_COUNT
 
+
+
   ArtifactPublish:
-    needs: UnitTest
+    needs: Build
     steps:
       - uses: docker://alpine/git:latest
         run: |
@@ -111,30 +128,10 @@ jobs:
         run: |
           mvn deploy \
             -DaltDeploymentRepository=nexus::default::https://${NEXUS_USERNAME}:${NEXUS_PASSWORD}@nexus.cb-demos.io/repository/Petclinic/
-  DockerImageBuildAndPush:
-    needs: ArtifactPublish
-    steps:
-      - name: Checkout
-        uses: cloudbees-io/checkout@v1
-      - name: Build Docker Image
-        uses: docker://maven:3-eclipse-temurin-17
-        run: |
-          mvn clean install -DskipTests=true
-      - name: Configure container registry credentials
-        id: dockerconfig
-        uses: cloudbees-io/configure-oci-credentials@v1
-        with:
-          registry: ${{ secrets.STAGING_DOCKER_REGISTRY }}
-          username: ${{ secrets.STAGING_DOCKER_USERNAME }}
-          password: ${{ secrets.STAGING_DOCKER_PASSWORD }}
-      - name: Push image to OCI registry
-        uses: cloudbees-io/kaniko@v1
-        with:
-          dockerfile: Dockerfile
-          context: .
-          destination: ${{ secrets.STAGING_DOCKER_REGISTRY }}/${{ secrets.STAGING_DOCKER_USERNAME }}/configserver:3.2.4
+
+
   Approval:
-    needs: DockerImageBuildAndPush
+    needs: ArtifactPublish
     type: manual-approval
     environment: ashok
     steps:
@@ -142,6 +139,8 @@ jobs:
         uses: docker://maven:3-eclipse-temurin-17
         run: |
           echo "Manual approval required before proceeding to deployment."
+
+
   SmokeTest:
     needs: Approval
     steps:
@@ -151,6 +150,8 @@ jobs:
         uses: docker://maven:3-eclipse-temurin-17
         run: |
           mvn test
+
+
   DeployInGKE:
     needs: SmokeTest
     steps:
@@ -165,10 +166,12 @@ jobs:
         shell: sh
         run: |
           kubectl apply -f /cloudbees/workspace/deployment-service.yaml
+
   
   Evidence:
    needs:
-    - UnitTest
+    - DeployInGKE
+    - Build
     - Checkout
     - StaticAnalysis
    steps:
@@ -182,7 +185,7 @@ jobs:
            ## Commit Information
           - **Commit ID:** "${{ needs.Checkout.outputs.commit_id }}"
           - **Commit Message:** "${{ needs.Checkout.outputs.commit_msg }}"
-          - **Unit Test Results:** "${{ needs.UnitTest.outputs.unitTestResults }}"
+          - **Unit Test Results:** "${{ needs.Build.outputs.unitTestResults }}"
 
           ## SonarQube Analysis Results
 
