@@ -35,6 +35,16 @@ jobs:
         uses: docker://maven:3-eclipse-temurin-17
         run: |
           mvn clean install
+      - name: End Timer
+        uses: docker://alpine/git:latest
+        id: end-timer
+        run: |
+          END_TIME=$(date +%s)
+          START_TIME=$(cat $CLOUDBEES_OUTPUTS/start_time)
+          DURATION=$((END_TIME - START_TIME))
+          echo "BUILD_DURATION=${DURATION}" >> $CLOUDBEES_OUTPUTS/build_duration
+    outputs:
+      build_duration: ${{ steps.end-timer.outputs.build_duration }}
   UnitTest:
     needs: Build
     outputs:
@@ -131,3 +141,6 @@ jobs:
             | MAJOR     | ${{ needs.StaticAnalysis.outputs.MAJOR_COUNT }} |
 
             | MINOR     | ${{ needs.StaticAnalysis.outputs.MINOR_COUNT }} |
+
+            - **Build Duration:** "${{ needs.Build.outputs.build_duration }} seconds"
+
