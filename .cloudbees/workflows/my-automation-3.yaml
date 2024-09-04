@@ -19,14 +19,16 @@ jobs:
           COMMIT_MSG=$(git log -1 --pretty=%B)
           echo "commit_id=${COMMIT_ID}" >> $CLOUDBEES_OUTPUTS/commit_id
           echo "commit_msg=${COMMIT_MSG}" >> $CLOUDBEES_OUTPUTS/commit_msg
+      - name: Record Checkout End Time
+        uses: docker://alpine/git:latest
+        id: checkout-time
+        run: echo "CHECKOUT_END_TIME=$(date +%s)" >> $CLOUDBEES_OUTPUTS/checkout_end_time
     outputs:
       commit_id: ${{ steps.commitinfo.outputs.commit_id }}
       commit_msg: ${{ steps.commitinfo.outputs.commit_msg }}
   Build:
+    
     needs: Checkout
-    outputs:
-      build_duration: ${{ steps.end-timer.outputs.build_duration }}
-
     steps:
       - name: Configure git
         uses: docker://alpine/git:latest
@@ -34,21 +36,18 @@ jobs:
           git config --global --add safe.directory /cloudbees/workspace
       - name: Checkout
         uses: cloudbees-io/checkout@v1
-      - name: Start Timer
+      - name: Record Build Start Time
         uses: docker://alpine/git:latest
-        id: start-timer
-        run: echo "START_TIME=$(date +%s)" > $CLOUDBEES_OUTPUTS/start_time
+        id: build-start-time
+        run: echo "BUILD_START_TIME=$(date +%s)" >> $CLOUDBEES_OUTPUTS/build_start_time
       - name: Build
         uses: docker://maven:3-eclipse-temurin-17
         run: mvn clean install
-      - name: End Timer
+      - name: Record Build End Time
         uses: docker://alpine/git:latest
-        id: end-timer
-        run: |
-          END_TIME=$(date +%s)
-          START_TIME=$(cat $CLOUDBEES_OUTPUTS/start_time)
-          DURATION=$((END_TIME - START_TIME))
-          echo "BUILD_DURATION=${DURATION}" > $CLOUDBEES_OUTPUTS/build_duration
+        id: build-end-time
+        run: echo "BUILD_END_TIME=$(date +%s)" >> $CLOUDBEES_OUTPUTS/build_end_time
+     
     
   UnitTest:
     needs: Build
@@ -131,8 +130,8 @@ jobs:
 
             - **Unit Test Results:** "${{ needs.UnitTest.outputs.unitTestResults
             }}"
-
-
+            - **Build Duration:** ${{ needs.Build.outputs.build_duration }} seconds
+            
             ## SonarQube Analysis Results
 
 
@@ -148,5 +147,4 @@ jobs:
 
             | MINOR     | ${{ needs.StaticAnalysis.outputs.MINOR_COUNT }} |
 
-            - **Build Duration:** "${{ needs.Build.outputs.build_duration }} seconds"
-
+          
