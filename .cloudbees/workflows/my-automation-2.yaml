@@ -170,7 +170,7 @@ jobs:
   
   Evidence:
    needs:
-    - DeployInGKE
+    - Deploy
     - Build
     - Checkout
     - StaticAnalysis
