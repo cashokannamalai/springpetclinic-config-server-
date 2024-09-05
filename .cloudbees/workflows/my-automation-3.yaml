@@ -220,21 +220,4 @@ jobs:
           echo "### Mean Time to Recover" >> $CLOUDBEES_OUTPUTS/dora_metrics.md
           echo "Mean Time to Recover: (average time to restore service)" >> $CLOUDBEES_OUTPUTS/dora_metrics.md
 
-  Evidence:
-    needs: Metrics
-    steps:
-      - name: Publish Evidence
-        uses: docker://alpine:latest
-        run: |
-          echo "## DORA Metrics Evidence" >> $CLOUDBEES_OUTPUTS/evidence.md
-          echo "### Deployment Time" >> $CLOUDBEES_OUTPUTS/evidence.md
-          echo "Deployment Time (seconds): ${{ needs.Deploy.outputs.deployment_time }}" >> $CLOUDBEES_OUTPUTS/evidence.md
-          echo "### Deployment Status" >> $CLOUDBEES_OUTPUTS/evidence.md
-          echo "Deployment Status: ${{ needs.Deploy.outputs.deployment_status }}" >> $CLOUDBEES_OUTPUTS/evidence.md
-          echo "### Static Analysis Results" >> $CLOUDBEES_OUTPUTS/evidence.md
-          echo "| Severity | Count |" >> $CLOUDBEES_OUTPUTS/evidence.md
-          echo "| -------- | ----- |" >> $CLOUDBEES_OUTPUTS/evidence.md
-          echo "| BLOCKER  | ${{ needs.StaticAnalysis.outputs.BLOCKER_COUNT }} |" >> $CLOUDBEES_OUTPUTS/evidence.md
-          echo "| CRITICAL | ${{ needs.StaticAnalysis.outputs.CRITICAL_COUNT }} |" >> $CLOUDBEES_OUTPUTS/evidence.md
-          echo "| MAJOR    | ${{ needs.StaticAnalysis.outputs.MAJOR_COUNT }} |" >> $CLOUDBEES_OUTPUTS/evidence.md
-          echo "| MINOR    | ${{ needs.StaticAnalysis.outputs.MINOR_COUNT }} |" >> $CLOUDBEES_OUTPUTS/evidence.md
+ 
