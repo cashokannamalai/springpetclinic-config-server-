@@ -189,10 +189,10 @@ jobs:
 
           ## SonarQube Analysis Results
 
-          | Severity  | Issue Count |
-          |-----------|-------------|
-          | BLOCKER   | ${{ needs.StaticAnalysis.outputs.BLOCKER_COUNT }} |
-          | CRITICAL  | ${{ needs.StaticAnalysis.outputs.CRITICAL_COUNT }} |
-          | MAJOR     | ${{ needs.StaticAnalysis.outputs.MAJOR_COUNT }} |
-          | MINOR     | ${{ needs.StaticAnalysis.outputs.MINOR_COUNT }} |
+          | Severity And Issue Count |
+          |------------------------|
+          |  ${{ needs.StaticAnalysis.outputs.BLOCKER_COUNT }} |
+          |  ${{ needs.StaticAnalysis.outputs.CRITICAL_COUNT }} |
+          |  ${{ needs.StaticAnalysis.outputs.MAJOR_COUNT }} |
+          |  ${{ needs.StaticAnalysis.outputs.MINOR_COUNT }} |
 
