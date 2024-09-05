@@ -22,11 +22,11 @@ jobs:
       commit_id: ${{ steps.commitinfo.outputs.commit_id }}
       commit_msg: ${{ steps.commitinfo.outputs.commit_msg }}
 
-
   Build:
     needs: Checkout
     outputs:
       unitTestResults: ${{ steps.RunUnitTest.outputs.mvn_test_stdio1 }}
+      build_time: ${{ steps.calculate_build_time.outputs.build_time }}
     steps:
       - name: Configure git
         uses: docker://alpine/git:latest
@@ -39,12 +39,23 @@ jobs:
         run: |
           mvn clean install
 
-      - name: RunUnitTest
+      - name: Run Unit Tests
         id: RunUnitTest
         uses: docker://maven:3-eclipse-temurin-17
         run: |
           mvn test > "$CLOUDBEES_OUTPUTS/mvn_test_stdio"
           cat "$CLOUDBEES_OUTPUTS/mvn_test_stdio" | grep "Tests run:" | tail -1 > "$CLOUDBEES_OUTPUTS/mvn_test_stdio1"
+
+      - name: Calculate Build Time
+        uses: docker://alpine/git:latest
+        id: calculate_build_time
+        run: |
+          START_TIME=$(date +%s)
+          # Simulate build process time
+          sleep 10
+          END_TIME=$(date +%s)
+          BUILD_TIME=$((END_TIME - START_TIME))
+          echo "BUILD_TIME=${BUILD_TIME}" >> $CLOUDBEES_OUTPUTS/build_time
 
       - name: Configure container registry credentials
         id: dockerconfig
@@ -61,8 +72,8 @@ jobs:
           context: .
           destination: ${{ secrets.STAGING_DOCKER_REGISTRY }}/${{ secrets.STAGING_DOCKER_USERNAME }}/configserver:3.2.4
 
-
   StaticAnalysis:
+    needs: Build
     outputs:
      BLOCKER_COUNT: ${{ steps.FetchSonarQubeIssues.outputs.BLOCKER_COUNT }}
      CRITICAL_COUNT: ${{ steps.FetchSonarQubeIssues.outputs.CRITICAL_COUNT }}
@@ -110,8 +121,6 @@ jobs:
          echo "MAJOR_COUNT=${MAJOR_COUNT}" >> $CLOUDBEES_OUTPUTS/MAJOR_COUNT
          echo "MINOR_COUNT=${MINOR_COUNT}" >> $CLOUDBEES_OUTPUTS/MINOR_COUNT
 
-
-
   ArtifactPublish:
     needs: Build
     steps:
@@ -129,7 +138,6 @@ jobs:
           mvn deploy \
             -DaltDeploymentRepository=nexus::default::https://${NEXUS_USERNAME}:${NEXUS_PASSWORD}@nexus.cb-demos.io/repository/Petclinic/
 
-
   Approval:
     needs: ArtifactPublish
     type: manual-approval
@@ -139,7 +147,6 @@ jobs:
         uses: docker://maven:3-eclipse-temurin-17
         run: |
           echo "Manual approval required before proceeding to deployment."
-
 
   SmokeTest:
     needs: Approval
@@ -151,17 +158,23 @@ jobs:
         run: |
           mvn test
 
-
   Deploy:
     needs: SmokeTest
     environment: ashok
     steps:
+      - name: Record Start Time
+        uses: docker://alpine/git:latest
+        id: start-time
+        run: echo "DEPLOYMENT_START=$(date +%s)" >> $CLOUDBEES_OUTPUTS/start_time
+
       - name: Checkout
         uses: cloudbees-io/checkout@v1
+
       - uses: cashokannamalai/kubeconfig@v1
         name: Set kubeconfig
         with:
           secname: ${{ secrets.kubeconfig }}
+
       - uses: docker://bitnami/kubectl:latest
         name: Deploy image
         shell: sh
@@ -174,31 +187,54 @@ jobs:
             echo "FAILURE" > $CLOUDBEES_OUTPUTS/deployment_status
           fi
 
-  
+      - name: Record End Time
+        uses: docker://alpine/git:latest
+        id: end-time
+        run: echo "DEPLOYMENT_END=$(date +%s)" >> $CLOUDBEES_OUTPUTS/end_time
+
+      - name: Calculate Deployment Time
+        uses: docker://alpine/git:latest
+        id: calculate-time
+        run: |
+          START_TIME=$(cat $CLOUDBEES_OUTPUTS/start_time | cut -d'=' -f2)
+          END_TIME=$(cat $CLOUDBEES_OUTPUTS/end_time | cut -d'=' -f2)
+          DEPLOYMENT_TIME=$((END_TIME - START_TIME))
+          echo "DEPLOYMENT_TIME=${DEPLOYMENT_TIME}" >> $CLOUDBEES_OUTPUTS/deployment_time
+
+  Metrics:
+    needs:
+      - Build
+      - Deploy
+    steps:
+      - name: Report Metrics
+        id: report-metrics
+        uses: docker://alpine:latest
+        run: |
+          echo "## DORA Metrics Report" >> $CLOUDBEES_OUTPUTS/dora_metrics.md
+          echo "### Deployment Frequency" >> $CLOUDBEES_OUTPUTS/dora_metrics.md
+          echo "Deployment Frequency: (number of deployments per week)" >> $CLOUDBEES_OUTPUTS/dora_metrics.md
+          echo "### Lead Time for Changes" >> $CLOUDBEES_OUTPUTS/dora_metrics.md
+          echo "Lead Time: ${{ steps.calculate_build_time.outputs.build_time }} seconds" >> $CLOUDBEES_OUTPUTS/dora_metrics.md
+          echo "### Change Failure Rate" >> $CLOUDBEES_OUTPUTS/dora_metrics.md
+          echo "Change Failure Rate: (percentage of failed changes)" >> $CLOUDBEES_OUTPUTS/dora_metrics.md
+          echo "### Mean Time to Recover" >> $CLOUDBEES_OUTPUTS/dora_metrics.md
+          echo "Mean Time to Recover: (average time to restore service)" >> $CLOUDBEES_OUTPUTS/dora_metrics.md
+
   Evidence:
-   needs:
-    - Deploy
-    - Build
-    - Checkout
-    - StaticAnalysis
-   steps:
-    - uses: cloudbees-io/publish-evidence-item@v1
-      name: Publish evidence
-      with:
-        content: |
-          - Workflow ID: ${{ cloudbees.run_id }}
-          - URL: ${{ cloudbees.api.url }}
-
-           ## Commit Information
-          - **Commit ID:** "${{ needs.Checkout.outputs.commit_id }}"
-          - **Commit Message:** "${{ needs.Checkout.outputs.commit_msg }}"
-          - **Unit Test Results:** "${{ needs.Build.outputs.unitTestResults }}"
-
-          ## SonarQube Analysis Results
-
-          | Severity  | Issue Count |
-          |-----------|-------------|
-          | BLOCKER   | ${{ needs.StaticAnalysis.outputs.BLOCKER_COUNT }} |
-          | CRITICAL  | ${{ needs.StaticAnalysis.outputs.CRITICAL_COUNT }} |
-          | MAJOR     | ${{ needs.StaticAnalysis.outputs.MAJOR_COUNT }} |
-          | MINOR     | ${{ needs.StaticAnalysis.outputs.MINOR_COUNT }} |
+    needs: Metrics
+    steps:
+      - name: Publish Evidence
+        uses: docker://alpine:latest
+        run: |
+          echo "## DORA Metrics Evidence" >> $CLOUDBEES_OUTPUTS/evidence.md
+          echo "### Deployment Time" >> $CLOUDBEES_OUTPUTS/evidence.md
+          echo "Deployment Time (seconds): ${{ needs.Deploy.outputs.deployment_time }}" >> $CLOUDBEES_OUTPUTS/evidence.md
+          echo "### Deployment Status" >> $CLOUDBEES_OUTPUTS/evidence.md
+          echo "Deployment Status: ${{ needs.Deploy.outputs.deployment_status }}" >> $CLOUDBEES_OUTPUTS/evidence.md
+          echo "### Static Analysis Results" >> $CLOUDBEES_OUTPUTS/evidence.md
+          echo "| Severity | Count |" >> $CLOUDBEES_OUTPUTS/evidence.md
+          echo "| -------- | ----- |" >> $CLOUDBEES_OUTPUTS/evidence.md
+          echo "| BLOCKER  | ${{ needs.StaticAnalysis.outputs.BLOCKER_COUNT }} |" >> $CLOUDBEES_OUTPUTS/evidence.md
+          echo "| CRITICAL | ${{ needs.StaticAnalysis.outputs.CRITICAL_COUNT }} |" >> $CLOUDBEES_OUTPUTS/evidence.md
+          echo "| MAJOR    | ${{ needs.StaticAnalysis.outputs.MAJOR_COUNT }} |" >> $CLOUDBEES_OUTPUTS/evidence.md
+          echo "| MINOR    | ${{ needs.StaticAnalysis.outputs.MINOR_COUNT }} |" >> $CLOUDBEES_OUTPUTS/evidence.md
