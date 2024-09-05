@@ -2,7 +2,7 @@ apiVersion: automation.cloudbees.io/v1alpha1
 kind: workflow
 name: My automation
 on:
-  pull_request:
+  push:
     branches:
       - ashok
 jobs:
@@ -10,11 +10,8 @@ jobs:
     steps:
       - name: Checkout
         uses: cloudbees-io/checkout@v1
-     
-    
   Build:
     needs: Checkout
-  
     steps:
       - name: Configure git
         uses: docker://alpine/git:latest
