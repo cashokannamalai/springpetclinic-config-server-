@@ -195,3 +195,4 @@ jobs:
           | CRITICAL  | ${{ needs.StaticAnalysis.outputs.CRITICAL_COUNT }} |
           | MAJOR     | ${{ needs.StaticAnalysis.outputs.MAJOR_COUNT }} |
           | MINOR     | ${{ needs.StaticAnalysis.outputs.MINOR_COUNT }} |
+
