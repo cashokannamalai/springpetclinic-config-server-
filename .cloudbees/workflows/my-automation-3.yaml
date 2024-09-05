@@ -154,6 +154,7 @@ jobs:
 
   Deploy:
     needs: SmokeTest
+    environment: ashok
     steps:
       - name: Checkout
         uses: cloudbees-io/checkout@v1
