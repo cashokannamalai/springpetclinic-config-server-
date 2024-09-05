@@ -4,7 +4,7 @@ name: My automation
 on:
   push:
     branches:
-      - main
+      - ashok
 jobs:
   Checkout:
     steps:
@@ -22,11 +22,11 @@ jobs:
       commit_id: ${{ steps.commitinfo.outputs.commit_id }}
       commit_msg: ${{ steps.commitinfo.outputs.commit_msg }}
 
+
   Build:
     needs: Checkout
     outputs:
       unitTestResults: ${{ steps.RunUnitTest.outputs.mvn_test_stdio1 }}
-      build_time: ${{ steps.calculate_build_time.outputs.build_time }}
     steps:
       - name: Configure git
         uses: docker://alpine/git:latest
@@ -38,186 +38,3 @@ jobs:
         uses: docker://maven:3-eclipse-temurin-17
         run: |
           mvn clean install
-
-      - name: Run Unit Tests
-        id: RunUnitTest
-        uses: docker://maven:3-eclipse-temurin-17
-        run: |
-          mvn test > "$CLOUDBEES_OUTPUTS/mvn_test_stdio"
-          cat "$CLOUDBEES_OUTPUTS/mvn_test_stdio" | grep "Tests run:" | tail -1 > "$CLOUDBEES_OUTPUTS/mvn_test_stdio1"
-
-      - name: Calculate Build Time
-        uses: docker://alpine/git:latest
-        id: calculate_build_time
-        run: |
-          START_TIME=$(date +%s)
-          # Simulate build process time
-          sleep 10
-          END_TIME=$(date +%s)
-          BUILD_TIME=$((END_TIME - START_TIME))
-          echo "BUILD_TIME=${BUILD_TIME}" >> $CLOUDBEES_OUTPUTS/build_time
-
-      - name: Configure container registry credentials
-        id: dockerconfig
-        uses: cloudbees-io/configure-oci-credentials@v1
-        with:
-          registry: ${{ secrets.STAGING_DOCKER_REGISTRY }}
-          username: ${{ secrets.STAGING_DOCKER_USERNAME }}
-          password: ${{ secrets.STAGING_DOCKER_PASSWORD }}
-
-      - name: Push image to OCI registry
-        uses: cloudbees-io/kaniko@v1
-        with:
-          dockerfile: Dockerfile
-          context: .
-          destination: ${{ secrets.STAGING_DOCKER_REGISTRY }}/${{ secrets.STAGING_DOCKER_USERNAME }}/configserver:3.2.4
-
-  StaticAnalysis:
-    needs: Build
-    outputs:
-     BLOCKER_COUNT: ${{ steps.FetchSonarQubeIssues.outputs.BLOCKER_COUNT }}
-     CRITICAL_COUNT: ${{ steps.FetchSonarQubeIssues.outputs.CRITICAL_COUNT }}
-     MAJOR_COUNT: ${{ steps.FetchSonarQubeIssues.outputs.MAJOR_COUNT }}
-     MINOR_COUNT: ${{ steps.FetchSonarQubeIssues.outputs.MINOR_COUNT }}
-    steps:
-      - uses: cloudbees-io/sonarqube-sast-scan-code@v1
-        name: Scan
-        kind: scan
-        with:
-          server-url: https://sonarqube.cb-demos.io
-          username: ${{ secrets.username }}
-          password: ${{ secrets.password }}
-          language: Java
-      - uses: cloudbees-io/sonarqube-bundled-sast-scan-code@v2
-        name: Scan with Java
-        kind: scan
-        with:
-          language: JAVA
-      - uses: cloudbees-io/findsecbugs-sast-scan-code@v1
-        name: Scan with Find Security Bugs
-        kind: scan
-        with:
-          language: LANGUAGE_JAVA
-      - uses: sbatchelder-cba/sonarqube-cba@v0.0.3
-        name: Scan GP
-        with:
-          project-key: config-server
-          token: ${{ secrets.token }}
-      - name: Fetch SonarQube Issues
-        id: FetchSonarQubeIssues
-        uses: docker://alpine/git:latest
-        run: |
-         apk add --no-cache curl jq
-         curl -u ${{ secrets.username }}:${{ secrets.password }} \
-         "https://sonarqube.cb-demos.io/api/issues/search?componentKeys=config-server&severities=BLOCKER,CRITICAL,MAJOR" \
-         -o sonar-issues.json
-         BLOCKER_COUNT=$(jq '[.issues[] | select(.severity=="BLOCKER")] | length' sonar-issues.json)
-         CRITICAL_COUNT=$(jq '[.issues[] | select(.severity=="CRITICAL")] | length' sonar-issues.json)
-         MAJOR_COUNT=$(jq '[.issues[] | select(.severity=="MAJOR")] | length' sonar-issues.json)
-         MINOR_COUNT=$(jq '[.issues[] | select(.severity=="MINOR")] | length' sonar-issues.json)
-
-         echo "BLOCKER_COUNT=${BLOCKER_COUNT}" >> $CLOUDBEES_OUTPUTS/BLOCKER_COUNT
-         echo "CRITICAL_COUNT=${CRITICAL_COUNT}" >> $CLOUDBEES_OUTPUTS/CRITICAL_COUNT
-         echo "MAJOR_COUNT=${MAJOR_COUNT}" >> $CLOUDBEES_OUTPUTS/MAJOR_COUNT
-         echo "MINOR_COUNT=${MINOR_COUNT}" >> $CLOUDBEES_OUTPUTS/MINOR_COUNT
-
-  ArtifactPublish:
-    needs: Build
-    steps:
-      - uses: docker://alpine/git:latest
-        run: |
-          git config --global --add safe.directory /cloudbees/workspace
-      - name: Checkout
-        uses: cloudbees-io/checkout@v1
-      - name: Publish to Nexus
-        uses: docker://maven:3-eclipse-temurin-17
-        env:
-          NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
-          NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
-        run: |
-          mvn deploy \
-            -DaltDeploymentRepository=nexus::default::https://${NEXUS_USERNAME}:${NEXUS_PASSWORD}@nexus.cb-demos.io/repository/Petclinic/
-
-  Approval:
-    needs: ArtifactPublish
-    type: manual-approval
-    environment: ashok
-    steps:
-      - name: Approval
-        uses: docker://maven:3-eclipse-temurin-17
-        run: |
-          echo "Manual approval required before proceeding to deployment."
-
-  SmokeTest:
-    needs: Approval
-    steps:
-      - name: Checkout
-        uses: cloudbees-io/checkout@v1
-      - name: Smoke Test
-        uses: docker://maven:3-eclipse-temurin-17
-        run: |
-          mvn test
-
-  Deploy:
-    needs: SmokeTest
-    environment: ashok
-    steps:
-      - name: Record Start Time
-        uses: docker://alpine/git:latest
-        id: start-time
-        run: echo "DEPLOYMENT_START=$(date +%s)" >> $CLOUDBEES_OUTPUTS/start_time
-
-      - name: Checkout
-        uses: cloudbees-io/checkout@v1
-
-      - uses: cashokannamalai/kubeconfig@v1
-        name: Set kubeconfig
-        with:
-          secname: ${{ secrets.kubeconfig }}
-
-      - uses: docker://bitnami/kubectl:latest
-        name: Deploy image
-        shell: sh
-        run: |
-          if kubectl apply -f /cloudbees/workspace/deployment-service.yaml; then
-            echo "Deployment Successful"
-            echo "SUCCESS" > $CLOUDBEES_OUTPUTS/deployment_status
-          else
-            echo "Deployment Failed"
-            echo "FAILURE" > $CLOUDBEES_OUTPUTS/deployment_status
-          fi
-
-      - name: Record End Time
-        uses: docker://alpine/git:latest
-        id: end-time
-        run: echo "DEPLOYMENT_END=$(date +%s)" >> $CLOUDBEES_OUTPUTS/end_time
-
-      - name: Calculate Deployment Time
-        uses: docker://alpine/git:latest
-        id: calculate-time
-        run: |
-          START_TIME=$(cat $CLOUDBEES_OUTPUTS/start_time | cut -d'=' -f2)
-          END_TIME=$(cat $CLOUDBEES_OUTPUTS/end_time | cut -d'=' -f2)
-          DEPLOYMENT_TIME=$((END_TIME - START_TIME))
-          echo "DEPLOYMENT_TIME=${DEPLOYMENT_TIME}" >> $CLOUDBEES_OUTPUTS/deployment_time
-
-  Metrics:
-    needs:
-      - Build
-      - Deploy
-    steps:
-      - name: Report Metrics
-        id: report-metrics
-        uses: docker://alpine:latest
-        run: |
-          echo "## DORA Metrics Report" >> $CLOUDBEES_OUTPUTS/dora_metrics.md
-          echo "### Deployment Frequency" >> $CLOUDBEES_OUTPUTS/dora_metrics.md
-          echo "Deployment Frequency: (number of deployments per week)" >> $CLOUDBEES_OUTPUTS/dora_metrics.md
-          echo "### Lead Time for Changes" >> $CLOUDBEES_OUTPUTS/dora_metrics.md
-          echo "Lead Time: ${{ steps.calculate_build_time.outputs.build_time }} seconds" >> $CLOUDBEES_OUTPUTS/dora_metrics.md
-          echo "### Change Failure Rate" >> $CLOUDBEES_OUTPUTS/dora_metrics.md
-          echo "Change Failure Rate: (percentage of failed changes)" >> $CLOUDBEES_OUTPUTS/dora_metrics.md
-          echo "### Mean Time to Recover" >> $CLOUDBEES_OUTPUTS/dora_metrics.md
-          echo "Mean Time to Recover: (average time to restore service)" >> $CLOUDBEES_OUTPUTS/dora_metrics.md
-
- 
