@@ -68,9 +68,11 @@ jobs:
       - name: Create Jira Issue
         uses: docker://curlimages/curl:7.82.0
         run: |
-          curl -X POST -H "Authorization: Basic ${{ secrets.JIRA_TOKEN }}" \
-               -H "Content-Type: application/json" \
-               --data '{
+           apk add --no-cache curl
+           curl -u ${{ secrets.JIRA_EMAIL }}:${{ secrets.JIRA_API_TOKEN }} \
+           -X POST \
+           -H "Content-Type: application/json" \
+           -d '{
                  "fields": {
                    "project": {
                      "key": "CBDEMO"
