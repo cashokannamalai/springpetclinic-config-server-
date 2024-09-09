@@ -1,5 +1,8 @@
 apiVersion: automation.cloudbees.io/v1alpha1
 kind: workflow
+metadata:
+  annotations:
+    cloudbees.io/dashboard-exclude: "true"  # Exclude from delivery/deployment dashboards
 name: My automation
 on:
   push:
@@ -42,9 +45,7 @@ jobs:
         uses: docker://maven:3-eclipse-temurin-17
         run: >
           mvn test > "$CLOUDBEES_OUTPUTS/mvn_test_stdio"
-
-          cat "$CLOUDBEES_OUTPUTS/mvn_test_stdio" | grep "Tests run:" | tail -1
-          > "$CLOUDBEES_OUTPUTS/mvn_test_stdio1"
+          cat "$CLOUDBEES_OUTPUTS/mvn_test_stdio" | grep "Tests run:" | tail -1 > "$CLOUDBEES_OUTPUTS/mvn_test_stdio1"
       - name: Configure container registry credentials
         id: dockerconfig
         uses: cloudbees-io/configure-oci-credentials@v1
@@ -57,8 +58,7 @@ jobs:
         with:
           dockerfile: Dockerfile
           context: .
-          destination: ${{ secrets.STAGING_DOCKER_REGISTRY }}/${{
-            secrets.STAGING_DOCKER_USERNAME }}/configserver:3.2.4
+          destination: ${{ secrets.STAGING_DOCKER_REGISTRY }}/${{ secrets.STAGING_DOCKER_USERNAME }}/configserver:3.2.4
   StaticAnalysis:
     outputs:
       BLOCKER_COUNT: ${{ steps.FetchSonarQubeIssues.outputs.BLOCKER_COUNT }}
@@ -94,35 +94,16 @@ jobs:
         uses: docker://alpine/git:latest
         run: >
           apk add --no-cache curl jq
-
           curl -u ${{ secrets.username }}:${{ secrets.password }} \
-
-          "https://sonarqube.cb-demos.io/api/issues/search?componentKeys=config-server&severities=BLOCKER,CRITICAL,MAJOR"
-          \
-
+          "https://sonarqube.cb-demos.io/api/issues/search?componentKeys=config-server&severities=BLOCKER,CRITICAL,MAJOR" \
           -o sonar-issues.json
-
-          BLOCKER_COUNT=$(jq '[.issues[] | select(.severity=="BLOCKER")] |
-          length' sonar-issues.json)
-
-          CRITICAL_COUNT=$(jq '[.issues[] | select(.severity=="CRITICAL")] |
-          length' sonar-issues.json)
-
-          MAJOR_COUNT=$(jq '[.issues[] | select(.severity=="MAJOR")] | length'
-          sonar-issues.json)
-
-          MINOR_COUNT=$(jq '[.issues[] | select(.severity=="MINOR")] | length'
-          sonar-issues.json)
-
-
-          echo "BLOCKER_COUNT=${BLOCKER_COUNT}" >>
-          $CLOUDBEES_OUTPUTS/BLOCKER_COUNT
-
-          echo "CRITICAL_COUNT=${CRITICAL_COUNT}" >>
-          $CLOUDBEES_OUTPUTS/CRITICAL_COUNT
-
+          BLOCKER_COUNT=$(jq '[.issues[] | select(.severity=="BLOCKER")] | length' sonar-issues.json)
+          CRITICAL_COUNT=$(jq '[.issues[] | select(.severity=="CRITICAL")] | length' sonar-issues.json)
+          MAJOR_COUNT=$(jq '[.issues[] | select(.severity=="MAJOR")] | length' sonar-issues.json)
+          MINOR_COUNT=$(jq '[.issues[] | select(.severity=="MINOR")] | length' sonar-issues.json)
+          echo "BLOCKER_COUNT=${BLOCKER_COUNT}" >> $CLOUDBEES_OUTPUTS/BLOCKER_COUNT
+          echo "CRITICAL_COUNT=${CRITICAL_COUNT}" >> $CLOUDBEES_OUTPUTS/CRITICAL_COUNT
           echo "MAJOR_COUNT=${MAJOR_COUNT}" >> $CLOUDBEES_OUTPUTS/MAJOR_COUNT
-
           echo "MINOR_COUNT=${MINOR_COUNT}" >> $CLOUDBEES_OUTPUTS/MINOR_COUNT
   ArtifactPublish:
     needs: build-deploy
@@ -138,8 +119,7 @@ jobs:
           NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
           NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
         run: >
-          mvn deploy \
-            -DaltDeploymentRepository=nexus::default::https://${NEXUS_USERNAME}:${NEXUS_PASSWORD}@nexus.cb-demos.io/repository/Petclinic/
+          mvn deploy -DaltDeploymentRepository=nexus::default::https://${NEXUS_USERNAME}:${NEXUS_PASSWORD}@nexus.cb-demos.io/repository/Petclinic/
   Approval:
     needs: ArtifactPublish
     type: manual-approval
@@ -185,30 +165,15 @@ jobs:
         with:
           content: >
             - Workflow ID: ${{ cloudbees.run_id }}
-
             - URL: ${{ cloudbees.api.url }}
-
              ## Commit Information
             - **Commit ID:** "${{ needs.Checkout.outputs.commit_id }}"
-
             - **Commit Message:** "${{ needs.Checkout.outputs.commit_msg }}"
-
-            - **Unit Test Results:** "${{ needs.build-deploy.outputs.unitTestResults
-            }}"
-
-
+            - **Unit Test Results:** "${{ needs.build-deploy.outputs.unitTestResults }}"
             ## SonarQube Analysis Results
-
-
             | Severity And Issue Count |
-
             |------------------------|
-
             |  ${{ needs.StaticAnalysis.outputs.BLOCKER_COUNT }} |
-
             |  ${{ needs.StaticAnalysis.outputs.CRITICAL_COUNT }} |
-
             |  ${{ needs.StaticAnalysis.outputs.MAJOR_COUNT }} |
-
             |  ${{ needs.StaticAnalysis.outputs.MINOR_COUNT }} |
- 
