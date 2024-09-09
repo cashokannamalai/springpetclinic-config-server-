@@ -1,8 +1,5 @@
 apiVersion: automation.cloudbees.io/v1alpha1
 kind: workflow
-metadata:
-  annotations:
-    cloudbees.io/dashboard-exclude: "true"  # Exclude from delivery/deployment dashboards
 name: My automation
 on:
   push:
@@ -140,7 +137,7 @@ jobs:
           mvn test
   Deploy:
     needs: SmokeTest
-    kind: deploy
+    # kind: deploy  # Remove or comment out this line
     steps:
       - name: Checkout
         uses: cloudbees-io/checkout@v1
@@ -166,7 +163,7 @@ jobs:
           content: >
             - Workflow ID: ${{ cloudbees.run_id }}
             - URL: ${{ cloudbees.api.url }}
-             ## Commit Information
+            ## Commit Information
             - **Commit ID:** "${{ needs.Checkout.outputs.commit_id }}"
             - **Commit Message:** "${{ needs.Checkout.outputs.commit_msg }}"
             - **Unit Test Results:** "${{ needs.build-deploy.outputs.unitTestResults }}"
