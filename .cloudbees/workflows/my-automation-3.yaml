@@ -158,6 +158,8 @@ jobs:
         run: |
           mvn test
   Deploy:
+    outputs:
+      deploy_status: ${{ steps.deploy_image.outputs.deploy_status }}
     needs: SmokeTest
     steps:
       - name: Checkout
@@ -171,14 +173,13 @@ jobs:
         shell: sh
         run: |
           kubectl apply -f /cloudbees/workspace/deployment-service.yaml
-          DEPLOY_STATUS=$(kubectl rollout undo deployment configserver-deployment -n ashok)
+          kubectl rollout status deployment/configserver-deployment
+          DEPLOY_STATUS=$(kubectl rollout status deployment/configserver-deployment)
           if echo "$DEPLOY_STATUS" | grep -q "successfully rolled out"; then
             echo "Deployment successful" > $CLOUDBEES_OUTPUTS/deploy_status
           else
             echo "Deployment failed" > $CLOUDBEES_OUTPUTS/deploy_status
-          fi
-    outputs:
-      deploy_status: ${{ steps.deploy_image.outputs.deploy_status }}
+     
 
   Evidence:
     needs:
@@ -205,4 +206,4 @@ jobs:
             |  ${{ needs.StaticAnalysis.outputs.MAJOR_COUNT }} |
             |  ${{ needs.StaticAnalysis.outputs.MINOR_COUNT }} |
              ## Deployment Status
-            - **Deployment Status:** "${{ needs.Deploy.outputs.deploy_status }}"
+            - Deployment: ${{ needs.Deploy.outputs.deploy_status }}
