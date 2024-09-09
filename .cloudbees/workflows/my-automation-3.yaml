@@ -161,6 +161,7 @@ jobs:
     outputs:
       deploy_status: ${{ steps.Deployimage.outputs.deploy_status }}
     needs: SmokeTest
+    environment: ashok-Dora
     steps:
       - name: Checkout
         uses: cloudbees-io/checkout@v1
