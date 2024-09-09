@@ -158,8 +158,6 @@ jobs:
         run: |
           mvn test
   Deploy:
-    outputs:
-      deploy_status: ${{ steps.Deployimage.outputs.deploy_status }}
     needs: SmokeTest
     steps:
       - name: Checkout
@@ -180,6 +178,8 @@ jobs:
           else
           echo "Deployment failed" > $CLOUDBEES_OUTPUTS/deploy_status
           fi
+        outputs:
+          deploy_status: ${{ steps.Deployimage.outputs.deploy_status }}
 
   Evidence:
     needs:
