@@ -176,10 +176,10 @@ jobs:
           kubectl rollout status deployment/configserver-deployment -n ashok
           DEPLOY_STATUS=$(kubectl rollout status deployment/configserver-deployment -n ashok)
           if echo "$DEPLOY_STATUS" | grep -q "successfully rolled out"; then
-            echo "Deployment successful" > $CLOUDBEES_OUTPUTS/deploy_status
+          echo "Deployment successful" > $CLOUDBEES_OUTPUTS/deploy_status
           else
-            echo "Deployment failed" > $CLOUDBEES_OUTPUTS/deploy_status
-     
+          echo "Deployment failed" > $CLOUDBEES_OUTPUTS/deploy_status
+          fi
 
   Evidence:
     needs:
