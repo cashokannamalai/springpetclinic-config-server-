@@ -178,11 +178,10 @@ jobs:
           kubectl rollout status deployment/configserver-deployment -n ashok
           DEPLOY_STATUS=$(kubectl rollout status deployment/configserver-deployment -n ashok)
           if echo "$DEPLOY_STATUS" | grep -q "successfully rolled out"; then
-          echo "Deployment successful" > $CLOUDBEES_OUTPUTS/deploy_status
+            echo "Deployment successful" > $CLOUDBEES_OUTPUTS/deploy_status
           else
-          echo "Deployment failed" > $CLOUDBEES_OUTPUTS/deploy_status
+            echo "Deployment failed" > $CLOUDBEES_OUTPUTS/deploy_status
           fi
-        
 
   Evidence:
     needs:
@@ -191,6 +190,12 @@ jobs:
       - Checkout
       - StaticAnalysis
     steps:
+
+      - name: Debug Deployment Status
+        uses: docker://alpine/git:latest
+        run: |
+          echo "Deployment Status: ${{ needs.Deploy.outputs.deploy_status }}"
+
       - uses: cloudbees-io/publish-evidence-item@v1
         name: Publish evidence
         with:
