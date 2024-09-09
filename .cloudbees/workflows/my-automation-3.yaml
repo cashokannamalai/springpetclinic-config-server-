@@ -183,7 +183,7 @@ jobs:
   Evidence:
     needs:
       - Deploy
-      - build-deploy
+      - Build
       - Checkout
       - StaticAnalysis
     steps:
@@ -196,7 +196,7 @@ jobs:
              ## Commit Information
             - **Commit ID:** "${{ needs.Checkout.outputs.commit_id }}"
             - **Commit Message:** "${{ needs.Checkout.outputs.commit_msg }}"
-            - **Unit Test Results:** "${{ needs.build-deploy.outputs.unitTestResults }}"
+            - **Unit Test Results:** "${{ needs.Build.outputs.unitTestResults }}"
              ## SonarQube Analysis Results
             | Severity And Issue Count |
             |------------------------|
