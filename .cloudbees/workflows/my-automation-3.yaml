@@ -62,7 +62,7 @@ jobs:
   
   JiraIntegration:
     needs:
-    - Checkout
+     - Checkout
 
     steps:
       - name: Create Jira Issue
@@ -80,8 +80,9 @@ jobs:
               "name": "Task"
             }
           }
-          }' > payload.json
-          curl -u ${{ secrets.JIRA_EMAIL }}:${{ secrets.JIRA_API_TOKEN }} \
+         }' > payload.json
+         cat payload.json  # Print payload to debug
+         curl -u ${{ secrets.JIRA_EMAIL }}:${{ secrets.JIRA_API_TOKEN }} \
           -X POST \
           -H "Content-Type: application/json" \
           -d @payload.json \
