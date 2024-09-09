@@ -159,7 +159,6 @@ jobs:
           mvn test
   Deploy:
     needs: SmokeTest
-    kind: deploy
     steps:
       - name: Checkout
         uses: cloudbees-io/checkout@v1
@@ -172,10 +171,19 @@ jobs:
         shell: sh
         run: |
           kubectl apply -f /cloudbees/workspace/deployment-service.yaml
+          DEPLOY_STATUS=$(kubectl rollout status deployment/your-deployment-name)
+          if echo "$DEPLOY_STATUS" | grep -q "successfully rolled out"; then
+            echo "Deployment successful" > $CLOUDBEES_OUTPUTS/deploy_status
+          else
+            echo "Deployment failed" > $CLOUDBEES_OUTPUTS/deploy_status
+          fi
+    outputs:
+      deploy_status: ${{ steps.deploy_image.outputs.deploy_status }}
+
   Evidence:
     needs:
       - Deploy
-      - Build
+      - build-deploy
       - Checkout
       - StaticAnalysis
     steps:
@@ -184,30 +192,17 @@ jobs:
         with:
           content: >
             - Workflow ID: ${{ cloudbees.run_id }}
-
             - URL: ${{ cloudbees.api.url }}
-
              ## Commit Information
             - **Commit ID:** "${{ needs.Checkout.outputs.commit_id }}"
-
             - **Commit Message:** "${{ needs.Checkout.outputs.commit_msg }}"
-
-            - **Unit Test Results:** "${{ needs.Build.outputs.unitTestResults
-            }}"
-
-
-            ## SonarQube Analysis Results
-
-
+            - **Unit Test Results:** "${{ needs.build-deploy.outputs.unitTestResults }}"
+             ## SonarQube Analysis Results
             | Severity And Issue Count |
-
             |------------------------|
-
             |  ${{ needs.StaticAnalysis.outputs.BLOCKER_COUNT }} |
-
             |  ${{ needs.StaticAnalysis.outputs.CRITICAL_COUNT }} |
-
             |  ${{ needs.StaticAnalysis.outputs.MAJOR_COUNT }} |
-
             |  ${{ needs.StaticAnalysis.outputs.MINOR_COUNT }} |
- 
+             ## Deployment Status
+            - **Deployment Status:** "${{ needs.Deploy.outputs.deploy_status }}"
