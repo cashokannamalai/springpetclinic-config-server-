@@ -72,6 +72,23 @@ jobs:
         curl -u ${{ secrets.JIRA_EMAIL }}:${{ secrets.JIRA_API_TOKEN }} \
         -X POST \
         -H "Content-Type: application/json" \
+        -d @- <<EOF
+        {
+          "fields": {
+            "project": {
+              "key": "CBDEMO"
+            },
+            "summary": "Commit ID: ${{ needs.Checkout.outputs.commit_id }}",
+            "description": "Commit Message: ${{ needs.Checkout.outputs.commit_msg }}",
+            "issuetype": {
+              "name": "Task"
+            }
+          }
+        }
+        EOF
+        curl -u ${{ secrets.JIRA_EMAIL }}:${{ secrets.JIRA_API_TOKEN }} \
+        -X POST \
+        -H "Content-Type: application/json" \
         -d '{
               "fields": {
                 "project": {
