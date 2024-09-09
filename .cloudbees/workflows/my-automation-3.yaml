@@ -158,6 +158,8 @@ jobs:
         run: |
           mvn test
   Deploy:
+    outputs:
+      deploy_status: ${{ steps.Deployimage.outputs.deploy_status }}
     needs: SmokeTest
     steps:
       - name: Checkout
@@ -168,6 +170,7 @@ jobs:
           secname: ${{ secrets.kubeconfig }}
       - uses: docker://bitnami/kubectl:latest
         name: Deploy image
+        id: Deployimage
         shell: sh
         run: |
           kubectl apply -f /cloudbees/workspace/deployment-service.yaml
@@ -178,8 +181,7 @@ jobs:
           else
           echo "Deployment failed" > $CLOUDBEES_OUTPUTS/deploy_status
           fi
-        outputs:
-          deploy_status: ${{ steps.Deployimage.outputs.deploy_status }}
+        
 
   Evidence:
     needs:
