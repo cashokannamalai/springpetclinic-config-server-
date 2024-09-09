@@ -87,12 +87,12 @@ jobs:
           project-key: config-server
           token: ${{ secrets.token }}
       - name: Fetch SonarQube Issues
+        uses: docker://maven:3-eclipse-temurin-17
         id: FetchSonarQubeIssues
-        uses: docker://alpine/git:latest
-        run: >
-          apk add --no-cache curl jq
-          curl -u ${{ secrets.username }}:${{ secrets.password }} \
-          "https://sonarqube.cb-demos.io/api/issues/search?componentKeys=config-server&severities=BLOCKER,CRITICAL,MAJOR" \
+        run: |
+         apk add --no-cache curl jq  # Install jq and curl
+         curl -u ${{ secrets.username }}:${{ secrets.password }} \
+         "https://sonarqube.cb-demos.io/api/issues/search?componentKeys=config-server&severities=BLOCKER,CRITICAL,MAJOR" \
           -o sonar-issues.json
           BLOCKER_COUNT=$(jq '[.issues[] | select(.severity=="BLOCKER")] | length' sonar-issues.json)
           CRITICAL_COUNT=$(jq '[.issues[] | select(.severity=="CRITICAL")] | length' sonar-issues.json)
@@ -102,6 +102,7 @@ jobs:
           echo "CRITICAL_COUNT=${CRITICAL_COUNT}" >> $CLOUDBEES_OUTPUTS/CRITICAL_COUNT
           echo "MAJOR_COUNT=${MAJOR_COUNT}" >> $CLOUDBEES_OUTPUTS/MAJOR_COUNT
           echo "MINOR_COUNT=${MINOR_COUNT}" >> $CLOUDBEES_OUTPUTS/MINOR_COUNT
+
   ArtifactPublish:
     needs: build-deploy
     steps:
