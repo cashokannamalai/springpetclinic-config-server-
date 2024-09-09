@@ -171,7 +171,7 @@ jobs:
         shell: sh
         run: |
           kubectl apply -f /cloudbees/workspace/deployment-service.yaml
-          DEPLOY_STATUS=$(kubectl rollout status deployment/your-deployment-name)
+          DEPLOY_STATUS=$(kubectl rollout status deployment/configserver-deployment)
           if echo "$DEPLOY_STATUS" | grep -q "successfully rolled out"; then
             echo "Deployment successful" > $CLOUDBEES_OUTPUTS/deploy_status
           else
