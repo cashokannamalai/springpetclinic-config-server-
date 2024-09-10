@@ -58,191 +58,33 @@ jobs:
           context: .
           destination: ${{ secrets.STAGING_DOCKER_REGISTRY }}/${{
             secrets.STAGING_DOCKER_USERNAME }}/configserver:3.2.4
-  StaticAnalysis:
-    outputs:
-      BLOCKER_COUNT: ${{ steps.FetchSonarQubeIssues.outputs.BLOCKER_COUNT }}
-      CRITICAL_COUNT: ${{ steps.FetchSonarQubeIssues.outputs.CRITICAL_COUNT }}
-      MAJOR_COUNT: ${{ steps.FetchSonarQubeIssues.outputs.MAJOR_COUNT }}
-      MINOR_COUNT: ${{ steps.FetchSonarQubeIssues.outputs.MINOR_COUNT }}
-    steps:
-      - uses: cloudbees-io/sonarqube-sast-scan-code@v1
-        name: Scan
-        kind: scan
-        with:
-          server-url: https://sonarqube.cb-demos.io
-          username: ${{ secrets.username }}
-          password: ${{ secrets.password }}
-          language: Java
-      - uses: cloudbees-io/sonarqube-bundled-sast-scan-code@v2
-        name: Scan with Java
-        kind: scan
-        with:
-          language: JAVA
-      - uses: cloudbees-io/findsecbugs-sast-scan-code@v1
-        name: Scan with Find Security Bugs
-        kind: scan
-        with:
-          language: LANGUAGE_JAVA
-      - uses: sbatchelder-cba/sonarqube-cba@v0.0.3
-        name: Scan GP
-        with:
-          project-key: config-server
-          token: ${{ secrets.token }}
-      - name: Fetch SonarQube Issues
-        id: FetchSonarQubeIssues
-        uses: docker://alpine/git:latest
-        run: >
-          apk add --no-cache curl jq
+  
 
-          curl -u ${{ secrets.username }}:${{ secrets.password }} \
-
-          "https://sonarqube.cb-demos.io/api/issues/search?componentKeys=config-server&severities=BLOCKER,CRITICAL,MAJOR"
-          \
-
-          -o sonar-issues.json
-
-          BLOCKER_COUNT=$(jq '[.issues[] | select(.severity=="BLOCKER")] |
-          length' sonar-issues.json)
-
-          CRITICAL_COUNT=$(jq '[.issues[] | select(.severity=="CRITICAL")] |
-          length' sonar-issues.json)
-
-          MAJOR_COUNT=$(jq '[.issues[] | select(.severity=="MAJOR")] | length'
-          sonar-issues.json)
-
-          MINOR_COUNT=$(jq '[.issues[] | select(.severity=="MINOR")] | length'
-          sonar-issues.json)
-
-
-          echo "BLOCKER_COUNT=${BLOCKER_COUNT}" >>
-          $CLOUDBEES_OUTPUTS/BLOCKER_COUNT
-
-          echo "CRITICAL_COUNT=${CRITICAL_COUNT}" >>
-          $CLOUDBEES_OUTPUTS/CRITICAL_COUNT
-
-          echo "MAJOR_COUNT=${MAJOR_COUNT}" >> $CLOUDBEES_OUTPUTS/MAJOR_COUNT
-
-          echo "MINOR_COUNT=${MINOR_COUNT}" >> $CLOUDBEES_OUTPUTS/MINOR_COUNT
-  ArtifactPublish:
-    needs: Build
-    steps:
-      - uses: docker://alpine/git:latest
-        run: |
-          git config --global --add safe.directory /cloudbees/workspace
-      - name: Checkout
-        uses: cloudbees-io/checkout@v1
-      - name: Publish to Nexus
-        uses: docker://maven:3-eclipse-temurin-17
-        env:
-          NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
-          NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
-        run: >
-          mvn deploy \
-            -DaltDeploymentRepository=nexus::default::https://${NEXUS_USERNAME}:${NEXUS_PASSWORD}@nexus.cb-demos.io/repository/Petclinic/
-  Approval:
-    needs: ArtifactPublish
-    type: manual-approval
-    environment: ashok
-    steps:
-      - name: Approval
-        uses: docker://maven:3-eclipse-temurin-17
-        run: |
-          echo "Manual approval required before proceeding to deployment."
-  SmokeTest:
-    needs: Approval
-    steps:
-      - name: Checkout
-        uses: cloudbees-io/checkout@v1
-      - name: Smoke Test
-        uses: docker://maven:3-eclipse-temurin-17
-        run: |
-          mvn test
-  Deploy:
-    needs: SmokeTest
-    kind: deploy
-    steps:
-      - name: Checkout
-        uses: cloudbees-io/checkout@v1
-      - uses: cashokannamalai/kubeconfig@v1
-        name: Set kubeconfig
-        with:
-          secname: ${{ secrets.kubeconfig }}
-      - uses: docker://bitnami/kubectl:latest
-        name: Deploy image
-        shell: sh
-        run: |
-          kubectl apply -f /cloudbees/workspace/deployment-service.yaml
-
- 
-
-  Evidence:
-    needs:
-      - Deploy
-      - Build
-      - Checkout
-      - StaticAnalysis
-    steps:
-      - uses: cloudbees-io/publish-evidence-item@v1
-        name: Publish evidence
-        with:
-          content: >
-            - Workflow ID: ${{ cloudbees.run_id }}
-
-            - URL: ${{ cloudbees.api.url }}
-
-             ## Commit Information
-            - **Commit ID:** "${{ needs.Checkout.outputs.commit_id }}"
-
-            - **Commit Message:** "${{ needs.Checkout.outputs.commit_msg }}"
-
-            - **Unit Test Results:** "${{ needs.Build.outputs.unitTestResults
-            }}"
-
-
-            ## SonarQube Analysis Results
-
-
-            | Severity And Issue Count |
-
-            |------------------------|
-
-            |  ${{ needs.StaticAnalysis.outputs.BLOCKER_COUNT }} |
-
-            |  ${{ needs.StaticAnalysis.outputs.CRITICAL_COUNT }} |
-
-            |  ${{ needs.StaticAnalysis.outputs.MAJOR_COUNT }} |
-
-            |  ${{ needs.StaticAnalysis.outputs.MINOR_COUNT }} |
-
-
-
-  JiraIntegration:
+  CreateJiraTicket:
     needs: 
-      - Deploy
-      - Checkout
       - Build
-      - StaticAnalysis
+      - Checkout
     steps:
-      - name: Checkout
-        uses: cloudbees-io/checkout@v1
       - name: Create Jira Ticket
-        uses: docker://alpine/git:latest
+        uses: docker://alpine/curl:latest
         run: |
-          apk add --no-cache curl jq
-          curl -u ${{ secrets.JIRA_USERNAME }}:${{ secrets.JIRA_API_TOKEN }} \
-            -X POST \
-            --data-urlencode "fields[project][key]=CBDEMO" \
-            --data-urlencode "fields[summary]=Automation Deployment Completed - ${needs.Checkout.outputs.commit_id}" \
-            --data-urlencode "fields[description]=Deployment has been completed for Commit ID: ${needs.Checkout.outputs.commit_id}. Smoke Test Results: ${needs.Build.outputs.unitTestResults}" \
-            --data-urlencode "fields[issuetype][name]=Task" \
-            -H "Content-Type: application/x-www-form-urlencoded" \
-            https://cloudbees.atlassian.net/rest/api/2/issue/'
-      - name: Add Comment to Jira Issue
-        uses: docker://alpine/git:latest
-        run: |
-          apk add --no-cache curl jq
-          curl -u ${{ secrets.JIRA_USERNAME }}:${{ secrets.JIRA_API_TOKEN }} \
-            -X POST \
-            --data-urlencode "body=Deployment and testing complete for commit ID: ${needs.Checkout.outputs.commit_id} with ${needs.StaticAnalysis.outputs.BLOCKER_COUNT} blockers and ${needs.StaticAnalysis.outputs.CRITICAL_COUNT} critical issues." \
-            -H "Content-Type: application/x-www-form-urlencoded" \
-            https://cloudbees.atlassian.net/rest/api/2/issue/ISSUE-123/comment'
+          curl -X POST \
+          -u "${{ secrets.JIRA_USERNAME }}:${{ secrets.JIRA_API_TOKEN }}" \
+          -H "Content-Type: application/json" \
+          -d '{
+            "fields": {
+              "project": {
+                "key": "CBDEMO"
+              },
+              "summary": "Automated Issue for Commit: ${{ needs.Checkout.outputs.commit_id }}",
+              "description": "Commit Message: ${{ needs.Checkout.outputs.commit_msg }}\nUnit Test Results: ${{ needs.Build.outputs.unitTestResults }}",
+              "issuetype": {
+                "name": "Bug"
+              }
+            }
+          }' \
+          "https://cloudbees.atlassian.net/rest/api/2/issue/"
+    outputs:
+      jira_issue_key: ${{ steps.createjiraticket.outputs.issue_key }}
+  
+  
