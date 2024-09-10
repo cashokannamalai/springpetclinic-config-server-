@@ -26,6 +26,9 @@ jobs:
     needs: Checkout
     kind: Build
     environment: production  
+    outputs:
+      unit_test_results: ${{ steps.RunUnitTest.outputs.unit_test_results }}
+
     steps:
       - name: Configure Git
         uses: docker://alpine/git:latest
@@ -45,12 +48,8 @@ jobs:
           mvn test > "$CLOUDBEES_OUTPUTS/mvn_test_stdio"
           cat "$CLOUDBEES_OUTPUTS/mvn_test_stdio" | grep "Tests run:" | tail -1
           echo "unit_test_results=$(cat "$CLOUDBEES_OUTPUTS/mvn_test_stdio" | grep "Tests run:" | tail -1)" >> $CLOUDBEES_OUTPUTS/unit_test_results
-    outputs:
-      unit_test_results: ${{ steps.RunUnitTest.outputs.unit_test_results }}
-
-  NotifyJira:
-    needs: Build
-    steps:
+    
+ 
       - name: Post Build Status to JIRA
         uses: docker://alpine:latest
         run: |
