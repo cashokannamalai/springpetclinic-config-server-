@@ -18,24 +18,6 @@ jobs:
           COMMIT_MSG=$(git log -1 --pretty=%B)
           echo "commit_id=${COMMIT_ID}" >> $CLOUDBEES_OUTPUTS/commit_id
           echo "commit_msg=${COMMIT_MSG}" >> $CLOUDBEES_OUTPUTS/commit_msg
-
-      - name: Send Commit Info to Jira
-        uses: docker://alpine/git:latest
-        run: |
-         apk add --no-cache curl
-         curl -X POST \
-          -H "Content-Type: application/json" \
-          -H "Authorization: Basic ${{ secrets.JIRA_API_TOKEN }}" \
-          -d '{
-            "fields": {
-               "project": { "key": "CBDEMO" },
-               "summary": "New commit: '${{ steps.commitinfo.outputs.commit_msg }}'",
-               "description": "Commit ID: '${{ steps.commitinfo.outputs.commit_id }}'",
-               "issuetype": { "name": "Task" }
-             }
-          }' \
-           https://cloudbees.atlassian.net/rest/api/2/issue
-
     outputs:
       commit_id: ${{ steps.commitinfo.outputs.commit_id }}
       commit_msg: ${{ steps.commitinfo.outputs.commit_msg }}
@@ -59,23 +41,23 @@ jobs:
         uses: docker://maven:3-eclipse-temurin-17
         run: >
           mvn test > "$CLOUDBEES_OUTPUTS/mvn_test_stdio"
-
           cat "$CLOUDBEES_OUTPUTS/mvn_test_stdio" | grep "Tests run:" | tail -1
           > "$CLOUDBEES_OUTPUTS/mvn_test_stdio1"
-      - name: Configure container registry credentials
-        id: dockerconfig
-        uses: cloudbees-io/configure-oci-credentials@v1
+
+  Deploy:
+    needs: Build
+    kind: deploy
+    environment: production
+
+    steps:
+      - name: Checkout
+        uses: cloudbees-io/checkout@v1
+      - uses: cashokannamalai/kubeconfig@v1
+        name: Set kubeconfig
         with:
-          registry: ${{ secrets.STAGING_DOCKER_REGISTRY }}
-          username: ${{ secrets.STAGING_DOCKER_USERNAME }}
-          password: ${{ secrets.STAGING_DOCKER_PASSWORD }}
-      - name: Push image to OCI registry
-        uses: cloudbees-io/kaniko@v1
-        with:
-          dockerfile: Dockerfile
-          context: .
-          destination: ${{ secrets.STAGING_DOCKER_REGISTRY }}/${{
-            secrets.STAGING_DOCKER_USERNAME }}/configserver:3.2.4
- 
-  
-  
+          secname: ${{ secrets.kubeconfig }}
+      - uses: docker://bitnami/kubectl:latest
+        name: Deploy image
+        shell: sh
+        run: |
+          kubectl apply -f /cloudbees/workspace/deployment-service.yaml
