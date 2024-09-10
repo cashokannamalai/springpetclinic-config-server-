@@ -21,6 +21,7 @@ jobs:
     outputs:
       commit_id: ${{ steps.commitinfo.outputs.commit_id }}
       commit_msg: ${{ steps.commitinfo.outputs.commit_msg }}
+
   Build:
     needs: Checkout
     outputs:
@@ -56,9 +57,7 @@ jobs:
         with:
           dockerfile: Dockerfile
           context: .
-          destination: ${{ secrets.STAGING_DOCKER_REGISTRY }}/${{
-            secrets.STAGING_DOCKER_USERNAME }}/configserver:3.2.4
-  
+          destination: ${{ secrets.STAGING_DOCKER_REGISTRY }}/${{ secrets.STAGING_DOCKER_USERNAME }}/configserver:3.2.4
 
   JiraIntegration:
     needs: 
@@ -76,8 +75,8 @@ jobs:
                  "project": {
                     "key": "CBDEMO"
                  },
-                 "summary": "Build failed for commit ${{ needs.steps.Checkout.outputs.commit_id }}",
-                 "description": "Build details: ${{ needs.steps.Build.outputs.unitTestResults }}",
+                 "summary": "Build failed for commit ${{ needs.Checkout.outputs.commit_id }}",
+                 "description": "Build details: ${{ needs.Build.outputs.unitTestResults }}",
                  "issuetype": {
                     "name": "Bug"
                  }
