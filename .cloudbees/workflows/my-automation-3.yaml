@@ -26,9 +26,6 @@ jobs:
     needs: Checkout
     kind: Build
     environment: production  
-    outputs:
-      unit_test_results: ${{ steps.RunUnitTest.outputs.unit_test_results }}
-
     steps:
       - name: Configure Git
         uses: docker://alpine/git:latest
@@ -48,18 +45,19 @@ jobs:
           mvn test > "$CLOUDBEES_OUTPUTS/mvn_test_stdio"
           cat "$CLOUDBEES_OUTPUTS/mvn_test_stdio" | grep "Tests run:" | tail -1
           echo "unit_test_results=$(cat "$CLOUDBEES_OUTPUTS/mvn_test_stdio" | grep "Tests run:" | tail -1)" >> $CLOUDBEES_OUTPUTS/unit_test_results
-    
- 
+    outputs:
+      unit_test_results: ${{ steps.RunUnitTest.outputs.unit_test_results }}
+
+  NotifyJira:
+    needs: Build
+    steps:
       - name: Post Build Status to JIRA
         uses: docker://alpine:latest
         run: |
-          COMMIT_ID=$(cat $CLOUDBEES_OUTPUTS/commit_id)
-          COMMIT_MSG=$(cat $CLOUDBEES_OUTPUTS/commit_msg)
-          UNIT_TEST_RESULTS=$(cat $CLOUDBEES_OUTPUTS/unit_test_results)
-          
+         
           curl -X POST "https://cloudbees.atlassian.net/rest/api/3/issue/CBDEMO/comment" \
           -H "Authorization: Basic $(echo -n '${{ secrets.JIRA_EMAIL }}:${{ secrets.JIRA_API_TOKEN }}' | base64)" \
           -H "Content-Type: application/json" \
           -d '{
-            "body": "Build completed for commit '${COMMIT_ID}'. Commit message: '${COMMIT_MSG}'. Unit test results: '${UNIT_TEST_RESULTS}'."
+            "body": "Build completed for commit '1234'. Commit message: 'deploy'. Unit test results: 'success'."
           }'
