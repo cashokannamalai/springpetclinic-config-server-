@@ -23,7 +23,7 @@ jobs:
       commit_msg: ${{ steps.commitinfo.outputs.commit_msg }}
 
   Build:
-    environment: snaqvi-prod
+    environment: ashok
     needs: Checkout
     kind: Build
     steps:
@@ -48,7 +48,7 @@ jobs:
       unit_test_results: ${{ steps.RunUnitTest.outputs.unit_test_results }}
 
   Deploy:
-    environment: snaqvi-prod
+    environment: ashok
     needs: Build
     kind: Deploy
     steps:
