@@ -1,6 +1,6 @@
 apiVersion: automation.cloudbees.io/v1alpha1
 kind: workflow
-name: My automation
+name: MyAutomationWorkflow
 on:
   push:
     branches:
@@ -8,7 +8,7 @@ on:
 jobs:
   Checkout:
     steps:
-      - name: Checkout
+      - name: Checkout Code
         uses: cloudbees-io/checkout@v1
       - name: Get Commit Info
         uses: docker://alpine/git:latest
@@ -23,17 +23,16 @@ jobs:
       commit_msg: ${{ steps.commitinfo.outputs.commit_msg }}
 
   Build:
-    environment: ashok
     needs: Checkout
     kind: Build
     steps:
-      - name: Configure git
+      - name: Configure Git
         uses: docker://alpine/git:latest
         run: |
           git config --global --add safe.directory /cloudbees/workspace
-      - name: Checkout
+      - name: Checkout Code
         uses: cloudbees-io/checkout@v1
-      - name: Build
+      - name: Build Project
         uses: docker://maven:3-eclipse-temurin-17
         run: |
           mvn clean install
@@ -48,18 +47,13 @@ jobs:
       unit_test_results: ${{ steps.RunUnitTest.outputs.unit_test_results }}
 
   Deploy:
-    environment: ashok
     needs: Build
     kind: Deploy
+    environment: production  
     steps:
-      - name: Checkout
+      - name: Checkout Code
         uses: cloudbees-io/checkout@v1
-      - uses: cashokannamalai/kubeconfig@v1
-        name: Set kubeconfig
-        with:
-          secname: ${{ secrets.kubeconfig }}
-      - uses: docker://bitnami/kubectl:latest
-        name: Deploy image
-        shell: sh
+      - name: Deploy JAR File
+        uses: docker://alpine
         run: |
-          kubectl apply -f /cloudbees/workspace/deployment-service.yaml
+          java -jar /cloudbees/workspace/target/spring-petclinic-config-server-3.2.4.jar
