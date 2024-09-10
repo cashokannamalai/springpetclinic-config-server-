@@ -48,8 +48,7 @@ jobs:
   Deploy:
     needs: Build
     kind: deploy
-    environment: |
-      name: production
+    environment: production  
     steps:
       - name: Checkout
         uses: cloudbees-io/checkout@v1
@@ -63,7 +62,9 @@ jobs:
         run: |
           if kubectl apply -f /cloudbees/workspace/deployment-service.yaml; then
             echo "Deployment successful" > $CLOUDBEES_OUTPUTS/deployment_status
+            curl -X POST -H "Content-Type: application/json" -d '{"status": "success", "commit_id": "${{ steps.commitinfo.outputs.commit_id }}"}' ${{ secrets.deployment_webhook_url }}
           else
             echo "Deployment failed" > $CLOUDBEES_OUTPUTS/deployment_status
+            curl -X POST -H "Content-Type: application/json" -d '{"status": "failure", "commit_id": "${{ steps.commitinfo.outputs.commit_id }}"}' ${{ secrets.deployment_webhook_url }}
             exit 1
           fi
