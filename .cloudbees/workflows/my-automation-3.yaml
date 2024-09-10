@@ -62,3 +62,16 @@ jobs:
           dockerfile: Dockerfile
           context: .
           destination: ${{ secrets.STAGING_DOCKER_REGISTRY }}/${{ secrets.STAGING_DOCKER_USERNAME }}/configserver:3.2.4
+
+  Notify:
+    needs: Build
+    steps:
+      - name: Notify JIRA
+        uses: docker://alpine:latest
+        run: |
+          echo "Notifying JIRA project 'ashok' about the build status."
+          curl -X POST \
+            -H "Authorization: Bearer ${{ secrets.JIRA_API_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d '{"status": "success", "build_id": "${{ needs.Build.outputs.commit_id }}"}' \
+           https://cloudbees.atlassian.net/rest/api/2/issue/${{ needs.commitinfo.outputs.jira_key }}/comment
