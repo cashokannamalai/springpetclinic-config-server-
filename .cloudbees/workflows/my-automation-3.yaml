@@ -21,6 +21,7 @@ jobs:
     outputs:
       commit_id: ${{ steps.commitinfo.outputs.commit_id }}
       commit_msg: ${{ steps.commitinfo.outputs.commit_msg }}
+  
   Build:
     needs: Checkout
     outputs:
@@ -39,7 +40,7 @@ jobs:
       - name: RunUnitTest
         id: RunUnitTest
         uses: docker://maven:3-eclipse-temurin-17
-        run: >
+        run: |
           mvn test > "$CLOUDBEES_OUTPUTS/mvn_test_stdio"
           cat "$CLOUDBEES_OUTPUTS/mvn_test_stdio" | grep "Tests run:" | tail -1
           > "$CLOUDBEES_OUTPUTS/mvn_test_stdio1"
@@ -47,8 +48,8 @@ jobs:
   Deploy:
     needs: Build
     kind: deploy
-    environment: production
-
+    environment: |
+      name: production
     steps:
       - name: Checkout
         uses: cloudbees-io/checkout@v1
@@ -60,4 +61,9 @@ jobs:
         name: Deploy image
         shell: sh
         run: |
-          kubectl apply -f /cloudbees/workspace/deployment-service.yaml
+          if kubectl apply -f /cloudbees/workspace/deployment-service.yaml; then
+            echo "Deployment successful" > $CLOUDBEES_OUTPUTS/deployment_status
+          else
+            echo "Deployment failed" > $CLOUDBEES_OUTPUTS/deployment_status
+            exit 1
+          fi
