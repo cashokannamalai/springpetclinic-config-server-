@@ -25,6 +25,7 @@ jobs:
   Build:
     needs: Checkout
     kind: Build
+    environment: production  
     steps:
       - name: Configure Git
         uses: docker://alpine/git:latest
@@ -36,6 +37,8 @@ jobs:
         uses: docker://maven:3-eclipse-temurin-17
         run: |
           mvn clean install
+          ls 
+          ls -lR target
       - name: Run Unit Tests
         id: RunUnitTest
         uses: docker://maven:3-eclipse-temurin-17
@@ -46,15 +49,5 @@ jobs:
     outputs:
       unit_test_results: ${{ steps.RunUnitTest.outputs.unit_test_results }}
 
-  Deploy:
-    needs: Build
-    kind: Deploy
-    environment: production  
-    steps:
-      - name: Checkout Code
-        uses: cloudbees-io/checkout@v1
-      - name: Deploy JAR File
-        uses: docker://maven:3-eclipse-temurin-17
-        run: |
-          ls 
-          ls -lR target
+
+        
