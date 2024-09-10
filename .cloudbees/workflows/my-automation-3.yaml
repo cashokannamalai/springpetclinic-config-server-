@@ -178,6 +178,7 @@ jobs:
       - Deploy
       - Checkout
       - Build
+      - StaticAnalysis
     steps:
       
       - name: Checkout
