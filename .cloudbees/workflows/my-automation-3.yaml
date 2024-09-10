@@ -60,29 +60,27 @@ jobs:
             secrets.STAGING_DOCKER_USERNAME }}/configserver:3.2.4
   
 
-  CreateJiraTicket:
+  JiraIntegration:
     needs: 
       - Build
       - Checkout
     steps:
-      - name: Create Jira Ticket
-        uses: docker://alpine/curl:latest
+      - name: Create Jira Issue
+        uses: docker://alpine:latest
         run: |
-          curl -X POST \
-          -u "${{ secrets.JIRA_USERNAME }}:${{ secrets.JIRA_API_TOKEN }}" \
-          -H "Content-Type: application/json" \
-          -d "{
-             \"fields\": {
-              \"project\": {
-               \"key\": \"CBDEMO\"
-          },
-               \"summary\": \"Automated Issue for Commit: ${{ needs.Checkout.outputs.commit_id }}\",
-               \"description\": \"Commit Message: ${{ needs.Checkout.outputs.commit_msg }}\nUnit Test Results: ${{ needs.Build.outputs.unitTestResults }}\",
-                \"issuetype\": {
-                \"name\": \"Bug\"
-          }
-          }
-          }" \
-           "https://cloudbees.atlassian.net/rest/api/2/issue/"
-
-  
+          apk add --no-cache curl jq
+          curl -X POST -u ${{ secrets.JIRA_EMAIL }}:${{ secrets.JIRA_API_TOKEN }} \
+            -H "Content-Type: application/json" \
+            -d '{
+              "fields": {
+                 "project": {
+                    "key": "CBDEMO"
+                 },
+                 "summary": "Build failed for commit ${{ needs.steps.Checkout.outputs.commit_id }}",
+                 "description": "Build details: ${{ needs.steps.Build.outputs.unitTestResults }}",
+                 "issuetype": {
+                    "name": "Bug"
+                 }
+              }
+            }' \
+            "https://cloudbees.atlassian.net/rest/api/2/issue/"
