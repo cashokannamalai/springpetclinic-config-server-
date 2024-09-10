@@ -49,16 +49,18 @@ jobs:
       unit_test_results: ${{ steps.RunUnitTest.outputs.unit_test_results }}
 
   NotifyJira:
-    needs: Build
+    needs: 
+      - Build
+      - Checkout
     steps:
       - name: Post Build Status to JIRA
         uses: docker://alpine:latest
         run: |
           apk add --no-cache curl jq
           AUTH_HEADER=$(echo -n '${{ secrets.JIRA_EMAIL }}:${{ secrets.JIRA_API_TOKEN }}' | base64)
-          curl -X POST "https://cloudbees.atlassian.net/rest/api/3/issue/${{ steps.commitinfo.outputs.commit_id }}/comment" \
+          curl -X POST "https://cloudbees.atlassian.net/rest/api/3/issue/${{ needs.Checkout.outputs.commit_id }}/comment" \
           -H "Authorization: Basic ${AUTH_HEADER}" \
           -H "Content-Type: application/json" \
           -d '{
-            "body": "Build completed for commit '${{ steps.commitinfo.outputs.commit_id }}'. Commit message: '${{ steps.commitinfo.outputs.commit_msg }}'. Unit test results: '${{ steps.RunUnitTest.outputs.unit_test_results }}'."
+            "body": "Build completed for commit '${{ needs.Checkout.outputs.commit_id }}'. Commit message: '${{ needs.Checkout.outputs.commit_msg }}'. Unit test results: '${{ needs.Build.outputs.unit_test_results }}'."
           }'
