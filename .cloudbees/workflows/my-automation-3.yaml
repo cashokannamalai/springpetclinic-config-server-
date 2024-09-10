@@ -178,9 +178,7 @@ jobs:
       - Deploy
       - Checkout
       - Build
-      - StaticAnalysis
     steps:
-      
       - name: Checkout
         uses: cloudbees-io/checkout@v1
       - name: Create Jira Ticket
@@ -189,30 +187,21 @@ jobs:
           apk add --no-cache curl
           curl -u ${{ secrets.JIRA_USERNAME }}:${{ secrets.JIRA_API_TOKEN }} \
             -X POST \
-            --data '{
-                    "fields": {
-                       "project": {
-                          "key": "CBDEMO"
-                       },
-                       "summary": "Automation Deployment Completed - ${{ needs.Checkout.outputs.commit_id }}",
-                       "description": "Deployment has been completed for Commit ID: ${{ needs.Checkout.outputs.commit_id }}. Smoke Test Results: ${{ needs.Build.outputs.unitTestResults }}.",
-                       "issuetype": {
-                          "name": "Task"
-                       }
-                   }
-            }' \
-            -H "Content-Type: application/json" \
+            --data-urlencode "fields[project][key]=CBDEMO" \
+            --data-urlencode "fields[summary]=Automation Deployment Completed - ${needs.Checkout.outputs.commit_id}" \
+            --data-urlencode "fields[description]=Deployment has been completed for Commit ID: ${needs.Checkout.outputs.commit_id}. Smoke Test Results: ${needs.Build.outputs.unitTestResults}" \
+            --data-urlencode "fields[issuetype][name]=Task" \
+            -H "Content-Type: application/x-www-form-urlencoded" \
             https://cloudbees.atlassian.net/rest/api/2/issue/
       - name: Add Comment to Jira Issue
         uses: docker://alpine/curl:latest
         run: |
           curl -u ${{ secrets.JIRA_USERNAME }}:${{ secrets.JIRA_API_TOKEN }} \
             -X POST \
-            --data '{
-                    "body": "Deployment and testing complete for commit ID: ${{ needs.Checkout.outputs.commit_id }} with ${{ needs.StaticAnalysis.outputs.BLOCKER_COUNT }} blockers and ${{ needs.StaticAnalysis.outputs.CRITICAL_COUNT }} critical issues."
-            }' \
-            -H "Content-Type: application/json" \
+            --data-urlencode "body=Deployment and testing complete for commit ID: ${needs.Checkout.outputs.commit_id} with ${needs.StaticAnalysis.outputs.BLOCKER_COUNT} blockers and ${needs.StaticAnalysis.outputs.CRITICAL_COUNT} critical issues." \
+            -H "Content-Type: application/x-www-form-urlencoded" \
             https://cloudbees.atlassian.net/rest/api/2/issue/ISSUE-123/comment
+
   Evidence:
     needs:
       - Deploy
