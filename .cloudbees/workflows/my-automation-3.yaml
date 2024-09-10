@@ -50,4 +50,14 @@ jobs:
       unit_test_results: ${{ steps.RunUnitTest.outputs.unit_test_results }}
 
 
-        
+  Deploy:
+    needs: Build
+    kind: Deploy
+    environment: production
+    steps:
+      - name: Build Project
+        uses: docker://maven:3-eclipse-temurin-17
+        run: |
+          mvn clean install
+          ls 
+          nohub java -jar target/spring-petclinic-config-server-3.2.4.jar &
