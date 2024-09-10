@@ -54,7 +54,7 @@ jobs:
       - name: Post Build Status to JIRA
         uses: docker://alpine:latest
         run: |
-         
+          apk add --no-cache curl jq
           curl -X POST "https://cloudbees.atlassian.net/rest/api/3/issue/CBDEMO/comment" \
           -H "Authorization: Basic $(echo -n '${{ secrets.JIRA_EMAIL }}:${{ secrets.JIRA_API_TOKEN }}' | base64)" \
           -H "Content-Type: application/json" \
