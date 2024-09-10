@@ -21,13 +21,11 @@ jobs:
     outputs:
       commit_id: ${{ steps.commitinfo.outputs.commit_id }}
       commit_msg: ${{ steps.commitinfo.outputs.commit_msg }}
-  
+
   Build:
     environment: snaqvi-prod
     needs: Checkout
     kind: Build
-    outputs:
-      unitTestResults: ${{ steps.RunUnitTest.outputs.mvn_test_stdio1 }}
     steps:
       - name: Configure git
         uses: docker://alpine/git:latest
@@ -39,19 +37,20 @@ jobs:
         uses: docker://maven:3-eclipse-temurin-17
         run: |
           mvn clean install
-      - name: RunUnitTest
+      - name: Run Unit Tests
         id: RunUnitTest
         uses: docker://maven:3-eclipse-temurin-17
         run: |
           mvn test > "$CLOUDBEES_OUTPUTS/mvn_test_stdio"
           cat "$CLOUDBEES_OUTPUTS/mvn_test_stdio" | grep "Tests run:" | tail -1
-          > "$CLOUDBEES_OUTPUTS/mvn_test_stdio1"
+          echo "unit_test_results=$(cat "$CLOUDBEES_OUTPUTS/mvn_test_stdio" | grep "Tests run:" | tail -1)" >> $CLOUDBEES_OUTPUTS/unit_test_results
+    outputs:
+      unit_test_results: ${{ steps.RunUnitTest.outputs.unit_test_results }}
 
   Deploy:
     environment: snaqvi-prod
     needs: Build
     kind: Deploy
-     
     steps:
       - name: Checkout
         uses: cloudbees-io/checkout@v1
