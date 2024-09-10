@@ -55,9 +55,10 @@ jobs:
         uses: docker://alpine:latest
         run: |
           apk add --no-cache curl jq
-          curl -X POST "https://cloudbees.atlassian.net/rest/api/3/issue/CBDEMO/comment" \
-          -H "Authorization: Basic $(echo -n '${{ secrets.JIRA_EMAIL }}:${{ secrets.JIRA_API_TOKEN }}' | base64)" \
+          AUTH_HEADER=$(echo -n '${{ secrets.JIRA_EMAIL }}:${{ secrets.JIRA_API_TOKEN }}' | base64)
+          curl -X POST "https://cloudbees.atlassian.net/rest/api/3/issue/${{ steps.commitinfo.outputs.commit_id }}/comment" \
+          -H "Authorization: Basic ${AUTH_HEADER}" \
           -H "Content-Type: application/json" \
           -d '{
-            "body": "Build completed for commit '1234'. Commit message: 'deploy'. Unit test results: 'success'."
+            "body": "Build completed for commit '${{ steps.commitinfo.outputs.commit_id }}'. Commit message: '${{ steps.commitinfo.outputs.commit_msg }}'. Unit test results: '${{ steps.RunUnitTest.outputs.unit_test_results }}'."
           }'
