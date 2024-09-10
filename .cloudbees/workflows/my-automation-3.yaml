@@ -226,10 +226,9 @@ jobs:
       - name: Checkout
         uses: cloudbees-io/checkout@v1
       - name: Create Jira Ticket
-        uses: docker://alpine/curl:latest
-        shell: bash  
+        uses: docker://alpine/git:latest
         run: |
-          apk add --no-cache curl
+          apk add --no-cache curl jq
           curl -u ${{ secrets.JIRA_USERNAME }}:${{ secrets.JIRA_API_TOKEN }} \
             -X POST \
             --data-urlencode "fields[project][key]=CBDEMO" \
@@ -237,15 +236,13 @@ jobs:
             --data-urlencode "fields[description]=Deployment has been completed for Commit ID: ${needs.Checkout.outputs.commit_id}. Smoke Test Results: ${needs.Build.outputs.unitTestResults}" \
             --data-urlencode "fields[issuetype][name]=Task" \
             -H "Content-Type: application/x-www-form-urlencoded" \
-            https://cloudbees.atlassian.net/rest/api/2/issue/
+            https://cloudbees.atlassian.net/rest/api/2/issue/'
       - name: Add Comment to Jira Issue
-        uses: docker://alpine/curl:latest
-        shell: bash 
+        uses: docker://alpine/git:latest
         run: |
+          apk add --no-cache curl jq
           curl -u ${{ secrets.JIRA_USERNAME }}:${{ secrets.JIRA_API_TOKEN }} \
             -X POST \
             --data-urlencode "body=Deployment and testing complete for commit ID: ${needs.Checkout.outputs.commit_id} with ${needs.StaticAnalysis.outputs.BLOCKER_COUNT} blockers and ${needs.StaticAnalysis.outputs.CRITICAL_COUNT} critical issues." \
             -H "Content-Type: application/x-www-form-urlencoded" \
-            https://cloudbees.atlassian.net/rest/api/2/issue/CBDEMO/comment
-
- 
+            https://cloudbees.atlassian.net/rest/api/2/issue/ISSUE-123/comment'
