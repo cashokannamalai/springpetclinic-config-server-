@@ -71,20 +71,18 @@ jobs:
           curl -X POST \
           -u "${{ secrets.JIRA_USERNAME }}:${{ secrets.JIRA_API_TOKEN }}" \
           -H "Content-Type: application/json" \
-          -d '{
-            "fields": {
-              "project": {
-                "key": "CBDEMO"
-              },
-              "summary": "Automated Issue for Commit: ${{ needs.Checkout.outputs.commit_id }}",
-              "description": "Commit Message: ${{ needs.Checkout.outputs.commit_msg }}\nUnit Test Results: ${{ needs.Build.outputs.unitTestResults }}",
-              "issuetype": {
-                "name": "Bug"
-              }
-            }
-          }' \
-          "https://cloudbees.atlassian.net/rest/api/2/issue/"
-    outputs:
-      jira_issue_key: ${{ steps.createjiraticket.outputs.issue_key }}
-  
+          -d "{
+             \"fields\": {
+              \"project\": {
+               \"key\": \"CBDEMO\"
+          },
+               \"summary\": \"Automated Issue for Commit: ${{ needs.Checkout.outputs.commit_id }}\",
+               \"description\": \"Commit Message: ${{ needs.Checkout.outputs.commit_msg }}\nUnit Test Results: ${{ needs.Build.outputs.unitTestResults }}\",
+                \"issuetype\": {
+                \"name\": \"Bug\"
+          }
+          }
+          }" \
+           "https://cloudbees.atlassian.net/rest/api/2/issue/"
+
   
