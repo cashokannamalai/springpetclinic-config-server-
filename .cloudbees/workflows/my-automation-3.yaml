@@ -48,15 +48,15 @@ jobs:
     outputs:
       unit_test_results: ${{ steps.RunUnitTest.outputs.unit_test_results }}
 
-
-  Deploy:
+  NotifyJira:
     needs: Build
-    kind: Deploy
-    environment: production
     steps:
-      - name: Build Project
-        uses: docker://maven:3-eclipse-temurin-17
+      - name: Post Build Status to JIRA
+        uses: docker://alpine:latest
         run: |
-          mvn clean install
-          ls 
-          nohub java -jar target/spring-petclinic-config-server-3.2.4.jar &
+          curl -X POST "https://cloudbees.atlassian.net//rest/api/3/issue/CBDEMO/comment" \
+          -H "Authorization: Basic $(echo -n '${{ secrets.JIRA_EMAIL }}:${{ secrets.JIRA_API_TOKEN }}' | base64)" \
+          -H "Content-Type: application/json" \
+          -d '{
+            "body": "Build completed for commit '${{ steps.commitinfo.outputs.commit_id }}'. Commit message: '${{ steps.commitinfo.outputs.commit_msg }}'. Unit test results: '${{ steps.RunUnitTest.outputs.unit_test_results }}'."
+          }'
