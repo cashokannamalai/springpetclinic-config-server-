@@ -49,18 +49,29 @@ jobs:
       unit_test_results: ${{ steps.RunUnitTest.outputs.unit_test_results }}
 
   NotifyJira:
-    needs: 
-      - Build
-      - Checkout
+    needs: Build
     steps:
       - name: Post Build Status to JIRA
         uses: docker://alpine:latest
         run: |
           apk add --no-cache curl jq
           AUTH_HEADER=$(echo -n '${{ secrets.JIRA_EMAIL }}:${{ secrets.JIRA_API_TOKEN }}' | base64)
-          curl -X POST "https://cloudbees.atlassian.net/rest/api/3/issue/${{ needs.Checkout.outputs.commit_id }}/comment" \
+          COMMIT_ID="${{ needs.Checkout.outputs.commit_id }}"
+          COMMIT_MSG="${{ needs.Checkout.outputs.commit_msg }}"
+          UNIT_TEST_RESULTS="${{ needs.Build.outputs.unit_test_results }}"
+          
+          echo "Commit ID: ${COMMIT_ID}"
+          echo "Commit Message: ${COMMIT_MSG}"
+          echo "Unit Test Results: ${UNIT_TEST_RESULTS}"
+
+          # URL encode variables if necessary
+          URL_ENCODED_COMMIT_ID=$(echo -n "${COMMIT_ID}" | jq -sRr @uri)
+          URL_ENCODED_COMMIT_MSG=$(echo -n "${COMMIT_MSG}" | jq -sRr @uri)
+          URL_ENCODED_UNIT_TEST_RESULTS=$(echo -n "${UNIT_TEST_RESULTS}" | jq -sRr @uri)
+
+          curl -X POST "https://cloudbees.atlassian.net/rest/api/3/issue/${URL_ENCODED_COMMIT_ID}/comment" \
           -H "Authorization: Basic ${AUTH_HEADER}" \
           -H "Content-Type: application/json" \
           -d '{
-            "body": "Build completed for commit '${{ needs.Checkout.outputs.commit_id }}'. Commit message: '${{ needs.Checkout.outputs.commit_msg }}'. Unit test results: '${{ needs.Build.outputs.unit_test_results }}'."
+            "body": "Build completed for commit '${URL_ENCODED_COMMIT_ID}'. Commit message: '${URL_ENCODED_COMMIT_MSG}'. Unit test results: '${URL_ENCODED_UNIT_TEST_RESULTS}'."
           }'
