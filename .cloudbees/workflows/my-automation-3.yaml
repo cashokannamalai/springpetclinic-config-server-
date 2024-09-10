@@ -56,4 +56,5 @@ jobs:
       - name: Deploy JAR File
         uses: docker://maven:3-eclipse-temurin-17
         run: |
-          java -jar target/spring-petclinic-config-server-3.2.4.jar
+          ls 
+          ls -lR target
