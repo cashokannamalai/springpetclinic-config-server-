@@ -23,7 +23,9 @@ jobs:
       commit_msg: ${{ steps.commitinfo.outputs.commit_msg }}
   
   Build:
+    environment: snaqvi-prod
     needs: Checkout
+    kind: Build
     outputs:
       unitTestResults: ${{ steps.RunUnitTest.outputs.mvn_test_stdio1 }}
     steps:
@@ -46,9 +48,10 @@ jobs:
           > "$CLOUDBEES_OUTPUTS/mvn_test_stdio1"
 
   Deploy:
+    environment: snaqvi-prod
     needs: Build
-    kind: deploy
-    environment: production  
+    kind: Deploy
+     
     steps:
       - name: Checkout
         uses: cloudbees-io/checkout@v1
