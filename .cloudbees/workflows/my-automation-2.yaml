@@ -96,6 +96,13 @@ jobs:
         with:
           test-type: JUnit
           folder-name: /cloudbees/workspace/target/surefire-reports/*.xml
+      - uses: cloudbees-io/snyk-sast-scan-code@v1
+        name: fdf
+        kind: scan
+        with:
+          orgname: ashok.alogicfocus
+          token: 79781dde-8b3d-45c6-9561-a2ebc1e9e18c
+          language: LANGUAGE_JAVA
       - name: Fetch SonarQube Issues
         id: FetchSonarQubeIssues
         uses: docker://alpine/git:latest
