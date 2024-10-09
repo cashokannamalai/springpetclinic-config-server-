@@ -69,7 +69,6 @@ jobs:
             ## Unit Test Results
             - **Unit Test Results:** "${{ steps.RunUnitTest.outputs.mvn_test_stdio1 }}"
             - **JIRA Issue Key:** "${{ steps.commitinfo.outputs.jira_key }}"
-
   StaticAnalysis:
     outputs:
       BLOCKER_COUNT: ${{ steps.FetchSonarQubeIssues.outputs.BLOCKER_COUNT }}
@@ -136,7 +135,6 @@ jobs:
             | ${{ steps.FetchSonarQubeIssues.outputs.MAJOR_COUNT }} |
 
             |  ${{ steps.FetchSonarQubeIssues.outputs.MINOR_COUNT }} |
-
   ArtifactPublish:
     needs: Build
     steps:
@@ -153,7 +151,6 @@ jobs:
         run: |
           mvn deploy \
             -DaltDeploymentRepository=nexus::default::https://${NEXUS_USERNAME}:${NEXUS_PASSWORD}@nexus.cb-demos.io/repository/Petclinic/
-
   Approval:
     needs: ArtifactPublish
     type: manual-approval
@@ -163,7 +160,6 @@ jobs:
         uses: docker://maven:3-eclipse-temurin-17
         run: |
           echo "Manual approval required before proceeding to deployment."
-
   SmokeTest:
     needs: Approval
     steps:
@@ -173,7 +169,6 @@ jobs:
         uses: docker://maven:3-eclipse-temurin-17
         run: |
           mvn test
-
   Deploy:
     needs: SmokeTest
     environment: production
@@ -204,4 +199,12 @@ jobs:
           content: |+
             ## Deployment Information
              - **Ingress IP:** "${{ steps.getIngressIP.outputs.ingress_ip }}/config"
-  
+
+  jhg:
+    steps:
+      - uses: cloudbees-io/publish-test-results@v1
+        name: jhgh
+        kind: test
+        with:
+          test-type: JUnit
+          folder-name: /cloudbees/workspace/target/surefire-reports/*.xml
