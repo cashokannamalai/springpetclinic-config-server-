@@ -146,4 +146,16 @@ jobs:
         run: |
           mvn deploy \
             -DaltDeploymentRepository=nexus::default::https://${NEXUS_USERNAME}:${NEXUS_PASSWORD}@nexus.cb-demos.io/repository/Petclinic/
+
+
+
+  Approval:
+    needs: ArtifactPublish
+    type: manual-approval
+    environment: ashok
+    steps:
+      - name: Approval
+        uses: docker://maven:3-eclipse-temurin-17
+        run: |
+          echo "Manual approval required before proceeding to deployment."
   
