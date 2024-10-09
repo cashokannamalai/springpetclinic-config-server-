@@ -70,4 +70,3 @@ jobs:
             - **Unit Test Results:** "${{ steps.RunUnitTest.outputs.mvn_test_stdio1 }}"
             - **JIRA Issue Key:** "${{ steps.commitinfo.outputs.jira_key }}"
   
-  
