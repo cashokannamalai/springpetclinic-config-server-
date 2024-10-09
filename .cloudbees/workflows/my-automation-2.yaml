@@ -147,8 +147,6 @@ jobs:
           mvn deploy \
             -DaltDeploymentRepository=nexus::default::https://${NEXUS_USERNAME}:${NEXUS_PASSWORD}@nexus.cb-demos.io/repository/Petclinic/
 
-
-
   Approval:
     needs: ArtifactPublish
     type: manual-approval
@@ -158,4 +156,45 @@ jobs:
         uses: docker://maven:3-eclipse-temurin-17
         run: |
           echo "Manual approval required before proceeding to deployment."
+
+  SmokeTest:
+    needs: Approval
+    steps:
+      - name: Checkout
+        uses: cloudbees-io/checkout@v1
+      - name: Smoke Test
+        uses: docker://maven:3-eclipse-temurin-17
+        run: |
+          mvn test
+
+  Deploy:
+    needs: SmokeTest
+    environment: production
+    outputs:
+      ingress_ip: ${{ steps.getIngressIP.outputs.ingress_ip }}
+    steps:
+      - name: Checkout
+        uses: cloudbees-io/checkout@v1
+      - uses: cashokannamalai/kubeconfig@v1
+        name: Set kubeconfig
+        with:
+          secname: ${{ secrets.kubeconfig }}
+      - uses: cloudbees-io/kustomize-deploy@v1
+        name: deploy
+        kind: deploy
+        with:
+          kustomization-base-dir: ${{ cloudbees.workspace }}/base
+      - name: Get Ingress IP
+        id: getIngressIP
+        uses: docker://bitnami/kubectl:latest
+        run: |
+          INGRESS_IP=$(kubectl get ingress configserver-ingress -n ashok -o jsonpath="{.status.loadBalancer.ingress[0].ip}")
+          echo "Ingress IP: $INGRESS_IP"
+          echo "ingress_ip=${INGRESS_IP}" >> $CLOUDBEES_OUTPUTS/ingress_ip
+      - name: Publish Ingress IP Evidence
+        uses: cloudbees-io/publish-evidence-item@v1
+        with:
+          content: |+
+            ## Deployment Information
+             - **Ingress IP:** "${{ steps.getIngressIP.outputs.ingress_ip }}/config"
   
