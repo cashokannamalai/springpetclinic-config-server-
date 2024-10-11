@@ -4,7 +4,7 @@ name: build_and_deploy
 on:
   pull_request:
     branches:
-      - ashok
+   
       - main
 jobs:
   Build:
@@ -216,4 +216,3 @@ jobs:
         with:
           test-type: JUnit
           folder-name: /cloudbees/workspace/target/surefire-reports/*.xml
-          
