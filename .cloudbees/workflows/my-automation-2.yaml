@@ -4,8 +4,7 @@ name: build_and_deploy
 on:
   pull_request:
     branches:
-   
-      - main
+      - ashok
 jobs:
   Build:
     outputs:
