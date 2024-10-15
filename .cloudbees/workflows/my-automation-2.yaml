@@ -172,8 +172,6 @@ jobs:
   Deploy:
     needs: SmokeTest
     environment: production
-    outputs:
-      ingress_ip: ${{ steps.getIngressIP.outputs.ingress_ip }}
     steps:
       - name: Checkout
         uses: cloudbees-io/checkout@v1
