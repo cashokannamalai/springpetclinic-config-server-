@@ -4,7 +4,9 @@ name: My workflow
 on:
   pull_request:
     branches:
-      - "**"
+      - ashok
+      - main
+
 jobs:
   build:
     steps:
