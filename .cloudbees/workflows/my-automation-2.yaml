@@ -2,9 +2,13 @@ apiVersion: automation.cloudbees.io/v1alpha1
 kind: workflow
 name: build_and_deploy
 on:
-  pull_request:
+  push:
     branches:
+
       - ashok
+
+
+      - main
 
 jobs:
   Build:
@@ -12,7 +16,6 @@ jobs:
       unitTestResults: ${{ steps.RunUnitTest.outputs.mvn_test_stdio1 }}
       commit_id: ${{ steps.commitinfo.outputs.commit_id }}
       commit_msg: ${{ steps.commitinfo.outputs.commit_msg }}
-      jira_key: ${{ steps.commitinfo.outputs.jira_key }}
     steps:
       - name: Configure git
         uses: docker://alpine/git:latest
@@ -26,16 +29,10 @@ jobs:
         run: |
           COMMIT_ID=$(git rev-parse HEAD)
           COMMIT_MSG=$(git log -1 --pretty=%B)
-          # Extract the JIRA issue key (assuming format like PROJECTKEY-123)
-          JIRA_KEY=$(echo "$COMMIT_MSG" | grep -oE "[A-Z]+-[0-9]+")
-          if [ -z "$JIRA_KEY" ]; then
-            echo "Error: Commit message must include a valid JIRA issue key." >&2
-            exit 1
-          fi
+        
 
           echo "commit_id=${COMMIT_ID}" >> $CLOUDBEES_OUTPUTS/commit_id
           echo "commit_msg=${COMMIT_MSG}" >> $CLOUDBEES_OUTPUTS/commit_msg
-          echo "jira_key=${JIRA_KEY}" >> $CLOUDBEES_OUTPUTS/jira_key
       - uses: docker://maven:3-eclipse-temurin-17
         name: Build
         kind: build
@@ -69,7 +66,6 @@ jobs:
             - **Commit Message:** "${{ steps.commitinfo.outputs.commit_msg }}"
             ## Unit Test Results
             - **Unit Test Results:** "${{ steps.RunUnitTest.outputs.mvn_test_stdio1 }}"
-            - **JIRA Issue Key:** "${{ steps.commitinfo.outputs.jira_key }}"
   StaticAnalysis:
     outputs:
       BLOCKER_COUNT: ${{ steps.FetchSonarQubeIssues.outputs.BLOCKER_COUNT }}
@@ -173,8 +169,6 @@ jobs:
   Deploy:
     needs: SmokeTest
     environment: production
-    outputs:
-      ingress_ip: ${{ steps.getIngressIP.outputs.ingress_ip }}
     steps:
       - name: Checkout
         uses: cloudbees-io/checkout@v1
@@ -182,37 +176,9 @@ jobs:
         name: Set kubeconfig
         with:
           secname: ${{ secrets.kubeconfig }}
-      - uses: cloudbees-io/kustomize-deploy@v1
-        name: deploy
-        kind: deploy
-        with:
-          kustomization-base-dir: ${{ cloudbees.workspace }}/base
-      - name: Get Ingress IP
-        id: getIngressIP
-        uses: docker://bitnami/kubectl:latest
-        run: |
-          INGRESS_IP=$(kubectl get ingress configserver-ingress -n ashok -o jsonpath="{.status.loadBalancer.ingress[0].ip}")
-          echo "Ingress IP: $INGRESS_IP"
-          echo "ingress_ip=${INGRESS_IP}" >> $CLOUDBEES_OUTPUTS/ingress_ip
-      - name: Publish Ingress IP Evidence
-        uses: cloudbees-io/publish-evidence-item@v1
-        with:
-          content: |+
-            ## Deployment Information
-             - **Ingress IP:** "${{ steps.getIngressIP.outputs.ingress_ip }}/config"
-
-  jhg:
-    steps:
-      - name: Checkout
-        uses: cloudbees-io/checkout@v1
-      - uses: docker://maven:3-eclipse-temurin-17
-        name: Build
-        kind: build
-        run: mvn clean package
+      - uses: docker://bitnami/kubectl:latest
+        name: Deploy image
         shell: sh
-      - uses: cloudbees-io/publish-test-results@v1
-        name: jhgh
-        kind: test
-        with:
-          test-type: JUnit
-          folder-name: /cloudbees/workspace/target/surefire-reports/*.xml
+        run: |
+          kubectl apply -f /cloudbees/workspace/deployment-service.yaml
+     
