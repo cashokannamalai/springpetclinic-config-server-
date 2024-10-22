@@ -1,80 +1,11 @@
-server:
-  port: 8888
-  shutdown:
-    graceful: true
-
+server.port: 8888
 spring:
   cloud:
     config:
       server:
         git:
-          uri: https://github.com/cashokannamalai/spring-petclinic-microservices-config
+          uri: https://github.com/spring-petclinic/spring-petclinic-microservices-config
           default-label: main
-        # Optionally configure a local file system path
+        # Use the File System Backend to avoid git pulling. Enable "native" profile in the Config Server.
         native:
           searchLocations: file:///${GIT_REPO}
-      allow-override: true
-      override-none: true
-  datasource:
-    url: jdbc:mysql://mysql:3306/petclinic?useSSL=false
-    username: root
-    password: <petclinic
-  jpa:
-    hibernate:
-      ddl-auto: update
-    open-in-view: false
-  sql:
-    init:
-      schema-locations: classpath*:db/mysql/schema.sql
-      data-locations: classpath*:db/mysql/data.sql
-      init: always
-
-management:
-  endpoints:
-    web:
-      exposure:
-        include: '*'
-  endpoint:
-    health:
-      show-details: always
-
-# Metrics and Logging
-logging:
-  level:
-    org.springframework: INFO
-
-# For Chaos Engineering
----
-spring:
-  config:
-    activate:
-      on-profile: chaos-monkey
-management:
-  endpoint:
-    chaosmonkey:
-      enabled: true
-chaos:
-  monkey:
-    enabled: true
-    watcher:
-      component: false
-      controller: false
-      repository: false
-      rest-controller: false
-      service: false
-
-# MySQL Profile Configuration
----
-spring:
-  config:
-    activate:
-      on-profile: mysql
-  datasource:
-    url: jdbc:mysql://mysql:3306/petclinic?useSSL=false
-    username: root
-    password: petclinic
-  sql:
-    init:
-      schema-locations: classpath*:db/mysql/schema.sql
-      data-locations: classpath*:db/mysql/data.sql
-      init: always
