@@ -8,7 +8,7 @@ spring:
     config:
       server:
         git:
-          uri: https://github.com/spring-petclinic/spring-petclinic-microservices-config
+          uri: https://github.com/cashokannamalai/spring-petclinic-microservices-config
           default-label: main
         # Optionally configure a local file system path
         native:
