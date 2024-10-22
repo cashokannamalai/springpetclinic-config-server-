@@ -16,7 +16,7 @@ spring:
       allow-override: true
       override-none: true
   datasource:
-    url: jdbc:mysql://localhost:3306/petclinic?useSSL=false
+    url: jdbc:mysql://mysql:3306/petclinic?useSSL=false
     username: root
     password: <petclinic
   jpa:
@@ -70,7 +70,7 @@ spring:
     activate:
       on-profile: mysql
   datasource:
-    url: jdbc:mysql://localhost:3306/petclinic?useSSL=false
+    url: jdbc:mysql://mysql:3306/petclinic?useSSL=false
     username: root
     password: petclinic
   sql:
