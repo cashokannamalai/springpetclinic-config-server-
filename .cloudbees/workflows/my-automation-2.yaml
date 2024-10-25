@@ -183,6 +183,6 @@ jobs:
         name: Deploy image
         shell: sh
         run: |
-          kubectl apply -f /cloudbees/workspace/deployment.yaml
+          kubectl apply -f /cloudbees/workspace/mysql-deployment-service.yaml
           
 
