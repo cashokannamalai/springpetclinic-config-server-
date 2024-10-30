@@ -1,8 +1,19 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mysql-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: mysql
-  namespace: ashok
 spec:
   replicas: 1
   selector:
@@ -17,23 +28,33 @@ spec:
       - name: mysql
         image: mysql:5.7
         env:
-        - name: MYSQL_ROOT_PASSWORD
-          value: petclinic
-        - name: MYSQL_DATABASE
-          value: petclinic
+          - name: MYSQL_ROOT_PASSWORD
+            value: petclinic
+          - name: MYSQL_DATABASE
+            value: petclinic
+          - name: MYSQL_USER
+            value: root
+          - name: MYSQL_PASSWORD
+            value: petclinic
         ports:
-        - containerPort: 3306
+          - containerPort: 3306
+        volumeMounts:
+          - name: mysql-storage
+            mountPath: /var/lib/mysql
+      volumes:
+        - name: mysql-storage
+          persistentVolumeClaim:
+            claimName: mysql-pvc
+
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: mysql
-  namespace: ashok
 spec:
-  selector:
-    app: mysql
+  type: ClusterIP
   ports:
     - port: 3306
       targetPort: 3306
-      nodePort: 30007  
-  type: NodePort
+  selector:
+    app: mysql
