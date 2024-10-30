@@ -34,10 +34,6 @@ spec:
             value: petclinic
           - name: MYSQL_DATABASE
             value: petclinic
-          - name: MYSQL_USER
-            value: root
-          - name: MYSQL_PASSWORD
-            value: petclinic
         ports:
           - containerPort: 3306
         volumeMounts:
@@ -47,6 +43,7 @@ spec:
         - name: mysql-storage
           persistentVolumeClaim:
             claimName: mysql-pvc
+
 
 ---
 apiVersion: v1
